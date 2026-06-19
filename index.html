@@ -171,6 +171,14 @@
   .quote-card{padding:18px 18px 16px;border:3px solid var(--ink);box-shadow:var(--shadow);background:var(--card)}
   .quote-text{margin:0;font-size:18px;line-height:1.4;font-weight:700}
   .quote-meta{margin-top:10px;font-size:13px;color:var(--ink-soft);font-style:italic}
+  .quote-toolbar{margin-top:14px;display:flex;gap:10px;flex-wrap:wrap}
+  .quote-mini{border:2px solid var(--ink);background:#fffdf7;padding:7px 10px;font:inherit;font-weight:700;cursor:pointer}
+  .quote-mini:hover{background:var(--yellow)}
+  .quote-card[data-editing="true"] .quote-display{display:none}
+  .quote-card[data-editing="true"] .quote-editor{display:grid}
+  .quote-editor{display:none;gap:10px;margin-top:12px}
+  .quote-editor input,.quote-editor textarea{width:100%;box-sizing:border-box;border:2px solid var(--ink);background:#fffdf7;padding:10px 12px;font:inherit;color:var(--ink)}
+  .quote-editor textarea{min-height:100px;resize:vertical}
   .quote-form{padding:18px;border:3px solid var(--ink);box-shadow:var(--shadow);background:var(--card);display:grid;gap:12px}
   .quote-form label{display:grid;gap:6px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.06em}
   .quote-form input,.quote-form textarea{width:100%;box-sizing:border-box;border:2px solid var(--ink);background:#fffdf7;padding:12px 13px;font:inherit;color:var(--ink)}
@@ -778,10 +786,55 @@
   }
 
   function quoteCard(item){
+    const id = escapeHtml(item.id || '');
     const author = escapeHtml(item.author || 'Anónimo');
     const text = escapeHtml(item.text || '');
-    const when = item.created_at ? new Date(item.created_at).toLocaleString('gl-ES') : 'sen data';
-    return `<article class="quote-card"><p class="quote-text">“${text}”</p><div class="quote-meta">${author} · ${when}</div></article>`;
+    const stamp = item.updated_at || item.created_at;
+    const when = stamp ? new Date(stamp).toLocaleString('gl-ES') : 'sen data';
+    return `<article class="quote-card" data-quote-id="${id}">
+      <div class="quote-display">
+        <p class="quote-text">“${text}”</p>
+        <div class="quote-meta">${author} · ${when}</div>
+        <div class="quote-toolbar">
+          <button class="quote-mini" type="button" data-act="edit">Editar</button>
+          <button class="quote-mini" type="button" data-act="delete">Borrar</button>
+        </div>
+      </div>
+      <form class="quote-editor">
+        <input name="author" maxlength="60" value="${author}" placeholder="Quen a dixo" />
+        <textarea name="text" maxlength="280" placeholder="A frase">${text}</textarea>
+        <div class="quote-toolbar">
+          <button class="quote-mini" type="submit">Gardar</button>
+          <button class="quote-mini" type="button" data-act="cancel">Cancelar</button>
+        </div>
+      </form>
+    </article>`;
+  }
+
+  async function updateQuote(id, payload){
+    const res = await fetch('/api/quotes', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id, ...payload }),
+    });
+    if(!res.ok){
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data?.details || data?.error || 'update failed');
+    }
+    return res.json();
+  }
+
+  async function deleteQuote(id){
+    const res = await fetch('/api/quotes', {
+      method: 'DELETE',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ id }),
+    });
+    if(!res.ok){
+      const data = await res.json().catch(() => ({}));
+      throw new Error(data?.details || data?.error || 'delete failed');
+    }
+    return res.json();
   }
 
   async function renderQuotes(){
@@ -836,9 +889,64 @@
     });
   }
 
+  function setupQuoteActions(){
+    const container = document.getElementById('quotes-list');
+    const status = document.getElementById('quote-status');
+    if(!container) return;
+    container.addEventListener('click', async (ev) => {
+      const btn = ev.target.closest('[data-act]');
+      if(!btn) return;
+      const card = btn.closest('.quote-card');
+      if(!card) return;
+      const id = card.dataset.quoteId;
+      const act = btn.dataset.act;
+      if(act === 'edit'){
+        card.dataset.editing = 'true';
+        return;
+      }
+      if(act === 'cancel'){
+        card.dataset.editing = 'false';
+        return;
+      }
+      if(act === 'delete'){
+        status.textContent = 'Borrando frase...';
+        try{
+          await deleteQuote(id);
+          status.textContent = 'Frase borrada.';
+          await renderQuotes();
+        }catch(err){
+          status.textContent = `Non se puido borrar: ${err?.message || 'erro'}`;
+        }
+      }
+    });
+
+    container.addEventListener('submit', async (ev) => {
+      const form = ev.target.closest('.quote-editor');
+      if(!form) return;
+      ev.preventDefault();
+      const card = form.closest('.quote-card');
+      const id = card?.dataset.quoteId;
+      const text = (form.querySelector('textarea[name="text"]')?.value || '').trim();
+      const author = (form.querySelector('input[name="author"]')?.value || '').trim();
+      if(!text){
+        status.textContent = 'A frase non pode quedar baleira.';
+        return;
+      }
+      status.textContent = 'Gardando cambios...';
+      try{
+        await updateQuote(id, { text, author });
+        status.textContent = 'Frase actualizada.';
+        await renderQuotes();
+      }catch(err){
+        status.textContent = `Non se puido editar: ${err?.message || 'erro'}`;
+      }
+    });
+  }
+
   renderArchive();
   renderQuotes();
   setupQuoteForm();
+  setupQuoteActions();
 </script>
 </body>
 </html>

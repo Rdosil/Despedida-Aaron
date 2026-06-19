@@ -137,9 +137,19 @@ async function main() {
   if (quoteSaved.status !== 200 || !quoteSaved.body.quote?.text.includes('Outra ronda')) {
     throw new Error('Quotes POST should persist a new quote');
   }
-  const quotesAfter = await call(quotesHandler, 'GET');
-  if (quotesAfter.status !== 200 || quotesAfter.body.quotes[0]?.text !== 'Outra ronda e falamos.') {
-    throw new Error('Quotes GET should show newest quote first');
+  const quoteUpdated = await call(quotesHandler, 'POST', {
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id: quoteSaved.body.quote.id, text: 'Outra ronda e marchamos.', author: 'Gelo editado' }),
+  });
+  if (quoteUpdated.status !== 200 || quoteUpdated.body.quote?.text !== 'Outra ronda e marchamos.') {
+    throw new Error('Quotes POST with id should edit quote');
+  }
+  const quoteDeleted = await call(quotesHandler, 'DELETE', {
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ id: quoteSaved.body.quote.id }),
+  });
+  if (quoteDeleted.status !== 200 || quoteDeleted.body.deleted !== quoteSaved.body.quote.id) {
+    throw new Error('Quotes DELETE should remove quote');
   }
 
   const remoteMerge = {
@@ -164,6 +174,7 @@ async function main() {
   let postCount = 0;
   let deleteCount = 0;
   let quotePostCount = 0;
+  let quoteDeleteCount = 0;
   const dom = new JSDOM(`<!doctype html><html><body>
     <image-slot id="foto1"></image-slot>
     <div id="quotes-list"></div>
@@ -204,6 +215,15 @@ async function main() {
         },
       };
     }
+    if (url === '/api/quotes' && options.method === 'DELETE') {
+      quoteDeleteCount += 1;
+      return {
+        ok: true,
+        async json() {
+          return { ok: true, deleted: 'q2' };
+        },
+      };
+    }
     throw new Error(`Unexpected fetch ${url}`);
   };
   window.createImageBitmap = async () => ({ width: 10, height: 10, close() {} });
@@ -228,21 +248,31 @@ async function main() {
     throw new Error('Browser delete did not DELETE /api/photos');
   }
 
-  const renderQuotes = new window.Function(`
+  const quotesMarkup = `
     function escapeHtml(value){ return String(value || '').replace(/[&<>\"']/g, (ch) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '\"':'&quot;', "'":'&#39;' }[ch])); }
     function quoteCard(item){
+      const id = escapeHtml(item.id || '');
       const author = escapeHtml(item.author || 'Anónimo');
       const text = escapeHtml(item.text || '');
-      const when = item.created_at ? new Date(item.created_at).toLocaleString('gl-ES') : 'sen data';
-      return '<article class="quote-card"><p class="quote-text">“' + text + '”</p><div class="quote-meta">' + author + ' · ' + when + '</div></article>';
+      const stamp = item.updated_at || item.created_at;
+      const when = stamp ? new Date(stamp).toLocaleString('gl-ES') : 'sen data';
+      return '<article class="quote-card" data-quote-id="' + id + '"><div class="quote-display"><p class="quote-text">“' + text + '”</p><div class="quote-meta">' + author + ' · ' + when + '</div><div class="quote-toolbar"><button class="quote-mini" type="button" data-act="edit">Editar</button><button class="quote-mini" type="button" data-act="delete">Borrar</button></div></div><form class="quote-editor"><input name="author" maxlength="60" value="' + author + '" placeholder="Quen a dixo" /><textarea name="text" maxlength="280" placeholder="A frase">' + text + '</textarea><div class="quote-toolbar"><button class="quote-mini" type="submit">Gardar</button><button class="quote-mini" type="button" data-act="cancel">Cancelar</button></div></form></article>';
+    }
+    async function updateQuote(id, payload){
+      const res = await fetch('/api/quotes', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ id, ...payload }) });
+      if(!res.ok) throw new Error('update failed');
+      return res.json();
+    }
+    async function deleteQuote(id){
+      const res = await fetch('/api/quotes', { method:'DELETE', headers:{'content-type':'application/json'}, body: JSON.stringify({ id }) });
+      if(!res.ok) throw new Error('delete failed');
+      return res.json();
     }
     async function renderQuotes(){
       const container = document.getElementById('quotes-list');
-      if(!container) return;
-      const res = await fetch('/api/quotes', { cache: 'no-store' });
+      const res = await fetch('/api/quotes', { cache:'no-store' });
       const data = await res.json();
-      const quotes = Array.isArray(data?.quotes) ? data.quotes : [];
-      container.innerHTML = quotes.map(quoteCard).join('');
+      container.innerHTML = data.quotes.map(quoteCard).join('');
     }
     async function setupQuoteForm(){
       const form = document.getElementById('quote-form');
@@ -251,23 +281,62 @@ async function main() {
       const authorInput = document.getElementById('quote-author');
       form.addEventListener('submit', async (ev) => {
         ev.preventDefault();
-        const res = await fetch('/api/quotes', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ text: textInput.value.trim(), author: authorInput.value.trim() }) });
-        if(res.ok){ status.textContent = 'Frase gardada.'; }
+        await fetch('/api/quotes', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ text: textInput.value.trim(), author: authorInput.value.trim() }) });
+        status.textContent = 'Frase gardada.';
       });
     }
-    return { renderQuotes, setupQuoteForm };
-  `)();
-  await renderQuotes.renderQuotes();
+    function setupQuoteActions(){
+      const container = document.getElementById('quotes-list');
+      const status = document.getElementById('quote-status');
+      container.addEventListener('click', async (ev) => {
+        const btn = ev.target.closest('[data-act]');
+        if(!btn) return;
+        const card = btn.closest('.quote-card');
+        const id = card.dataset.quoteId;
+        const act = btn.dataset.act;
+        if(act === 'edit'){ card.dataset.editing = 'true'; return; }
+        if(act === 'cancel'){ card.dataset.editing = 'false'; return; }
+        if(act === 'delete'){ await deleteQuote(id); status.textContent = 'Frase borrada.'; }
+      });
+      container.addEventListener('submit', async (ev) => {
+        const form = ev.target.closest('.quote-editor');
+        if(!form) return;
+        ev.preventDefault();
+        const card = form.closest('.quote-card');
+        await updateQuote(card.dataset.quoteId, { text: form.querySelector('textarea').value.trim(), author: form.querySelector('input').value.trim() });
+        status.textContent = 'Frase actualizada.';
+      });
+    }
+  `;
+  const quoteFns = new window.Function(`${quotesMarkup}; return { renderQuotes, setupQuoteForm, setupQuoteActions };`)();
+  await quoteFns.renderQuotes();
   if (!window.document.getElementById('quotes-list').innerHTML.includes('Outra ronda e falamos.')) {
     throw new Error('Quotes render should show fetched quotes');
   }
-  await renderQuotes.setupQuoteForm();
+  quoteFns.setupQuoteForm();
+  quoteFns.setupQuoteActions();
   window.document.getElementById('quote-text').value = 'Nova frase';
   window.document.getElementById('quote-author').value = 'Teo';
   window.document.getElementById('quote-form').dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
   await flushMicrotasks(10);
   if (quotePostCount < 1) {
     throw new Error('Quote form should POST to /api/quotes');
+  }
+  const editBtn = window.document.querySelector('[data-act="edit"]');
+  editBtn.dispatchEvent(new window.Event('click', { bubbles: true }));
+  const editor = window.document.querySelector('.quote-editor');
+  editor.querySelector('textarea').value = 'Frase editada';
+  editor.querySelector('input').value = 'Editor';
+  editor.dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
+  await flushMicrotasks(10);
+  if (quotePostCount < 2) {
+    throw new Error('Quote editor should POST to /api/quotes');
+  }
+  const deleteBtn = window.document.querySelector('[data-act="delete"]');
+  deleteBtn.dispatchEvent(new window.Event('click', { bubbles: true }));
+  await flushMicrotasks(10);
+  if (quoteDeleteCount < 1) {
+    throw new Error('Quote delete should DELETE /api/quotes');
   }
 
   console.log('photo persistence ok');

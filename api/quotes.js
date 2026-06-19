@@ -39,6 +39,10 @@ function sanitizeAuthor(value) {
   return sanitizeText(value, 60);
 }
 
+function sanitizeId(value) {
+  return String(value || '').trim().slice(0, 80);
+}
+
 function defaultQuotes() {
   return [
     { id: 'q1', text: 'Se hai curva, hai interior.', author: 'Aarón', created_at: '2026-06-01T12:00:00.000Z' },
@@ -69,7 +73,10 @@ async function writeQuotes(quotes) {
     contentType: CONTENT_TYPE,
   });
   const listing = await listBlobs({ prefix: PREFIX });
-  const stale = (listing.blobs || []).filter((blob) => blob.pathname !== pathname).map((blob) => blob.url || blob.pathname).filter(Boolean);
+  const stale = (listing.blobs || [])
+    .filter((blob) => blob.pathname !== pathname)
+    .map((blob) => blob.url || blob.pathname)
+    .filter(Boolean);
   if (stale.length) await deleteBlob(stale);
 }
 
@@ -87,23 +94,57 @@ export default async function handler(req, res) {
     try {
       const raw = await readBody(req);
       const payload = JSON.parse(raw || '{}');
+      const quoteId = sanitizeId(payload.id);
       const text = sanitizeText(payload.text, 280);
       const author = sanitizeAuthor(payload.author || 'Anónimo');
       if (!text) return json(res, 400, { error: 'Quote text is required.' });
       const quotes = await readQuotes();
-      const next = [{
+
+      if (quoteId) {
+        const idx = quotes.findIndex((quote) => quote.id === quoteId);
+        if (idx < 0) return json(res, 404, { error: 'Quote not found.' });
+        const updated = {
+          ...quotes[idx],
+          text,
+          author: author || 'Anónimo',
+          updated_at: new Date().toISOString(),
+        };
+        const next = quotes.slice();
+        next[idx] = updated;
+        await writeQuotes(next);
+        return json(res, 200, { quote: updated, quotes: next });
+      }
+
+      const created = {
         id: `q${Date.now()}`,
         text,
         author: author || 'Anónimo',
         created_at: new Date().toISOString(),
-      }, ...quotes].slice(0, 100);
+      };
+      const next = [created, ...quotes].slice(0, 100);
       await writeQuotes(next);
-      return json(res, 200, { quote: next[0], quotes: next });
+      return json(res, 200, { quote: created, quotes: next });
     } catch (error) {
       return json(res, 500, { error: 'Could not save quote.', details: String(error?.message || error) });
     }
   }
 
-  res.setHeader('Allow', 'GET, POST');
+  if (req.method === 'DELETE') {
+    try {
+      const raw = await readBody(req);
+      const payload = JSON.parse(raw || '{}');
+      const quoteId = sanitizeId(payload.id);
+      if (!quoteId) return json(res, 400, { error: 'Quote id is required.' });
+      const quotes = await readQuotes();
+      const next = quotes.filter((quote) => quote.id !== quoteId);
+      if (next.length === quotes.length) return json(res, 404, { error: 'Quote not found.' });
+      await writeQuotes(next);
+      return json(res, 200, { ok: true, deleted: quoteId, quotes: next });
+    } catch (error) {
+      return json(res, 500, { error: 'Could not delete quote.', details: String(error?.message || error) });
+    }
+  }
+
+  res.setHeader('Allow', 'GET, POST, DELETE');
   return json(res, 405, { error: 'Method not allowed.' });
 }
