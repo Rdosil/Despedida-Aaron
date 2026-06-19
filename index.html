@@ -1,221 +1,208 @@
 <!DOCTYPE html>
-<html lang="es">
+<html lang="gl">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>Despedida Aarón</title>
-<link rel="preconnect" href="https://fonts.googleapis.com" />
-<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet" />
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Barlow+Condensed:wght@500;600;700;800&family=Barlow:wght@400;500;600;700&family=Permanent+Marker&display=swap" rel="stylesheet"/>
 <script src="image-slot.js"></script>
 <style>
   :root{
-    --cream:#f1ead7;
-    --cream-2:#f7f1e2;
-    --card:#fbf6ea;
-    --ink:#17150f;
-    --ink-soft:#403b30;
-    --blue:#1f5fc4;
-    --blue-deep:#163f80;
-    --celeste:#74b4e2;
-    --celeste-soft:#bcdcf2;
-    --line:#17150f;
+    --cream:#f1ead7;--cream-2:#f7f1e2;--card:#fbf6ea;--ink:#17150f;--ink-soft:#403b30;
+    --blue:#1f5fc4;--blue-deep:#163f80;--celeste:#74b4e2;--celeste-soft:#bcdcf2;
+    --gold:#d4a012;--gold-soft:#faeabf;
     --shadow:6px 6px 0 var(--ink);
   }
   *{box-sizing:border-box}
   html{scroll-behavior:smooth}
-  body{
-    margin:0;
-    font-family:'Barlow',sans-serif;
-    color:var(--ink);
-    background-color:var(--cream);
-    background-image:
-      radial-gradient(circle at 12% 18%, rgba(31,95,196,.10) 0 3px, transparent 4px),
-      radial-gradient(circle at 88% 9%, rgba(31,95,196,.08) 0 4px, transparent 5px),
-      radial-gradient(circle at 70% 32%, rgba(31,95,196,.06) 0 2px, transparent 3px),
-      radial-gradient(circle at 20% 70%, rgba(31,95,196,.06) 0 3px, transparent 4px),
-      radial-gradient(circle at 92% 78%, rgba(31,95,196,.07) 0 3px, transparent 4px);
-    overflow-x:hidden;
-  }
+  body{margin:0;font-family:'Barlow',sans-serif;color:var(--ink);background-color:var(--cream);overflow-x:hidden}
   h1,h2,h3{margin:0;line-height:.95}
-  .anton{font-family:'Anton',sans-serif;font-weight:400;letter-spacing:.5px;text-transform:uppercase}
-  .marker{font-family:'Permanent Marker',cursive}
-  .cond{font-family:'Barlow Condensed',sans-serif}
   a{color:inherit}
 
-  /* ---------- NAV ---------- */
-  nav{
-    position:sticky;top:0;z-index:50;
-    display:flex;align-items:center;gap:6px;flex-wrap:wrap;
-    padding:9px 16px;
-    background:var(--ink);
-    border-bottom:3px solid var(--blue);
-  }
-  nav .brand{font-family:'Anton',sans-serif;text-transform:uppercase;color:var(--cream);font-size:18px;letter-spacing:1px;margin-right:auto}
+  /* NAV */
+  nav{position:sticky;top:0;z-index:50;display:flex;align-items:center;gap:4px;flex-wrap:wrap;padding:8px 14px;background:var(--ink);border-bottom:3px solid var(--blue)}
+  nav .brand{font-family:'Anton',sans-serif;text-transform:uppercase;color:var(--cream);font-size:17px;letter-spacing:1px;margin-right:auto}
   nav .brand b{color:var(--celeste)}
-  nav a.link{
-    font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;
-    font-size:13px;letter-spacing:.4px;color:var(--cream);text-decoration:none;
-    padding:5px 9px;border-radius:4px;opacity:.78;white-space:nowrap;
-  }
-  nav a.link:hover{opacity:1;background:var(--blue);}
+  nav a.link{font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;font-size:12px;letter-spacing:.4px;color:var(--cream);text-decoration:none;padding:5px 8px;border-radius:4px;opacity:.78;white-space:nowrap}
+  nav a.link:hover{opacity:1;background:var(--blue)}
 
-  /* ---------- LAYOUT ---------- */
+  /* LAYOUT */
   section{padding:72px 22px;position:relative}
   .wrap{max-width:1080px;margin:0 auto}
-  .eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:3px;color:var(--blue);font-size:15px;margin-bottom:10px}
-  .sec-title{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(34px,6vw,62px);line-height:.92}
+  .eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:3px;color:var(--blue);font-size:14px;margin-bottom:10px}
+  .sec-title{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(32px,6vw,60px);line-height:.92}
   .sec-title .b{color:var(--blue)}
-  .swoosh{display:block;width:170px;height:14px;margin-top:8px}
+  .swoosh{display:block;width:160px;height:14px;margin-top:8px}
   .swoosh path{fill:none;stroke:var(--blue);stroke-width:9;stroke-linecap:round}
 
-  /* ---------- HERO ---------- */
-  .hero{padding:0;border-bottom:4px solid var(--ink);background:
-    linear-gradient(180deg, var(--cream-2), var(--cream));}
+  /* HERO */
+  .hero{padding:0;border-bottom:4px solid var(--ink);background:linear-gradient(180deg,var(--cream-2),var(--cream))}
   .hero-grid{max-width:1180px;margin:0 auto;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:10px;padding:30px 22px 0}
   .hero-copy{padding:26px 0 50px}
   .hero-kick{display:inline-flex;align-items:center;gap:8px;background:var(--ink);color:var(--cream);font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:2px;font-size:14px;padding:7px 13px;border-radius:30px}
   .hero-kick .dot{width:9px;height:9px;border-radius:50%;background:var(--celeste)}
-  .hero h1{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(58px,11vw,128px);margin:14px 0 0}
+  .hero h1{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(54px,10vw,122px);margin:14px 0 0}
   .hero h1 .casase{display:block;color:var(--blue);transform:rotate(-2.5deg);transform-origin:left;margin-top:-6px}
-  .hero .tagline{font-family:'Permanent Marker',cursive;color:var(--ink-soft);font-size:clamp(20px,3.4vw,34px);margin:18px 0 0;transform:rotate(-1deg)}
+  .hero .tagline{font-family:'Permanent Marker',cursive;color:var(--ink-soft);font-size:clamp(18px,3.2vw,32px);margin:18px 0 0;transform:rotate(-1deg)}
   .hero .tagline em{color:var(--blue);font-style:normal}
   .hero-meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:22px}
-  .chip{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:8px 14px;border-radius:8px;font-weight:700;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.5px;font-size:16px}
+  .chip{display:inline-flex;align-items:center;gap:8px;background:var(--card);border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);padding:8px 14px;border-radius:8px;font-weight:700;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.5px;font-size:15px}
   .chip b{color:var(--blue)}
   .hero-art{position:relative;align-self:end}
-  .hero-art img{display:block;width:100%;max-width:520px;margin:0 auto;filter:drop-shadow(0 18px 22px rgba(0,0,0,.18))}
+  .hero-art img{display:block;width:100%;max-width:500px;margin:0 auto;filter:drop-shadow(0 18px 22px rgba(0,0,0,.18))}
 
-  /* ---------- COUNTDOWN ---------- */
-  .count-band{background:var(--ink);border-top:4px solid var(--blue);border-bottom:4px solid var(--blue);padding:26px 22px}
+  /* COUNTDOWN */
+  .count-band{background:var(--ink);border-top:4px solid var(--blue);border-bottom:4px solid var(--blue);padding:24px 22px}
   .count-inner{max-width:1080px;margin:0 auto;display:flex;align-items:center;justify-content:space-between;gap:24px;flex-wrap:wrap}
-  .count-lab{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;color:var(--cream);letter-spacing:1px;font-size:clamp(18px,2.4vw,26px);line-height:1.05}
-  .count-lab span{color:var(--celeste);display:block;font-size:13px;letter-spacing:3px;opacity:.85}
+  .count-lab{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;color:var(--cream);letter-spacing:1px;font-size:clamp(17px,2.4vw,24px);line-height:1.05}
+  .count-lab span{color:var(--celeste);display:block;font-size:12px;letter-spacing:3px;opacity:.85}
   .count-clock{display:flex;gap:10px}
-  .cu{background:var(--cream);border-radius:8px;min-width:74px;padding:10px 6px;text-align:center;box-shadow:4px 4px 0 var(--blue)}
-  .cu .n{font-family:'Anton',sans-serif;font-size:38px;line-height:1;color:var(--ink)}
+  .cu{background:var(--cream);border-radius:8px;min-width:72px;padding:10px 6px;text-align:center;box-shadow:4px 4px 0 var(--blue)}
+  .cu .n{font-family:'Anton',sans-serif;font-size:36px;line-height:1;color:var(--ink)}
   .cu .l{font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:1.5px;color:var(--blue)}
 
-  /* ---------- CARDS ---------- */
+  /* CARD BASE */
   .card{background:var(--card);border:3px solid var(--ink);border-radius:12px;box-shadow:var(--shadow)}
-  .grid{display:grid;gap:18px}
 
-  /* ---------- TIMELINE ---------- */
-  .timeline{margin-top:34px;position:relative;padding-left:8px}
+  /* PALMARÉS */
+  .palm-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(220px,1fr));gap:16px;margin-top:30px}
+  .palm-card{padding:18px 18px 20px;display:flex;flex-direction:column;align-items:flex-start;gap:8px}
+  .palm-icon{font-size:36px;line-height:1}
+  .palm-card h3{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:18px;line-height:1;color:var(--blue)}
+  .palm-card p{margin:0;font-size:14.5px;color:var(--ink-soft);font-weight:500}
+  .palm-year{display:inline-block;margin-top:4px;background:var(--gold-soft);border:2px solid var(--gold);color:var(--ink);font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:11px;letter-spacing:.5px;padding:2px 8px;border-radius:20px}
+
+  /* TIMELINE */
+  .day-header{background:var(--blue);color:var(--cream);font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(18px,3vw,26px);letter-spacing:1px;padding:10px 18px;border-radius:10px;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);margin:28px 0 18px;display:flex;align-items:center;gap:14px}
+  .day-header small{font-family:'Barlow Condensed',sans-serif;font-weight:700;font-size:14px;letter-spacing:2px;opacity:.85;font-style:normal}
+  .timeline{margin-top:20px;position:relative;padding-left:8px}
   .tl-row{display:grid;grid-template-columns:96px 1fr;gap:18px;align-items:start;padding:0 0 22px}
-  .tl-time{font-family:'Anton',sans-serif;font-size:26px;color:var(--blue);text-align:right;padding-top:14px}
-  .tl-time small{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--ink-soft);font-size:12px;letter-spacing:1px}
-  .tl-card{background:var(--card);border:3px solid var(--ink);border-radius:12px;box-shadow:var(--shadow);padding:16px 18px;position:relative}
+  .tl-time{font-family:'Anton',sans-serif;font-size:24px;color:var(--blue);text-align:right;padding-top:14px}
+  .tl-time small{display:block;font-family:'Barlow Condensed',sans-serif;font-weight:700;color:var(--ink-soft);font-size:11px;letter-spacing:1px}
+  .tl-card{background:var(--card);border:3px solid var(--ink);border-radius:12px;box-shadow:var(--shadow);padding:15px 17px;position:relative}
   .tl-card::before{content:"";position:absolute;left:-26px;top:22px;width:14px;height:14px;border-radius:50%;background:var(--blue);border:3px solid var(--ink)}
-  .tl-card h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:22px;letter-spacing:.4px}
-  .tl-card p{margin:4px 0 0;color:var(--ink-soft);font-size:15px}
-  .tl-tag{display:inline-block;margin-top:8px;background:var(--celeste-soft);border:2px solid var(--ink);font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;font-size:12px;letter-spacing:.5px;padding:3px 9px;border-radius:20px}
+  .tl-card h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:21px;letter-spacing:.4px}
+  .tl-card p{margin:4px 0 0;color:var(--ink-soft);font-size:14.5px}
+  .tl-tag{display:inline-block;margin-top:8px;background:var(--celeste-soft);border:2px solid var(--ink);font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:.5px;padding:3px 9px;border-radius:20px}
   .tl-tag.hot{background:var(--blue);color:var(--cream);border-color:var(--blue)}
-  .note{font-style:italic;color:var(--ink-soft);font-size:14px;margin-top:6px}
+  .note{font-style:italic;color:var(--ink-soft);font-size:13.5px;margin-top:6px}
 
-  /* ---------- PITCH / SQUAD ---------- */
-  .pitch{position:relative;width:100%;aspect-ratio:16/10;background:
-    repeating-linear-gradient(90deg,#2f7d3e 0 9.09%, #2c763a 9.09% 18.18%);
-    border:4px solid var(--ink);border-radius:14px;box-shadow:var(--shadow);margin-top:30px;overflow:hidden}
+  /* PITCH / SQUAD */
+  .pitch{position:relative;width:100%;aspect-ratio:16/10;background:repeating-linear-gradient(90deg,#2f7d3e 0 9.09%,#2c763a 9.09% 18.18%);border:4px solid var(--ink);border-radius:14px;box-shadow:var(--shadow);margin-top:30px;overflow:hidden}
   .pitch .lines{position:absolute;inset:0}
   .pitch .lines::before{content:"";position:absolute;left:50%;top:0;bottom:0;width:3px;background:rgba(255,255,255,.85);transform:translateX(-50%)}
   .pitch .lines::after{content:"";position:absolute;left:50%;top:50%;width:120px;height:120px;border:3px solid rgba(255,255,255,.85);border-radius:50%;transform:translate(-50%,-50%)}
   .box{position:absolute;top:50%;transform:translateY(-50%);width:11%;height:54%;border:3px solid rgba(255,255,255,.85)}
   .box.l{left:0;border-left:none}
   .box.r{right:0;border-right:none}
-  .tok{position:absolute;transform:translate(-50%,-50%);text-align:center;width:90px}
-  .jersey{width:48px;height:48px;margin:0 auto;border-radius:50%;background:var(--celeste);border:3px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:22px;color:var(--ink);box-shadow:3px 3px 0 rgba(0,0,0,.35)}
+  .tok{position:absolute;transform:translate(-50%,-50%);text-align:center;width:86px}
+  .jersey{width:46px;height:46px;margin:0 auto;border-radius:50%;background:var(--celeste);border:3px solid var(--ink);display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;font-size:20px;color:var(--ink);box-shadow:3px 3px 0 rgba(0,0,0,.35)}
   .tok.cap .jersey{background:#f2c84b;box-shadow:0 0 0 3px var(--blue),3px 3px 0 rgba(0,0,0,.35)}
-  .tok .nm{margin-top:5px;font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;color:#fff;font-size:14px;letter-spacing:.5px;text-shadow:1px 1px 0 rgba(0,0,0,.6)}
-  .capbadge{position:absolute;top:-6px;right:14px;background:var(--blue);color:#fff;font-family:'Anton',sans-serif;font-size:12px;width:20px;height:20px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
+  .tok .nm{margin-top:5px;font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;color:#fff;font-size:13px;letter-spacing:.4px;text-shadow:1px 1px 0 rgba(0,0,0,.6)}
+  .capbadge{position:absolute;top:-6px;right:12px;background:var(--blue);color:#fff;font-family:'Anton',sans-serif;font-size:11px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;border:2px solid #fff}
   .squad-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(190px,1fr));gap:14px;margin-top:22px}
   .player{display:flex;gap:12px;align-items:center;padding:13px 15px}
-  .player .num{font-family:'Anton',sans-serif;font-size:34px;color:var(--blue);min-width:38px;text-align:center}
-  .player .pi h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:19px}
+  .player .num{font-family:'Anton',sans-serif;font-size:32px;color:var(--blue);min-width:36px;text-align:center}
+  .player .pi h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:18px}
   .player .pi .role{font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:1px;color:var(--blue)}
-  .player .pi .nick{font-size:13px;color:var(--ink-soft);margin-top:2px;font-style:italic}
+  .player .pi .nick{font-size:12.5px;color:var(--ink-soft);margin-top:2px;font-style:italic}
   .player.cap{background:var(--celeste-soft)}
 
-  /* ---------- RULES ---------- */
-  .rules{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px;margin-top:30px}
-  .rule{padding:16px 18px;display:flex;gap:14px;align-items:flex-start}
-  .rule .rn{font-family:'Anton',sans-serif;font-size:30px;color:var(--celeste);min-width:34px}
-  .rule p{margin:0;font-weight:500;font-size:15.5px;padding-top:4px}
+  /* RULES */
+  .rules{display:grid;grid-template-columns:repeat(auto-fill,minmax(268px,1fr));gap:16px;margin-top:28px}
+  .rule{padding:15px 17px;display:flex;gap:14px;align-items:flex-start}
+  .rule .rn{font-family:'Anton',sans-serif;font-size:28px;color:var(--celeste);min-width:32px}
+  .rule p{margin:0;font-weight:500;font-size:15px;padding-top:4px}
   .rule p b{color:var(--blue)}
 
-  /* ---------- RETOS ---------- */
-  .retos{display:grid;gap:12px;margin-top:30px}
-  .reto{display:flex;align-items:center;gap:14px;padding:13px 16px;cursor:pointer;user-select:none;transition:transform .08s}
+  /* RETOS */
+  .retos{display:grid;gap:11px;margin-top:28px}
+  .reto{display:flex;align-items:center;gap:14px;padding:12px 15px;cursor:pointer;user-select:none;transition:transform .08s}
   .reto:active{transform:scale(.99)}
-  .reto .box-c{width:30px;height:30px;min-width:30px;border:3px solid var(--ink);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;color:#fff;font-size:20px;background:var(--cream)}
+  .reto .box-c{width:28px;height:28px;min-width:28px;border:3px solid var(--ink);border-radius:7px;display:flex;align-items:center;justify-content:center;font-family:'Anton',sans-serif;color:#fff;font-size:18px;background:var(--cream)}
   .reto.done .box-c{background:var(--blue)}
   .reto.done .rt{text-decoration:line-through;color:var(--ink-soft);opacity:.7}
-  .reto .rt{font-weight:600;font-size:16px}
-  .retos-foot{margin-top:14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--blue);font-size:16px}
+  .reto .rt{font-weight:600;font-size:15.5px}
+  .retos-foot{margin-top:12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--blue);font-size:16px}
 
-  /* ---------- TWO COL (bote / karting) ---------- */
-  .two{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:30px}
-  .panel{padding:24px 24px 26px}
-  .panel h3{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:26px;margin-bottom:4px}
+  /* TWO COL */
+  .two{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:28px}
+  .panel{padding:22px 22px 24px}
+  .panel h3{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:24px;margin-bottom:4px}
   .panel h3 .b{color:var(--blue)}
-  .bote-amt{font-family:'Anton',sans-serif;font-size:58px;color:var(--blue);line-height:1;margin:14px 0 2px}
-  .bote-amt small{font-size:20px;color:var(--ink)}
-  ul.clean{list-style:none;margin:14px 0 0;padding:0;display:grid;gap:9px}
-  ul.clean li{display:flex;gap:10px;align-items:flex-start;font-size:15.5px}
+  .bote-amt{font-family:'Anton',sans-serif;font-size:54px;color:var(--blue);line-height:1;margin:14px 0 2px;cursor:text}
+  .bote-amt small{font-size:18px;color:var(--ink)}
+  ul.clean{list-style:none;margin:12px 0 0;padding:0;display:grid;gap:8px}
+  ul.clean li{display:flex;gap:10px;align-items:flex-start;font-size:15px}
   ul.clean li::before{content:"›";color:var(--blue);font-family:'Anton',sans-serif;font-size:20px;line-height:1.1}
-  .bizum{margin-top:16px;background:var(--ink);color:var(--cream);border-radius:10px;padding:12px 15px;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
+  .bizum{margin-top:14px;background:var(--ink);color:var(--cream);border-radius:10px;padding:11px 14px;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px;display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px}
   .bizum b{color:var(--celeste)}
 
-  /* ---------- MAP ---------- */
-  .maps{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:30px}
-  .mapcard{padding:22px 22px 24px;display:flex;flex-direction:column}
-  .mapcard .mt{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:2px;font-size:13px;color:var(--blue)}
-  .mapcard h3{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:30px;margin:6px 0 8px}
-  .mapcard p{margin:0;color:var(--ink-soft);font-size:15px}
-  .btn{display:inline-flex;align-items:center;gap:9px;margin-top:16px;align-self:flex-start;background:var(--blue);color:var(--cream);text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:1px;font-size:16px;padding:11px 18px;border-radius:8px;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);transition:transform .08s, box-shadow .08s}
+  /* MAP */
+  .maps{display:grid;grid-template-columns:repeat(auto-fill,minmax(290px,1fr));gap:20px;margin-top:28px}
+  .mapcard{padding:20px 20px 22px;display:flex;flex-direction:column}
+  .mapcard .mt{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:2px;font-size:12px;color:var(--blue)}
+  .mapcard h3{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:26px;margin:5px 0 7px}
+  .mapcard p{margin:0;color:var(--ink-soft);font-size:14.5px}
+  .btn{display:inline-flex;align-items:center;gap:8px;margin-top:14px;align-self:flex-start;background:var(--blue);color:var(--cream);text-decoration:none;font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:1px;font-size:15px;padding:10px 16px;border-radius:8px;border:3px solid var(--ink);box-shadow:4px 4px 0 var(--ink);transition:transform .08s,box-shadow .08s}
   .btn:hover{transform:translate(-2px,-2px);box-shadow:6px 6px 0 var(--ink)}
   .btn.ghost{background:var(--card);color:var(--ink)}
+  .btn.hostel{background:var(--gold);color:var(--ink)}
 
-  /* ---------- GALLERY ---------- */
-  .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:14px;margin-top:30px}
+  /* CAMISOLAS DESCARTADAS */
+  .cam-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(300px,1fr));gap:22px;margin-top:28px}
+  .cam-card{display:flex;flex-direction:column;overflow:hidden}
+  .cam-img{width:100%;aspect-ratio:4/3;object-fit:cover;object-position:center top;border-bottom:3px solid var(--ink);background:var(--cream-2)}
+  .cam-body{padding:16px 18px 18px;flex:1}
+  .cam-body .verdict{display:inline-flex;align-items:center;gap:6px;background:#e8433a;color:#fff;font-family:'Anton',sans-serif;font-size:13px;text-transform:uppercase;letter-spacing:.5px;padding:4px 10px;border-radius:20px;margin-bottom:8px}
+  .cam-body h3{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;font-size:19px;margin:0 0 4px}
+  .cam-body p{margin:0;font-size:14px;color:var(--ink-soft)}
+
+  /* GALLERY */
+  .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px;margin-top:28px}
   image-slot{width:100%;aspect-ratio:1/1;border:3px solid var(--ink);box-shadow:var(--shadow);background:var(--card)}
-  .gal-note{margin-top:14px;font-style:italic;color:var(--ink-soft);font-size:14px}
+  .gal-note{margin-top:12px;font-style:italic;color:var(--ink-soft);font-size:13.5px}
 
-  /* ---------- FOOTER ---------- */
+  /* FOOTER */
   footer{background:var(--ink);color:var(--cream);text-align:center;padding:46px 22px;border-top:4px solid var(--blue)}
-  footer .f-big{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(30px,7vw,64px);line-height:.95}
+  footer .f-big{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(28px,7vw,62px);line-height:.95}
   footer .f-big .b{color:var(--celeste)}
-  footer .marker{color:var(--celeste);font-size:22px;margin-top:14px;transform:rotate(-1.5deg);display:inline-block}
-  footer .f-sub{opacity:.6;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:2px;font-size:13px;margin-top:18px}
+  footer .marker{font-family:'Permanent Marker',cursive;color:var(--celeste);font-size:20px;margin-top:12px;transform:rotate(-1.5deg);display:inline-block}
+  footer .f-sub{opacity:.6;font-family:'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:2px;font-size:13px;margin-top:16px}
 
   @media(max-width:860px){
     .hero-grid{grid-template-columns:1fr;padding-top:18px}
-    .hero-art{order:-1;max-width:360px;margin:0 auto}
-    .hero-copy{padding-bottom:34px;text-align:left}
-    .two,.maps{grid-template-columns:1fr}
+    .hero-art{order:-1;max-width:340px;margin:0 auto}
+    .hero-copy{padding-bottom:30px}
+    .two{grid-template-columns:1fr}
     .count-inner{justify-content:center;text-align:center}
     .count-lab{width:100%;text-align:center}
   }
   @media(max-width:560px){
-    section{padding:54px 16px}
-    .cu{min-width:62px}.cu .n{font-size:30px}
-    .tl-row{grid-template-columns:70px 1fr;gap:12px}
-    .tl-time{font-size:20px}
-    .tok{width:62px}.jersey{width:40px;height:40px;font-size:18px}.tok .nm{font-size:11px}
-    .pitch .lines::after{width:80px;height:80px}
+    section{padding:50px 16px}
+    .cu{min-width:60px}.cu .n{font-size:28px}
+    .tl-row{grid-template-columns:66px 1fr;gap:11px}
+    .tl-time{font-size:19px}
+    .tok{width:58px}.jersey{width:38px;height:38px;font-size:16px}.tok .nm{font-size:10px}
+    .pitch .lines::after{width:70px;height:70px}
   }
 </style>
 </head>
 <body>
 
+<!-- NAV -->
 <nav>
   <div class="brand">AARÓN <b>CÁSASE</b></div>
+  <a class="link" href="#palmares">Palmarés</a>
   <a class="link" href="#plan">Plan</a>
   <a class="link" href="#equipo">Equipo</a>
-  <a class="link" href="#reglas">Reglas</a>
+  <a class="link" href="#regras">Regras</a>
   <a class="link" href="#retos">Retos</a>
   <a class="link" href="#bote">Bote</a>
   <a class="link" href="#karting">Karting</a>
+  <a class="link" href="#camisolas">Camisolas</a>
   <a class="link" href="#mapa">Mapa</a>
   <a class="link" href="#fotos">Fotos</a>
 </nav>
@@ -224,18 +211,19 @@
 <header class="hero">
   <div class="hero-grid">
     <div class="hero-copy">
-      <span class="hero-kick"><span class="dot"></span>Despedida de soltero · León</span>
+      <span class="hero-kick"><span class="dot"></span>Despedida de solteiro · León · 2 días</span>
       <h1>Aarón<span class="casase">Cásase</span></h1>
-      <p class="tagline">El último partido de <em>«O Peter Crouch da Costa»</em> antes del altar.</p>
+      <p class="tagline">O último partido de <em>«O Peter Crouch da Costa»</em> antes do altar.</p>
       <div class="hero-meta">
-        <span class="chip">📅 <b>Sáb 20 Jun</b></span>
+        <span class="chip">📅 <b>Ven–Dom · 19–21 Xuño</b></span>
         <span class="chip">📍 <b>León</b></span>
-        <span class="chip">🏁 Karting + 🍽️ Cena</span>
-        <span class="chip">👥 <b>7</b> fichados</span>
+        <span class="chip">🏁 Karting + 🍽️ Cea</span>
+        <span class="chip">🏨 <b>Palacio Real Hostel</b></span>
+        <span class="chip">👥 <b>7</b> convocados</span>
       </div>
     </div>
     <div class="hero-art">
-      <img src="assets/aaron-cartel.png" alt="Aarón, O Peter Crouch da Costa, Muros S.D." />
+      <img src="assets/aaron-cartel.png" alt="Aarón · O Peter Crouch da Costa · Muros S.D."/>
     </div>
   </div>
 </header>
@@ -243,7 +231,7 @@
 <!-- COUNTDOWN -->
 <div class="count-band">
   <div class="count-inner">
-    <div class="count-lab"><span>Pitido inicial</span>Cuenta atrás para el karting</div>
+    <div class="count-lab"><span>Pitido inicial</span>Conta atrás para o karting</div>
     <div class="count-clock" id="clock">
       <div class="cu"><div class="n" id="cd-d">--</div><div class="l">Días</div></div>
       <div class="cu"><div class="n" id="cd-h">--</div><div class="l">Horas</div></div>
@@ -253,119 +241,225 @@
   </div>
 </div>
 
+<!-- PALMARÉS -->
+<section id="palmares" style="background:var(--cream-2);border-bottom:3px solid var(--ink)">
+  <div class="wrap">
+    <div class="eyebrow">Arquivo Oficial · Rexistro histórico do capitán</div>
+    <h2 class="sec-title">O <span class="b">Palmarés</span> de Aarón</h2>
+    <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
+
+    <div class="palm-grid">
+      <div class="card palm-card">
+        <div class="palm-icon">🏆</div>
+        <h3>Campión de Liga Rexional</h3>
+        <p>Varias tempadas de gloria celeste con Muros S.D. No arquivo exacto, pero os seus compañeiros confirman que si.</p>
+        <span class="palm-year">Muros S.D.</span>
+      </div>
+      <div class="card palm-card">
+        <div class="palm-icon">⚽</div>
+        <h3>Máximo Goleador da Costa</h3>
+        <p>Récord histórico de goles na liga local. Confirmado polo propio Aarón en conversa informal despois de dúas cerveciñas.</p>
+        <span class="palm-year">Tempada TBD</span>
+      </div>
+      <div class="card palm-card">
+        <div class="palm-icon">🥇</div>
+        <h3>Mellor Xogador do Torneo</h3>
+        <p>Premio ao mellor xogador nun torneo de verán. O trofeo está en algures da casa… ou na óptica.</p>
+        <span class="palm-year">Torneo da Costa</span>
+      </div>
+      <div class="card palm-card">
+        <div class="palm-icon">👓</div>
+        <h3>Óptico Oficial do Equipo</h3>
+        <p>Único xogador da historia de Muros S.D. con diploma universitario. Os seus compañeiros ven mellor grazas a el.</p>
+        <span class="palm-year">Logro profesional</span>
+      </div>
+      <div class="card palm-card">
+        <div class="palm-icon">👶</div>
+        <h3>Papá Goleador (Non Oficial)</h3>
+        <p>Primeiro título fóra do campo. Conseguido sen avisar ao comité técnico. Máximo logro da súa carreira extradeportiva.</p>
+        <span class="palm-year">Sen oposición</span>
+      </div>
+      <div class="card palm-card">
+        <div class="palm-icon">💍</div>
+        <h3>Próximo Título · Marido</h3>
+        <p>O máis difícil ata agora. Contrato de por vida, sen cláusula de rescisión. O grupo aplaude a valentía do capitán.</p>
+        <span class="palm-year">21 Xuño 2026</span>
+      </div>
+    </div>
+    <p class="note">* Arquivo incompleto. Rogamos ao capitán que aporte os trofeos físicos para completar a vitrina.</p>
+  </div>
+</section>
+
 <!-- PLAN -->
 <section id="plan">
   <div class="wrap">
-    <div class="eyebrow">Convocatoria oficial · Sábado 20 de junio</div>
-    <h2 class="sec-title">El plan del <span class="b">finde</span></h2>
-    <svg class="swoosh" viewBox="0 0 170 14"><path d="M4 10 C 50 2, 120 2, 166 7"/></svg>
+    <div class="eyebrow">Convocatoria Oficial · Sábado 20 e Domingo 21 de Xuño</div>
+    <h2 class="sec-title">O plan do <span class="b">finde</span></h2>
+    <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
 
+    <div class="day-header">🟢 Día 1 — Venres 19 Xuño <small>Chegada · Check-in · Noite</small></div>
+    <div class="timeline">
+      <div class="tl-row">
+        <div class="tl-time">20:00<small>Chegada</small></div>
+        <div class="tl-card">
+          <h3>Todos a León 🚗</h3>
+          <p>Punto de encontro: <b>Palacio Real Hostel</b>. Check-in, deixar as maletas e respirar fondo. Comeza o finde.</p>
+          <span class="tl-tag hot">🏨 Palacio Real Hostel</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-time">21:30<small>Venres</small></div>
+        <div class="tl-card">
+          <h3>Cea e noite de recoñecemento</h3>
+          <p>Cea libre polo centro de León. Recoñecemento do terreo, primeiro brindis obrigatorio e reserva de forzas para o día grande.</p>
+          <span class="tl-tag">Modo explorador</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="day-header">🟡 Día 2 — Sábado 20 Xuño <small>Karting · Cea · Noite</small></div>
     <div class="timeline">
       <div class="tl-row">
         <div class="tl-time">11:45<small>Quedada</small></div>
         <div class="tl-card">
           <h3>Check-in en KartingLeón</h3>
-          <p>Punto de encuentro en el circuito. Firma de hojas, equipación y foto de equipo. <b>El que llegue tarde, ronda al bote.</b></p>
-          <span class="tl-tag">No te duermas</span>
+          <p>Punto de encontro no circuíto. Firma de follas, equipación e foto de equipo. <b>O que chegue tarde, ronda ao bote.</b></p>
+          <span class="tl-tag">Non durmas</span>
         </div>
       </div>
       <div class="tl-row">
-        <div class="tl-time">12:00<small>¡Salida!</small></div>
+        <div class="tl-time">12:00<small>¡Saída!</small></div>
         <div class="tl-card">
           <h3>Gran Premio Aarón 🏁</h3>
-          <p>Clasificación y carrera. El novio sale desde la pole por decreto. Pilota como Peter Crouch: piernas largas, mucho alcance.</p>
-          <span class="tl-tag hot">Evento estrella</span>
+          <p>Clasificación e carreira. O noivo sae desde a pole por decreto. Pilota como Peter Crouch: pernas longas, moito alcance.</p>
+          <span class="tl-tag hot">Evento estrela</span>
         </div>
       </div>
       <div class="tl-row">
         <div class="tl-time">14:00<small>Boxes</small></div>
         <div class="tl-card">
-          <h3>Comida post-carrera</h3>
-          <p>Picoteo y vermú para reponer fuerzas y revisar la repetición del adelantamiento polémico.</p>
-          <span class="tl-tag">Repostaje</span>
+          <h3>Comida post-carreira</h3>
+          <p>Picoteo e vermú para repor forzas e revisar a repetición do adelantamento polémico.</p>
+          <span class="tl-tag">Repostaxe</span>
         </div>
       </div>
       <div class="tl-row">
         <div class="tl-time">16:30<small>Descanso</small></div>
         <div class="tl-card">
-          <h3>Siesta táctica · tarde libre</h3>
-          <p>Tiempo para recargar, ducharse y prepararse. La noche es larga y mañana hay altar a la vista.</p>
+          <h3>Tarde libre · Ducha e preparación</h3>
+          <p>Tempo para recuperarse, ducharse e poñerse guapos para a cea. O hostel xa está pagado do día anterior, así que sen présas.</p>
           <span class="tl-tag">Recuperación</span>
         </div>
       </div>
       <div class="tl-row">
-        <div class="tl-time">21:30<small>Cena</small></div>
+        <div class="tl-time">21:30<small>Cea</small></div>
         <div class="tl-card">
-          <h3>Cena en Casa Mando · León</h3>
-          <p>Mesa reservada. Brindis obligatorio por el capitán. Discurso de agradecimiento al equipo incluido.</p>
+          <h3>Cea en Casa Mando · León</h3>
+          <p>Mesa reservada. Brindis obrigatorio polo capitán. Discurso de agradecemento ao equipo incluído.</p>
           <span class="tl-tag hot">Reservado ✔</span>
         </div>
       </div>
       <div class="tl-row">
         <div class="tl-time">23:30<small>Prórroga</small></div>
         <div class="tl-card">
-          <h3>Vuelta de honor por León</h3>
-          <p>Ruta por el Barrio Húmedo. Se sale en bloque, se vuelve en bloque. Nadie se queda atrás.</p>
-          <span class="tl-tag">Hasta que el cuerpo aguante</span>
+          <h3>Volta de honor polo León</h3>
+          <p>Ruta polo Barrio Húmido. Sáese en bloque, vóltase en bloque. Ninguén se queda atrás.</p>
+          <span class="tl-tag">Ata que o corpo aguante</span>
         </div>
       </div>
     </div>
-    <p class="note">* Horario orientativo: el comité se reserva el derecho a improvisar.</p>
+
+    <div class="day-header">🔵 Día 3 — Domingo 21 Xuño <small>León · Regreso</small></div>
+    <div class="timeline">
+      <div class="tl-row">
+        <div class="tl-time">10:00<small>Mañá</small></div>
+        <div class="tl-card">
+          <h3>Almorzo de campións 🥐</h3>
+          <p>Café, croissant e repaso colectivo das fotos do día anterior. Bórrase o que o capitán ordene… ou non.</p>
+          <span class="tl-tag">Recuperación activa</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-time">11:00<small>Checkout</small></div>
+        <div class="tl-card">
+          <h3>Saída do Palacio Real Hostel</h3>
+          <p>Check-out, equipaxe recollida e última foto de grupo no hostel. Con ou sen camisola do Muros.</p>
+          <span class="tl-tag">🏨 Palacio Real</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-time">12:00<small>Libre</small></div>
+        <div class="tl-card">
+          <h3>León en modo turista</h3>
+          <p>Catedral, barrio medieval, mercado… ou directo a un bar. O comité non xulga. A decisión é colectiva.</p>
+          <span class="tl-tag">Opcional</span>
+        </div>
+      </div>
+      <div class="tl-row">
+        <div class="tl-time">15:00<small>Regreso</small></div>
+        <div class="tl-card">
+          <h3>Camiño a casa · Rumbo a Galicia</h3>
+          <p>O capitán regresa á súa boda. O resto, a que cada un poida. Fin do partido. Foi un honor, compañeiros.</p>
+          <span class="tl-tag hot">Fin de xornada</span>
+        </div>
+      </div>
+    </div>
+    <p class="note">* Horario orientativo: o comité resérvase o dereito a improvisar.</p>
   </div>
 </section>
 
 <!-- EQUIPO -->
 <section id="equipo" style="background:var(--cream-2);border-top:3px solid var(--ink);border-bottom:3px solid var(--ink)">
   <div class="wrap">
-    <div class="eyebrow">Alineación titular · 7 contra el mundo</div>
-    <h2 class="sec-title">La <span class="b">convocatoria</span></h2>
-    <svg class="swoosh" viewBox="0 0 170 14"><path d="M4 10 C 50 2, 120 2, 166 7"/></svg>
+    <div class="eyebrow">Aliñación titular · 7 contra o mundo</div>
+    <h2 class="sec-title">A <span class="b">convocatoria</span></h2>
+    <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
 
     <div class="pitch">
       <div class="lines"></div>
       <div class="box l"></div>
       <div class="box r"></div>
       <!-- GK -->
-      <div class="tok" style="left:7%;top:50%"><div class="jersey">1</div><div class="nm">Eloy</div></div>
+      <div class="tok" style="left:7%;top:50%"><div class="jersey">1</div><div class="nm">Juan</div></div>
       <!-- DEF -->
-      <div class="tok" style="left:27%;top:28%"><div class="jersey">2</div><div class="nm">Pablo</div></div>
-      <div class="tok" style="left:27%;top:72%"><div class="jersey">4</div><div class="nm">Juan</div></div>
+      <div class="tok" style="left:28%;top:28%"><div class="jersey">4</div><div class="nm">Teo</div></div>
+      <div class="tok cap" style="left:28%;top:72%"><div class="jersey">5<span class="capbadge">C</span></div><div class="nm">Aarón</div></div>
       <!-- MID -->
-      <div class="tok" style="left:52%;top:30%"><div class="jersey">6</div><div class="nm">Teo</div></div>
-      <div class="tok" style="left:52%;top:70%"><div class="jersey">7</div><div class="nm">Carlos</div></div>
+      <div class="tok" style="left:52%;top:20%"><div class="jersey">2</div><div class="nm">Pablo</div></div>
+      <div class="tok" style="left:52%;top:50%"><div class="jersey">9</div><div class="nm">Gelo</div></div>
+      <div class="tok" style="left:52%;top:80%"><div class="jersey">7</div><div class="nm">Carlos</div></div>
       <!-- FWD -->
-      <div class="tok cap" style="left:80%;top:38%"><div class="jersey">5<span class="capbadge">C</span></div><div class="nm">Aarón</div></div>
-      <div class="tok" style="left:80%;top:68%"><div class="jersey">9</div><div class="nm">Gelo</div></div>
+      <div class="tok" style="left:85%;top:50%"><div class="jersey">3</div><div class="nm">Eloy</div></div>
     </div>
 
     <div class="squad-grid">
-      <div class="card player"><div class="num">1</div><div class="pi"><div class="role">Portero</div><h3>Eloy</h3><div class="nick">Última muralla antes del altar</div></div></div>
+      <div class="card player"><div class="num">1</div><div class="pi"><div class="role">Porteiro</div><h3>Juan</h3><div class="nick">Cortapatatas de Luxo</div></div></div>
       <div class="card player"><div class="num">2</div><div class="pi"><div class="role">Lateral</div><h3>Pablo</h3><div class="nick">Especialista en rondas</div></div></div>
-      <div class="card player"><div class="num">4</div><div class="pi"><div class="role">Central</div><h3>Juan</h3><div class="nick">El que conduce de vuelta</div></div></div>
-      <div class="card player"><div class="num">6</div><div class="pi"><div class="role">Mediocentro</div><h3>Teo</h3><div class="nick">Organizador del caos</div></div></div>
-      <div class="card player"><div class="num">7</div><div class="pi"><div class="role">Extremo</div><h3>Carlos</h3><div class="nick">Sprint hasta la barra</div></div></div>
-      <div class="card player cap"><div class="num">5</div><div class="pi"><div class="role">Delantero · Capitán</div><h3>Aarón 🟡</h3><div class="nick">«O Peter Crouch da Costa» · El Novio</div></div></div>
-      <div class="card player"><div class="num">9</div><div class="pi"><div class="role">Killer</div><h3>Gelo</h3><div class="nick">Comodín de lujo</div></div></div>
+      <div class="card player"><div class="num">4</div><div class="pi"><div class="role">Defensa</div><h3>Teo</h3><div class="nick">Muro da costa galega</div></div></div>
+      <div class="card player cap"><div class="num">5</div><div class="pi"><div class="role">Defensa · Capitán</div><h3>Aarón 🟡</h3><div class="nick">«O Peter Crouch da Costa» · O Noivo</div></div></div>
+      <div class="card player"><div class="num">7</div><div class="pi"><div class="role">Extremo</div><h3>Carlos</h3><div class="nick">Sprint ata a barra</div></div></div>
+      <div class="card player"><div class="num">9</div><div class="pi"><div class="role">Mediocampista</div><h3>Gelo</h3><div class="nick">Motor do medio campo</div></div></div>
+      <div class="card player"><div class="num">3</div><div class="pi"><div class="role">Dianteiro</div><h3>Eloy</h3><div class="nick">Tanque Eloy · Punta de lanza</div></div></div>
     </div>
   </div>
 </section>
 
-<!-- REGLAS -->
-<section id="reglas">
+<!-- REGRAS -->
+<section id="regras">
   <div class="wrap">
-    <div class="eyebrow">Reglamento FIFA (Federación de Inolvidables Fiestas de Aarón)</div>
-    <h2 class="sec-title">Las <span class="b">reglas</span></h2>
-    <svg class="swoosh" viewBox="0 0 170 14"><path d="M4 10 C 50 2, 120 2, 166 7"/></svg>
+    <div class="eyebrow">Regulamento FIFA (Federación de Inolvidables Festas de Aarón)</div>
+    <h2 class="sec-title">As <span class="b">regras</span></h2>
+    <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
 
     <div class="rules">
-      <div class="card rule"><div class="rn">1</div><p>La palabra del <b>novio es ley</b>… hasta las 00:00. Después manda el grupo.</p></div>
-      <div class="card rule"><div class="rn">2</div><p>Prohibido decir el nombre de <b>la novia</b>. El que falle, paga al bote.</p></div>
-      <div class="card rule"><div class="rn">3</div><p>Quien <b>llegue tarde</b> al karting, ronda para todos.</p></div>
-      <div class="card rule"><div class="rn">4</div><p>El <b>móvil del novio</b> lo gestiona el comité. Las fotos son patrimonio del grupo.</p></div>
-      <div class="card rule"><div class="rn">5</div><p>Nadie se va solo. <b>Se vuelve en bloque.</b></p></div>
-      <div class="card rule"><div class="rn">6</div><p><b>Brindis obligatorio</b> cada vez que alguien mencione la boda.</p></div>
-      <div class="card rule"><div class="rn">7</div><p>Hidratación = agua. El que se olvide de beber agua, <b>reto al canto</b>.</p></div>
-      <div class="card rule"><div class="rn">8</div><p>Al volante, <b>cero tonterías</b>. El novio quiere ganar limpio.</p></div>
+      <div class="card rule"><div class="rn">1</div><p>A palabra do <b>noivo é lei</b>… ata as 00:00. Despois manda o grupo.</p></div>
+      <div class="card rule"><div class="rn">2</div><p>Prohibido dicir o nome de <b>a noiva</b>. O que falle, paga ao bote.</p></div>
+      <div class="card rule"><div class="rn">3</div><p>Quen <b>chegue tarde</b> ao karting, ronda para todos.</p></div>
+      <div class="card rule"><div class="rn">4</div><p>O <b>móbil do noivo</b> xestiónao o comité. As fotos son patrimonio do grupo.</p></div>
+      <div class="card rule"><div class="rn">5</div><p>Ninguén se vai só. <b>Vóltase en bloque.</b></p></div>
+      <div class="card rule"><div class="rn">6</div><p><b>Brindis obrigatorio</b> cada vez que alguén mencione a voda.</p></div>
+      <div class="card rule"><div class="rn">7</div><p>Hidratación = auga. O que se esqueza, <b>reto ao canto</b>.</p></div>
+      <div class="card rule"><div class="rn">8</div><p>Ao volante, <b>cero tonterías</b>. O noivo quere gañar limpo.</p></div>
     </div>
   </div>
 </section>
@@ -373,19 +467,19 @@
 <!-- RETOS -->
 <section id="retos" style="background:var(--cream-2);border-top:3px solid var(--ink);border-bottom:3px solid var(--ink)">
   <div class="wrap">
-    <div class="eyebrow">Misiones del capitán · marca las que complete</div>
-    <h2 class="sec-title">Retos para el <span class="b">novio</span></h2>
-    <svg class="swoosh" viewBox="0 0 170 14"><path d="M4 10 C 50 2, 120 2, 166 7"/></svg>
+    <div class="eyebrow">Misións do capitán · marca as que complete</div>
+    <h2 class="sec-title">Retos para o <span class="b">noivo</span></h2>
+    <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
 
     <div class="retos" id="retos">
-      <div class="card reto" data-id="r1"><div class="box-c">✓</div><div class="rt">Hacer la pole (o intentarlo con honor) en el karting.</div></div>
-      <div class="card reto" data-id="r2"><div class="box-c">✓</div><div class="rt">Pedir la cena entera imitando a un comentarista deportivo.</div></div>
-      <div class="card reto" data-id="r3"><div class="box-c">✓</div><div class="rt">Soltar un discurso de 30 segundos agradeciendo a «su equipo».</div></div>
-      <div class="card reto" data-id="r4"><div class="box-c">✓</div><div class="rt">Brindis en gallego en honor a «da Costa».</div></div>
-      <div class="card reto" data-id="r5"><div class="box-c">✓</div><div class="rt">Contar el chiste de Peter Crouch a un desconocido.</div></div>
-      <div class="card reto" data-id="r6"><div class="box-c">✓</div><div class="rt">Conseguir una foto con el camarero más serio… sonriendo.</div></div>
-      <div class="card reto" data-id="r7"><div class="box-c">✓</div><div class="rt">Bailar «el robot» al menos una vez en la noche.</div></div>
-      <div class="card reto" data-id="r8"><div class="box-c">✓</div><div class="rt">Acabar la noche con la camiseta del Muros S.D. puesta.</div></div>
+      <div class="card reto" data-id="r1"><div class="box-c">✓</div><div class="rt">Facer a pole (ou intentalo con honra) no karting.</div></div>
+      <div class="card reto" data-id="r2"><div class="box-c">✓</div><div class="rt">Pedir a cea enteira imitando a un comentarista deportivo.</div></div>
+      <div class="card reto" data-id="r3"><div class="box-c">✓</div><div class="rt">Soltar un discurso de 30 segundos agradecendo ao «seu equipo».</div></div>
+      <div class="card reto" data-id="r4"><div class="box-c">✓</div><div class="rt">Brindis en galego en honor a «da Costa».</div></div>
+      <div class="card reto" data-id="r5"><div class="box-c">✓</div><div class="rt">Contar o chiste de Peter Crouch a un descoñecido.</div></div>
+      <div class="card reto" data-id="r6"><div class="box-c">✓</div><div class="rt">Conseguir unha foto co camareiro máis serio… sorrindo.</div></div>
+      <div class="card reto" data-id="r7"><div class="box-c">✓</div><div class="rt">Bailar «o robot» polo menos unha vez na noite.</div></div>
+      <div class="card reto" data-id="r8"><div class="box-c">✓</div><div class="rt">Acabar a noite coa camisola do Muros S.D. posta.</div></div>
     </div>
     <div class="retos-foot" id="reto-score">0 / 8 retos completados</div>
   </div>
@@ -394,36 +488,37 @@
 <!-- BOTE -->
 <section id="bote">
   <div class="wrap">
-    <div class="eyebrow">Tesorería · sin morosos</div>
-    <h2 class="sec-title">El <span class="b">bote</span></h2>
-    <svg class="swoosh" viewBox="0 0 170 14"><path d="M4 10 C 50 2, 120 2, 166 7"/></svg>
+    <div class="eyebrow">Tesouraría · sen morosos</div>
+    <h2 class="sec-title">O <span class="b">bote</span></h2>
+    <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
 
     <div class="two">
       <div class="card panel">
-        <h3>Cuota de <span class="b">salida</span></h3>
+        <h3>Cota de <span class="b">saída</span></h3>
         <div class="bote-amt" contenteditable="true" spellcheck="false">40€ <small>/ cabeza</small></div>
         <ul class="clean">
-          <li>Karting, parte de la cena y fondo de imprevistos.</li>
-          <li>El novio <b>no paga nada</b> este finde. Hoy invitamos nosotros.</li>
-          <li>Las multas (reglas) se suman al bote. Lo que sobre, última ronda.</li>
+          <li>Karting, parte da cea e fondo de imprevistos.</li>
+          <li>O noivo <b>non paga nada</b> este finde. Hoxe convidamos nós.</li>
+          <li>As multas (regras) súmanse ao bote. O que sobre, última ronda.</li>
         </ul>
         <div class="bizum">
-          <span>Tesorero: <b>el del Bizum</b></span>
-          <span>Bizum: <b>pon aquí el número</b></span>
+          <span>Tesoureiro: <b>o do Bizum</b></span>
+          <span>Bizum: <b>pon aquí o número</b></span>
         </div>
-        <p class="note">Toca la cifra para editarla con el importe real.</p>
+        <p class="note">Toca a cifra para editala co importe real.</p>
       </div>
       <div class="card panel">
         <h3>Reparto <span class="b">previsto</span></h3>
         <ul class="clean">
-          <li><b>Karting:</b> tanda de carreras para los 7.</li>
-          <li><b>Cena Casa Mando:</b> menú + brindis del capitán.</li>
-          <li><b>Noche:</b> primera ronda del bote, el resto cada uno.</li>
-          <li><b>Imprevistos:</b> taxi de vuelta, multas y sorpresas.</li>
+          <li><b>Karting:</b> tanda de carreiras para os 7.</li>
+          <li><b>Cea Casa Mando:</b> menú + brindis do capitán.</li>
+          <li><b>Hostel:</b> Palacio Real · cada un paga a súa cama.</li>
+          <li><b>Noite:</b> primeira ronda do bote, o resto cada un.</li>
+          <li><b>Imprevistos:</b> taxi de volta, multas e sorpresas.</li>
         </ul>
         <div class="bizum">
-          <span>Estado del bote</span>
-          <span><b>Que no falte</b></span>
+          <span>Estado do bote</span>
+          <span><b>Que non falte</b></span>
         </div>
       </div>
     </div>
@@ -433,97 +528,140 @@
 <!-- KARTING -->
 <section id="karting" style="background:var(--cream-2);border-top:3px solid var(--ink);border-bottom:3px solid var(--ink)">
   <div class="wrap">
-    <div class="eyebrow">KartingLeón · 12:00 (llegada 11:45)</div>
-    <h2 class="sec-title">Normas y <span class="b">equipaje</span></h2>
-    <svg class="swoosh" viewBox="0 0 170 14"><path d="M4 10 C 50 2, 120 2, 166 7"/></svg>
+    <div class="eyebrow">KartingLeón · 12:00 (chegada 11:45)</div>
+    <h2 class="sec-title">Normas e <span class="b">equipaxe</span></h2>
+    <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
 
     <div class="two">
       <div class="card panel">
         <h3>Antes de <span class="b">pilotar</span></h3>
         <ul class="clean">
-          <li>Llega <b>15 minutos antes</b> (11:45) para firmar y equiparte.</li>
-          <li><b>DNI obligatorio</b> para registrarte.</li>
-          <li>Ropa cómoda y <b>zapatillas cerradas</b>. Nada de chanclas.</li>
-          <li>Pelo largo recogido. Sin bufandas ni cosas colgando.</li>
-          <li>Casco y buzo los pone el circuito.</li>
-          <li><b>Cero resaca al volante.</b> Ganamos limpio.</li>
+          <li>Chega <b>15 minutos antes</b> (11:45) para asinar e equiparte.</li>
+          <li><b>DNI obrigatorio</b> para rexistrarte.</li>
+          <li>Roupa cómoda e <b>zapatillas pechadas</b>. Nada de chanclas.</li>
+          <li>Pelo longo recollido. Sen bufandas nin cousas colgando.</li>
+          <li>Casco e mono pono o circuíto.</li>
+          <li><b>Cero resaca ao volante.</b> Gañamos limpo.</li>
         </ul>
       </div>
       <div class="card panel">
-        <h3>Qué <span class="b">llevar</span></h3>
+        <h3>Que <span class="b">levar</span></h3>
         <ul class="clean">
-          <li>DNI y dinero / Bizum para el bote.</li>
-          <li>Cargador o batería externa (las fotos no se sacan solas).</li>
-          <li>Ibuprofeno preventivo y mucha agua.</li>
-          <li>Ropa de cambio para la cena.</li>
-          <li>La camiseta del <b>Muros S.D.</b> bien planchada.</li>
-          <li>Buen humor de serie.</li>
+          <li>DNI e cartos / Bizum para o bote.</li>
+          <li>Cargador ou batería externa (as fotos non se sacan soas).</li>
+          <li>Ibuprofeno preventivo e moita auga.</li>
+          <li>Roupa de cambio para a cea.</li>
+          <li>A camisola do <b>Muros S.D.</b> ben pasada.</li>
+          <li>Bo humor de serie.</li>
         </ul>
       </div>
     </div>
   </div>
 </section>
 
-<!-- MAPA -->
-<section id="mapa">
+<!-- CAMISOLAS DESCARTADAS -->
+<section id="camisolas">
   <div class="wrap">
-    <div class="eyebrow">Cómo llegar · que nadie se pierda</div>
-    <h2 class="sec-title">El <span class="b">mapa</span></h2>
-    <svg class="swoosh" viewBox="0 0 170 14"><path d="M4 10 C 50 2, 120 2, 166 7"/></svg>
+    <div class="eyebrow">Comité de deseño · propuestas rexeitadas</div>
+    <h2 class="sec-title">Camisolas <span class="b">descartadas</span></h2>
+    <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
+
+    <div class="cam-grid">
+      <div class="card cam-card">
+        <img class="cam-img" src="assets/camiseta2.png" alt="Camisola descartada 1" style="object-position:center 10%"/>
+        <div class="cam-body">
+          <div class="verdict">🚫 Rexeitada</div>
+          <h3>«Me Caso e o Sabes»</h3>
+          <p>Demasiado explícita. O noivo negouse a saír á rúa con «cara novio aquí» estampado no peito. Falta de valentia ou exceso de dignidade? O comité non se pronuncia.</p>
+        </div>
+      </div>
+      <div class="card cam-card">
+        <img class="cam-img" src="assets/camiseta1.png" alt="Camisola descartada 2" style="object-position:center 15%"/>
+        <div class="cam-body">
+          <div class="verdict">🚫 Rexeitada</div>
+          <h3>«O Rodaballo Moi Avaricioso»</h3>
+          <p>Proposta artística demasiado elaborada. A nai, a óptica e o rodaballo nunha mesma estampa levantaron dúbidas existenciais no grupo. A frase «¿o seguinte, cobrar as extras?» resultou moi próxima á realidade.</p>
+        </div>
+      </div>
+      <div class="card cam-card">
+        <img class="cam-img" src="assets/camiseta3.png" alt="Camisola descartada 3"/>
+        <div class="cam-body">
+          <div class="verdict">🚫 Rexeitada</div>
+          <h3>«O Rodaballo Máxico»</h3>
+          <p>A avoa coa guía de fútbol era demasiado realista. O noivo recoñeceu a parroquia e vetou o deseño. Oportunidade perdida de levar a Costa Galega a León en formato gráfico.</p>
+        </div>
+      </div>
+    </div>
+    <p class="note">* O comité agradece os esforzos creativos de todos os membros. As camisolas quedaron descartadas, a amizade non.</p>
+  </div>
+</section>
+
+<!-- MAPA -->
+<section id="mapa" style="background:var(--cream-2);border-top:3px solid var(--ink);border-bottom:3px solid var(--ink)">
+  <div class="wrap">
+    <div class="eyebrow">Como chegar · que ninguén se perda</div>
+    <h2 class="sec-title">O <span class="b">mapa</span></h2>
+    <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
 
     <div class="maps">
       <div class="card mapcard">
-        <div class="mt">Mañana · 12:00</div>
+        <div class="mt">Mañá Sáb · 12:00</div>
         <h3>KartingLeón</h3>
-        <p>El circuito de la batalla. Quedada en la entrada a las 11:45 para firmar y equiparse.</p>
-        <a class="btn" href="https://www.google.com/maps/search/?api=1&query=KartingLeon" target="_blank" rel="noopener">🏁 Abrir en Maps</a>
+        <p>O circuíto da batalla. Quedada na entrada ás 11:45 para asinar e equiparse. Sen chegadas de último minuto.</p>
+        <a class="btn" href="https://www.google.com/maps/search/?api=1&query=KartingLeon+Leon" target="_blank" rel="noopener">🏁 Abrir en Maps</a>
       </div>
       <div class="card mapcard">
-        <div class="mt">Noche · 21:30</div>
+        <div class="mt">Noite Sáb · 21:30</div>
         <h3>Casa Mando · León</h3>
-        <p>Mesa reservada para la cena del equipo. Brindis obligatorio por el capitán.</p>
+        <p>Mesa reservada para a cea do equipo. Brindis obrigatorio polo capitán. Discurso incluído.</p>
         <a class="btn ghost" href="https://www.google.com/maps/search/?api=1&query=Casa+Mando+Le%C3%B3n" target="_blank" rel="noopener">🍽️ Abrir en Maps</a>
+      </div>
+      <div class="card mapcard">
+        <div class="mt">Sáb tarde → Dom · Aloxamento</div>
+        <h3>Palacio Real Hostel</h3>
+        <p>A base de operacións para dous días. Check-in sábado tarde, checkout domingo. León a dous pasos.</p>
+        <a class="btn hostel" href="https://www.google.com/maps/search/?api=1&query=Palacio+Real+Hostel+Le%C3%B3n" target="_blank" rel="noopener">🏨 Abrir en Maps</a>
       </div>
     </div>
   </div>
 </section>
 
 <!-- FOTOS -->
-<section id="fotos" style="background:var(--cream-2);border-top:3px solid var(--ink)">
+<section id="fotos">
   <div class="wrap">
-    <div class="eyebrow">Patrimonio del grupo · pruebas del delito</div>
-    <h2 class="sec-title">La <span class="b">galería</span></h2>
-    <svg class="swoosh" viewBox="0 0 170 14"><path d="M4 10 C 50 2, 120 2, 166 7"/></svg>
+    <div class="eyebrow">Patrimonio do grupo · probas do delito</div>
+    <h2 class="sec-title">A <span class="b">galería</span></h2>
+    <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
 
     <div class="gal">
-      <image-slot id="foto1" shape="rect" placeholder="Foto del karting"></image-slot>
+      <image-slot id="foto1" shape="rect" placeholder="Foto do karting"></image-slot>
       <image-slot id="foto2" shape="rect" placeholder="Podio / pole"></image-slot>
-      <image-slot id="foto3" shape="rect" placeholder="Equipo al completo"></image-slot>
-      <image-slot id="foto4" shape="rect" placeholder="Cena Casa Mando"></image-slot>
+      <image-slot id="foto3" shape="rect" placeholder="Equipo ao completo"></image-slot>
+      <image-slot id="foto4" shape="rect" placeholder="Cea Casa Mando"></image-slot>
       <image-slot id="foto5" shape="rect" placeholder="Brindis"></image-slot>
-      <image-slot id="foto6" shape="rect" placeholder="Barrio Húmedo"></image-slot>
-      <image-slot id="foto7" shape="rect" placeholder="El capitán"></image-slot>
-      <image-slot id="foto8" shape="rect" placeholder="La foto vergonzosa"></image-slot>
+      <image-slot id="foto6" shape="rect" placeholder="Barrio Húmido"></image-slot>
+      <image-slot id="foto7" shape="rect" placeholder="O capitán"></image-slot>
+      <image-slot id="foto8" shape="rect" placeholder="A foto vergonzosa"></image-slot>
     </div>
-    <p class="gal-note">Arrastra una foto a cada hueco (o haz clic para subirla). Se quedan guardadas.</p>
+    <p class="gal-note">Arrastra unha foto a cada oco (ou fai clic para subila). Quedan gardadas.</p>
   </div>
 </section>
 
 <footer>
-  <div class="f-big">Última jornada<br />de <span class="b">soltero</span></div>
+  <div class="f-big">Último partido<br />de <span class="b">solteiro</span></div>
   <div class="marker">¡Vamos, capitán! 🏁⚽</div>
-  <div class="f-sub">Aarón Cásase · León · 20 Jun · Muros S.D.</div>
+  <div class="f-sub">Aarón Cásase · León · 20–21 Xuño · Muros S.D.</div>
 </footer>
 
 <script>
-  // ---------- COUNTDOWN ----------
-  const target = new Date(2026, 5, 20, 12, 0, 0).getTime(); // 20 jun 2026, 12:00
-  const pad = n => String(n).padStart(2, '0');
+  // COUNTDOWN
+  const target = new Date(2026, 5, 20, 12, 0, 0).getTime();
+  const pad = n => String(n).padStart(2,'0');
   function tick(){
     const diff = target - Date.now();
     const clock = document.getElementById('clock');
     if(diff <= 0){
-      clock.innerHTML = '<div class="cu" style="min-width:auto;padding:14px 26px"><div class="n" style="font-size:30px">¡A CORRER! 🏁</div></div>';
+      clock.innerHTML = '<div class="cu" style="min-width:auto;padding:14px 26px"><div class="n" style="font-size:28px">¡A CORRER! 🏁</div></div>';
       return;
     }
     const d = Math.floor(diff/86400000);
@@ -537,7 +675,7 @@
   }
   tick(); setInterval(tick, 1000);
 
-  // ---------- RETOS ----------
+  // RETOS
   const KEY = 'despedida-aaron-retos';
   let done = {};
   try { done = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){ done = {}; }
@@ -550,8 +688,7 @@
     const id = r.dataset.id;
     if(done[id]) r.classList.add('done');
     r.addEventListener('click', () => {
-      done[id] = !r.classList.toggle('done') ? false : true;
-      done[id] = r.classList.contains('done');
+      done[id] = r.classList.toggle('done');
       localStorage.setItem(KEY, JSON.stringify(done));
       score();
     });
