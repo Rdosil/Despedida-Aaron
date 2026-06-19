@@ -532,7 +532,8 @@
         if (!this.id) { this._local = val; this._render(); }
       } catch (err) {
         if (gen !== this._gen) return;
-        this._setError('Could not read that image.');
+        const detail = err && err.message ? String(err.message) : '';
+        this._setError(detail ? `Non se puido gardar a foto: ${detail}` : 'Non se puido gardar a foto.');
         console.warn('<image-slot> ingest failed:', err);
       }
     }

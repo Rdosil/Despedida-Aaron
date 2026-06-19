@@ -1,6 +1,7 @@
 import handler from '../api/photos.js';
 
 const store = [];
+let putCounter = 0;
 
 globalThis.__blobMock = {
   async list({ prefix = '' } = {}) {
@@ -9,10 +10,11 @@ globalThis.__blobMock = {
     };
   },
   async put(pathname, body, { contentType = 'application/octet-stream' } = {}) {
+    putCounter += 1;
     const blob = {
       pathname,
       uploadedAt: new Date().toISOString(),
-      url: `https://mock.blob/${pathname}`,
+      url: `https://mock.blob/${pathname.replace(/\d+(?=\.[a-z]+$)/, String(putCounter))}`,
       size: body?.length || 0,
       contentType,
       body: Buffer.from(body || []),
@@ -81,6 +83,9 @@ async function main() {
   });
   if (upload1.status !== 200 || !upload1.body.slot?.u) {
     throw new Error('First upload failed');
+  }
+  if (upload1.body.slot.u !== 'https://mock.blob/image-slots/foto1/active/1.png') {
+    throw new Error('First upload should return persisted blob URL');
   }
 
   const upload2 = await call('POST', {

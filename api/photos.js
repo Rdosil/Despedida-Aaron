@@ -131,18 +131,18 @@ export default async function handler(req, res) {
         const archivedType = previous.contentType || contentType;
         const archivePath = `${slotPrefix(slotId, ARCHIVE_SEGMENT)}${Date.now()}.${extFromType(archivedType)}`;
         await putBlob(archivePath, Buffer.from(archivedBody), {
-          access: 'public',
           addRandomSuffix: false,
           contentType: archivedType,
+          allowOverwrite: true,
         });
       }
 
       const ext = extFromType(contentType);
       const pathname = `${slotPrefix(slotId, ACTIVE_SEGMENT)}${Date.now()}.${ext}`;
       const uploaded = await putBlob(pathname, body, {
-        access: 'public',
         addRandomSuffix: false,
         contentType,
+        allowOverwrite: true,
       });
 
       return json(res, 200, {
