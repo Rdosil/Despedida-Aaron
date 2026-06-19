@@ -45,6 +45,13 @@ async function putBlob(pathname, body, options) {
   return blobPut(pathname, body, options);
 }
 
+async function putPublicBlob(pathname, body, options) {
+  return putBlob(pathname, body, {
+    ...options,
+    access: 'public',
+  });
+}
+
 function slotPrefix(slotId, segment) {
   return `${PREFIX}${slotId}/${segment}/`;
 }
@@ -130,7 +137,7 @@ export default async function handler(req, res) {
         const archivedBody = await fetch(previous.url).then((r) => r.arrayBuffer());
         const archivedType = previous.contentType || contentType;
         const archivePath = `${slotPrefix(slotId, ARCHIVE_SEGMENT)}${Date.now()}.${extFromType(archivedType)}`;
-        await putBlob(archivePath, Buffer.from(archivedBody), {
+        await putPublicBlob(archivePath, Buffer.from(archivedBody), {
           addRandomSuffix: false,
           contentType: archivedType,
           allowOverwrite: true,
@@ -139,7 +146,7 @@ export default async function handler(req, res) {
 
       const ext = extFromType(contentType);
       const pathname = `${slotPrefix(slotId, ACTIVE_SEGMENT)}${Date.now()}.${ext}`;
-      const uploaded = await putBlob(pathname, body, {
+      const uploaded = await putPublicBlob(pathname, body, {
         addRandomSuffix: false,
         contentType,
         allowOverwrite: true,

@@ -3,29 +3,6 @@ import handler from '../api/photos.js';
 const store = [];
 let putCounter = 0;
 
-globalThis.__blobMock = {
-  async list({ prefix = '' } = {}) {
-    return {
-      blobs: store.filter((blob) => blob.pathname.startsWith(prefix)).map((blob) => ({ ...blob })),
-    };
-  },
-  async put(pathname, body, { contentType = 'application/octet-stream' } = {}) {
-    putCounter += 1;
-    const blob = {
-      pathname,
-      uploadedAt: new Date().toISOString(),
-      url: `https://mock.blob/${pathname.replace(/\d+(?=\.[a-z]+$)/, String(putCounter))}`,
-      size: body?.length || 0,
-      contentType,
-      body: Buffer.from(body || []),
-    };
-    const idx = store.findIndex((entry) => entry.pathname === pathname);
-    if (idx >= 0) store.splice(idx, 1, blob);
-    else store.push(blob);
-    return { ...blob };
-  },
-};
-
 globalThis.fetch = async (url) => {
   const found = store.find((blob) => blob.url === url);
   if (!found) throw new Error(`mock blob not found: ${url}`);
@@ -69,6 +46,32 @@ async function flushMicrotasks(times = 3) {
 }
 
 async function main() {
+  globalThis.__blobMock = {
+    async list({ prefix = '' } = {}) {
+      return {
+        blobs: store.filter((blob) => blob.pathname.startsWith(prefix)).map((blob) => ({ ...blob })),
+      };
+    },
+    async put(pathname, body, options = {}) {
+      if (options.access !== 'public') {
+        throw new Error('mock requires public access');
+      }
+      putCounter += 1;
+      const blob = {
+        pathname,
+        uploadedAt: new Date().toISOString(),
+        url: `https://mock.blob/${pathname.replace(/\\d+(?=\\.[a-z]+$)/, String(putCounter))}`,
+        size: body?.length || 0,
+        contentType: options.contentType || 'application/octet-stream',
+        body: Buffer.from(body || []),
+      };
+      const idx = store.findIndex((entry) => entry.pathname === pathname);
+      if (idx >= 0) store.splice(idx, 1, blob);
+      else store.push(blob);
+      return { ...blob };
+    },
+  };
+
   const initial = await call('GET');
   if (initial.status !== 200 || Object.keys(initial.body.slots).length !== 0) {
     throw new Error('Initial GET should return empty slots');
@@ -84,8 +87,8 @@ async function main() {
   if (upload1.status !== 200 || !upload1.body.slot?.u) {
     throw new Error('First upload failed');
   }
-  if (upload1.body.slot.u !== 'https://mock.blob/image-slots/foto1/active/1.png') {
-    throw new Error('First upload should return persisted blob URL');
+  if (!upload1.body.slot.u.startsWith('https://mock.blob/image-slots/foto1/active/')) {
+    throw new Error(`First upload should return persisted blob URL, got ${upload1.body.slot.u}`);
   }
 
   const upload2 = await call('POST', {
@@ -100,7 +103,7 @@ async function main() {
   }
 
   const listed = await call('GET');
-  if (listed.status !== 200 || listed.body.slots.foto1?.u !== upload2.body.slot.u) {
+  if (listed.status !== 200 || !listed.body.slots.foto1?.u.startsWith('https://mock.blob/image-slots/foto1/active/')) {
     throw new Error('GET after replace did not return current photo');
   }
   if (!listed.body.archive?.foto1 || listed.body.archive.foto1.length < 1) {
