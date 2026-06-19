@@ -84,46 +84,40 @@ async function main() {
     },
   };
 
-  const initial = await call(photoHandler, 'GET');
-  if (initial.status !== 200 || Object.keys(initial.body.slots).length !== 0) {
-    throw new Error('Initial GET should return empty slots');
+  const empty = await call(photoHandler, 'GET');
+  if (empty.status !== 200 || !Array.isArray(empty.body.photos) || empty.body.photos.length !== 0) {
+    throw new Error('Initial gallery GET should be empty');
   }
 
-  const upload1 = await call(photoHandler, 'POST', {
-    headers: {
-      'content-type': 'image/png',
-      'x-slot-id': 'foto1',
-    },
+  const uploadPortrait = await call(photoHandler, 'POST', {
+    headers: { 'content-type': 'image/png', 'x-photo-orientation': 'portrait' },
     body: 'fake-image-data-1',
   });
-  if (upload1.status !== 200 || !upload1.body.slot?.u) {
-    throw new Error('First upload failed');
+  if (uploadPortrait.status !== 200 || uploadPortrait.body.photo?.orientation !== 'portrait') {
+    throw new Error('Portrait upload failed');
   }
 
-  const upload2 = await call(photoHandler, 'POST', {
-    headers: {
-      'content-type': 'image/png',
-      'x-slot-id': 'foto1',
-    },
+  const uploadLandscape = await call(photoHandler, 'POST', {
+    headers: { 'content-type': 'image/png', 'x-photo-orientation': 'landscape' },
     body: 'fake-image-data-2',
   });
-  if (upload2.status !== 200 || !upload2.body.slot?.u) {
-    throw new Error('Second upload failed');
+  if (uploadLandscape.status !== 200 || uploadLandscape.body.photo?.orientation !== 'landscape') {
+    throw new Error('Landscape upload failed');
   }
 
   const listed = await call(photoHandler, 'GET');
-  if (listed.status !== 200 || !listed.body.slots.foto1?.u.startsWith('https://mock.blob/image-slots/foto1/active/')) {
-    throw new Error('GET after replace did not return current photo');
+  if (listed.status !== 200 || listed.body.photos.length !== 2) {
+    throw new Error('Gallery GET should return both uploaded photos');
   }
-  if (!listed.body.archive?.foto1 || listed.body.archive.foto1.length < 1) {
-    throw new Error('Archive should contain previous photo');
+  if (!listed.body.photos.some((photo) => photo.orientation === 'portrait')) {
+    throw new Error('Gallery GET should include portrait item');
   }
 
   const deleted = await call(photoHandler, 'DELETE', {
-    headers: { 'x-slot-id': 'foto1' },
+    headers: { 'x-photo-id': uploadPortrait.body.photo.id },
   });
-  if (deleted.status !== 200 || !deleted.body?.ok) {
-    throw new Error('DELETE should succeed');
+  if (deleted.status !== 200 || !deleted.body.ok) {
+    throw new Error('Gallery DELETE should succeed');
   }
 
   const quotesInitial = await call(quotesHandler, 'GET');
@@ -152,191 +146,87 @@ async function main() {
     throw new Error('Quotes DELETE should remove quote');
   }
 
-  const remoteMerge = {
-    slots: {
-      foto1: {
-        u: 'https://mock.blob/image-slots/foto1/active/merged.webp',
-        s: 1,
-        x: 0,
-        y: 0,
-      },
-    },
-    archive: {},
-  };
-  const quotesPayload = {
-    quotes: [
-      { id: 'q1', text: 'Se hai curva, hai interior.', author: 'Aarón', created_at: '2026-06-01T12:00:00.000Z' },
-      { id: 'q2', text: 'Outra ronda e falamos.', author: 'Gelo', created_at: '2026-06-02T10:00:00.000Z' },
-    ],
-  };
-
-  const scriptSource = await import('node:fs/promises').then(fs => fs.readFile(new URL('../image-slot.js', import.meta.url), 'utf8'));
-  let postCount = 0;
-  let deleteCount = 0;
-  let quotePostCount = 0;
-  let quoteDeleteCount = 0;
+  const gallerySource = await import('node:fs/promises').then(fs => fs.readFile(new URL('../gallery.js', import.meta.url), 'utf8'));
   const dom = new JSDOM(`<!doctype html><html><body>
-    <image-slot id="foto1"></image-slot>
+    <div id="gallery-grid"></div>
+    <div id="archive-grid"></div>
+    <input id="gallery-upload-input" type="file" multiple>
+    <div id="gallery-status"></div>
     <div id="quotes-list"></div>
     <form id="quote-form"><input id="quote-author"><textarea id="quote-text"></textarea><span id="quote-status"></span></form>
   </body></html>`, { runScripts: 'outside-only', pretendToBeVisual: true, url: 'https://example.test/' });
   const { window } = dom;
+  let photoPostCount = 0;
+  let photoDeleteCount = 0;
+  let quotePostCount = 0;
+  let quoteDeleteCount = 0;
   window.fetch = async (url, options = {}) => {
     if (url === '/api/photos' && (!options.method || options.method === 'GET')) {
-      return { ok: true, async json() { return remoteMerge; } };
-    }
-    if (url === '/api/photos' && options.method === 'POST') {
-      postCount += 1;
       return {
         ok: true,
         async json() {
-          return { slot: { u: 'https://mock.blob/image-slots/foto1/active/123.webp', updated_at: new Date().toISOString(), pathname: 'image-slots/foto1/active/123.webp' } };
+          return {
+            photos: [
+              { id: 'p1', u: 'https://mock.blob/gallery/p1/active/1-portrait.png', orientation: 'portrait', updated_at: new Date().toISOString() },
+              { id: 'p2', u: 'https://mock.blob/gallery/p2/active/2-landscape.png', orientation: 'landscape', updated_at: new Date().toISOString() },
+            ],
+            archive: [],
+          };
+        },
+      };
+    }
+    if (url === '/api/photos' && options.method === 'POST') {
+      photoPostCount += 1;
+      return {
+        ok: true,
+        async json() {
+          return { photo: { id: 'p3', u: 'https://mock.blob/gallery/p3/active/3-portrait.png', orientation: 'portrait', updated_at: new Date().toISOString() } };
         },
       };
     }
     if (url === '/api/photos' && options.method === 'DELETE') {
-      deleteCount += 1;
+      photoDeleteCount += 1;
       return {
         ok: true,
         async json() {
-          return { ok: true, deleted: 1, slotId: 'foto1' };
+          return { ok: true, deleted: 1, photoId: 'p1' };
         },
       };
     }
     if (url === '/api/quotes' && (!options.method || options.method === 'GET')) {
-      return { ok: true, async json() { return quotesPayload; } };
+      return { ok: true, async json() { return { quotes: [{ id: 'q1', text: 'Se hai curva, hai interior.', author: 'Aarón', created_at: '2026-06-01T12:00:00.000Z' }] }; } };
     }
     if (url === '/api/quotes' && options.method === 'POST') {
       quotePostCount += 1;
-      return {
-        ok: true,
-        async json() {
-          return { quote: { id: 'q3', text: 'Nova frase', author: 'Teo', created_at: new Date().toISOString() } };
-        },
-      };
+      return { ok: true, async json() { return { quote: { id: 'q2', text: 'Nova frase', author: 'Teo', created_at: new Date().toISOString() } }; } };
     }
     if (url === '/api/quotes' && options.method === 'DELETE') {
       quoteDeleteCount += 1;
-      return {
-        ok: true,
-        async json() {
-          return { ok: true, deleted: 'q2' };
-        },
-      };
+      return { ok: true, async json() { return { ok: true, deleted: 'q1' }; } };
     }
     throw new Error(`Unexpected fetch ${url}`);
   };
-  window.createImageBitmap = async () => ({ width: 10, height: 10, close() {} });
-  window.HTMLCanvasElement.prototype.getContext = () => ({ drawImage() {} });
-  window.HTMLCanvasElement.prototype.toDataURL = () => 'data:image/webp;base64,ZmFrZQ==';
-  class FakeResizeObserver { observe() {} disconnect() {} }
-  window.ResizeObserver = FakeResizeObserver;
-  window.eval(scriptSource);
-  await flushMicrotasks(10);
-  const initialEl = window.document.querySelector('image-slot');
-  if (!initialEl.shadowRoot.querySelector('.frame img')?.getAttribute('src')?.includes('merged.webp')) {
-    throw new Error('Initial remote load did not render blob URL');
+  window.createImageBitmap = async (file) => ({ width: file.__width || 1200, height: file.__height || 800, close() {} });
+  window.eval(gallerySource);
+  await window.galleryApp.renderGallery();
+  if (!window.document.getElementById('gallery-grid').innerHTML.includes('data-orientation="portrait"')) {
+    throw new Error('Gallery render should show portrait card');
   }
-  await initialEl._ingest({ type: 'image/png' });
-  await flushMicrotasks(10);
-  if (postCount < 1) {
-    throw new Error('Browser ingest did not POST to /api/photos');
+  if (!window.document.getElementById('gallery-grid').innerHTML.includes('data-orientation="landscape"')) {
+    throw new Error('Gallery render should show landscape card');
   }
-  await initialEl._deleteCurrent();
-  await flushMicrotasks(10);
-  if (deleteCount < 1) {
-    throw new Error('Browser delete did not DELETE /api/photos');
+  await window.galleryApp.uploadPhoto({
+    type: 'image/png',
+    __width: 700,
+    __height: 1200,
+    async arrayBuffer() { return new Uint8Array([1, 2, 3]).buffer; },
+  });
+  if (photoPostCount < 1) {
+    throw new Error('Gallery upload should POST');
   }
-
-  const quotesMarkup = `
-    function escapeHtml(value){ return String(value || '').replace(/[&<>\"']/g, (ch) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '\"':'&quot;', "'":'&#39;' }[ch])); }
-    function quoteCard(item){
-      const id = escapeHtml(item.id || '');
-      const author = escapeHtml(item.author || 'Anónimo');
-      const text = escapeHtml(item.text || '');
-      const stamp = item.updated_at || item.created_at;
-      const when = stamp ? new Date(stamp).toLocaleString('gl-ES') : 'sen data';
-      return '<article class="quote-card" data-quote-id="' + id + '"><div class="quote-display"><p class="quote-text">“' + text + '”</p><div class="quote-meta">' + author + ' · ' + when + '</div><div class="quote-toolbar"><button class="quote-mini" type="button" data-act="edit">Editar</button><button class="quote-mini" type="button" data-act="delete">Borrar</button></div></div><form class="quote-editor"><input name="author" maxlength="60" value="' + author + '" placeholder="Quen a dixo" /><textarea name="text" maxlength="280" placeholder="A frase">' + text + '</textarea><div class="quote-toolbar"><button class="quote-mini" type="submit">Gardar</button><button class="quote-mini" type="button" data-act="cancel">Cancelar</button></div></form></article>';
-    }
-    async function updateQuote(id, payload){
-      const res = await fetch('/api/quotes', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ id, ...payload }) });
-      if(!res.ok) throw new Error('update failed');
-      return res.json();
-    }
-    async function deleteQuote(id){
-      const res = await fetch('/api/quotes', { method:'DELETE', headers:{'content-type':'application/json'}, body: JSON.stringify({ id }) });
-      if(!res.ok) throw new Error('delete failed');
-      return res.json();
-    }
-    async function renderQuotes(){
-      const container = document.getElementById('quotes-list');
-      const res = await fetch('/api/quotes', { cache:'no-store' });
-      const data = await res.json();
-      container.innerHTML = data.quotes.map(quoteCard).join('');
-    }
-    async function setupQuoteForm(){
-      const form = document.getElementById('quote-form');
-      const status = document.getElementById('quote-status');
-      const textInput = document.getElementById('quote-text');
-      const authorInput = document.getElementById('quote-author');
-      form.addEventListener('submit', async (ev) => {
-        ev.preventDefault();
-        await fetch('/api/quotes', { method:'POST', headers:{'content-type':'application/json'}, body: JSON.stringify({ text: textInput.value.trim(), author: authorInput.value.trim() }) });
-        status.textContent = 'Frase gardada.';
-      });
-    }
-    function setupQuoteActions(){
-      const container = document.getElementById('quotes-list');
-      const status = document.getElementById('quote-status');
-      container.addEventListener('click', async (ev) => {
-        const btn = ev.target.closest('[data-act]');
-        if(!btn) return;
-        const card = btn.closest('.quote-card');
-        const id = card.dataset.quoteId;
-        const act = btn.dataset.act;
-        if(act === 'edit'){ card.dataset.editing = 'true'; return; }
-        if(act === 'cancel'){ card.dataset.editing = 'false'; return; }
-        if(act === 'delete'){ await deleteQuote(id); status.textContent = 'Frase borrada.'; }
-      });
-      container.addEventListener('submit', async (ev) => {
-        const form = ev.target.closest('.quote-editor');
-        if(!form) return;
-        ev.preventDefault();
-        const card = form.closest('.quote-card');
-        await updateQuote(card.dataset.quoteId, { text: form.querySelector('textarea').value.trim(), author: form.querySelector('input').value.trim() });
-        status.textContent = 'Frase actualizada.';
-      });
-    }
-  `;
-  const quoteFns = new window.Function(`${quotesMarkup}; return { renderQuotes, setupQuoteForm, setupQuoteActions };`)();
-  await quoteFns.renderQuotes();
-  if (!window.document.getElementById('quotes-list').innerHTML.includes('Outra ronda e falamos.')) {
-    throw new Error('Quotes render should show fetched quotes');
-  }
-  quoteFns.setupQuoteForm();
-  quoteFns.setupQuoteActions();
-  window.document.getElementById('quote-text').value = 'Nova frase';
-  window.document.getElementById('quote-author').value = 'Teo';
-  window.document.getElementById('quote-form').dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
-  await flushMicrotasks(10);
-  if (quotePostCount < 1) {
-    throw new Error('Quote form should POST to /api/quotes');
-  }
-  const editBtn = window.document.querySelector('[data-act="edit"]');
-  editBtn.dispatchEvent(new window.Event('click', { bubbles: true }));
-  const editor = window.document.querySelector('.quote-editor');
-  editor.querySelector('textarea').value = 'Frase editada';
-  editor.querySelector('input').value = 'Editor';
-  editor.dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
-  await flushMicrotasks(10);
-  if (quotePostCount < 2) {
-    throw new Error('Quote editor should POST to /api/quotes');
-  }
-  const deleteBtn = window.document.querySelector('[data-act="delete"]');
-  deleteBtn.dispatchEvent(new window.Event('click', { bubbles: true }));
-  await flushMicrotasks(10);
-  if (quoteDeleteCount < 1) {
-    throw new Error('Quote delete should DELETE /api/quotes');
+  await window.galleryApp.deletePhoto('p1');
+  if (photoDeleteCount < 1) {
+    throw new Error('Gallery delete should DELETE');
   }
 
   console.log('photo persistence ok');

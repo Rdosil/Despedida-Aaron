@@ -161,7 +161,18 @@
   .cam-body p{margin:0;font-size:14px;color:var(--ink-soft)}
 
   /* GALLERY */
-  .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px;margin-top:28px}
+  .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));grid-auto-flow:dense;gap:14px;margin-top:28px;align-items:start}
+  .gal-card{position:relative;border:3px solid var(--ink);box-shadow:var(--shadow);background:var(--card);padding:10px}
+  .gal-card img{width:100%;height:auto;display:block;border:2px solid var(--ink);background:#fff}
+  .gal-card[data-orientation="landscape"]{grid-column:span 2}
+  .gal-card[data-orientation="portrait"] img{aspect-ratio:3/4;object-fit:cover}
+  .gal-card[data-orientation="landscape"] img{aspect-ratio:4/3;object-fit:cover}
+  .gal-card[data-orientation="square"] img{aspect-ratio:1/1;object-fit:cover}
+  .gal-meta{margin-top:8px;font-size:12px;color:var(--ink-soft);font-style:italic}
+  .gal-toolbar{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
+  .gal-toolbar button{appearance:none;border:2px solid var(--ink);background:#fffdf7;padding:7px 10px;font:inherit;font-weight:700;cursor:pointer}
+  .gal-uploader{margin-top:18px;padding:18px;border:3px dashed var(--ink);background:rgba(255,255,255,.55);display:grid;gap:12px;justify-items:start}
+  .gal-uploader input[type="file"]{display:block}
   .archive-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:18px}
   .archive-card{background:var(--card);border:3px solid var(--ink);box-shadow:var(--shadow);padding:10px;display:flex;flex-direction:column;gap:8px}
   .archive-card img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;border:2px solid var(--ink)}
@@ -657,22 +668,18 @@
     <h2 class="sec-title">A <span class="b">galería</span></h2>
     <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
 
-    <div class="gal">
-      <image-slot id="foto1" shape="rect" placeholder="Foto do karting"></image-slot>
-      <image-slot id="foto2" shape="rect" placeholder="Podio / pole"></image-slot>
-      <image-slot id="foto3" shape="rect" placeholder="Equipo ao completo"></image-slot>
-      <image-slot id="foto4" shape="rect" placeholder="Cea Casa Mando"></image-slot>
-      <image-slot id="foto5" shape="rect" placeholder="Brindis"></image-slot>
-      <image-slot id="foto6" shape="rect" placeholder="Barrio Húmido"></image-slot>
-      <image-slot id="foto7" shape="rect" placeholder="O capitán"></image-slot>
-      <image-slot id="foto8" shape="rect" placeholder="A foto vergonzosa"></image-slot>
+    <div class="gal-uploader">
+      <strong>Sube fotos sen orde nin temática</strong>
+      <p class="gal-note" style="margin:0">Valen verticais, apaisadas ou cadradas. Entran todas na mesma galería compartida.</p>
+      <input id="gallery-upload-input" type="file" accept="image/png,image/jpeg,image/webp,image/avif" multiple>
+      <div id="gallery-status" class="gal-note" style="margin:0"></div>
     </div>
-    <p class="gal-note">Arrastra unha foto a cada oco (ou fai clic para subila). Quedan gardadas.</p>
-    <p class="gal-note" style="margin-top:8px;font-size:12px">Calquera persoa co enlace pode subir ou substituír fotos. As antigas móvense automaticamente a “Outras fotos”.</p>
+
+    <div id="gallery-grid" class="gal"></div>
 
     <div style="margin-top:34px">
-      <div class="eyebrow">Fondo de armario · reliquias recuperadas</div>
-      <h3 style="margin:0;font-size:clamp(22px,3vw,32px)">Outras fotos</h3>
+      <div class="eyebrow">Arquivo da festa · material retirado</div>
+      <h3 style="margin:0;font-size:clamp(22px,3vw,32px)">Arquivo de fotos</h3>
       <div id="archive-grid" class="archive-grid"></div>
     </div>
   </div>
@@ -947,6 +954,12 @@
   renderQuotes();
   setupQuoteForm();
   setupQuoteActions();
+</script>
+<script src="./gallery.js"></script>
+<script>
+  window.galleryApp?.renderGallery();
+  window.galleryApp?.setupUploader();
+  window.galleryApp?.setupGalleryActions();
 </script>
 </body>
 </html>
