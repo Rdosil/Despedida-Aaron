@@ -22,12 +22,25 @@
   }
 
   async function uploadPhoto(file) {
-    const bitmap = await createImageBitmap(file);
     let orientation = 'landscape';
+    const probeUrl = URL.createObjectURL(file);
     try {
-      orientation = inferOrientation(bitmap.width, bitmap.height);
+      const size = await new Promise((resolve, reject) => {
+        const img = new Image();
+        img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
+        img.onerror = () => reject(new Error('image probe failed'));
+        img.src = probeUrl;
+      });
+      orientation = inferOrientation(size.width, size.height);
+    } catch (_err) {
+      const bitmap = await createImageBitmap(file);
+      try {
+        orientation = inferOrientation(bitmap.width, bitmap.height);
+      } finally {
+        bitmap.close && bitmap.close();
+      }
     } finally {
-      bitmap.close && bitmap.close();
+      URL.revokeObjectURL(probeUrl);
     }
     const res = await fetch(API_URL, {
       method: 'POST',

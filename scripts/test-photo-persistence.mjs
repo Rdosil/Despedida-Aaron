@@ -207,6 +207,16 @@ async function main() {
     throw new Error(`Unexpected fetch ${url}`);
   };
   window.createImageBitmap = async (file) => ({ width: file.__width || 1200, height: file.__height || 800, close() {} });
+  window.URL.createObjectURL = (file) => `blob:mock-${file.__width || 0}x${file.__height || 0}`;
+  window.URL.revokeObjectURL = () => {};
+  window.Image = class MockImage {
+    set src(value) {
+      const match = /blob:mock-(\d+)x(\d+)/.exec(value || '');
+      this.naturalWidth = Number(match?.[1] || 0);
+      this.naturalHeight = Number(match?.[2] || 0);
+      setTimeout(() => this.onload && this.onload(), 0);
+    }
+  };
   window.eval(gallerySource);
   await window.galleryApp.renderGallery();
   if (!window.document.getElementById('gallery-grid').innerHTML.includes('data-orientation="portrait"')) {
