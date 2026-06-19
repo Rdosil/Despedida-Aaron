@@ -1,6 +1,8 @@
-import { del as blobDel, list as blobList, put as blobPut } from '@vercel/blob';
+import { list as blobList, put as blobPut } from '@vercel/blob';
 
 const PREFIX = 'image-slots/';
+const ACTIVE_SEGMENT = 'active';
+const ARCHIVE_SEGMENT = 'archive';
 const ACCEPT = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/avif']);
 
 function json(res, status, payload) {
@@ -8,16 +10,6 @@ function json(res, status, payload) {
   res.setHeader('Content-Type', 'application/json; charset=utf-8');
   res.setHeader('Cache-Control', 'no-store');
   res.end(JSON.stringify(payload));
-}
-
-function getAdminToken(req) {
-  return req.headers['x-admin-token'] || req.headers['X-Admin-Token'];
-}
-
-function isAuthorized(req) {
-  const expected = process.env.ADMIN_TOKEN;
-  if (!expected) return false;
-  return getAdminToken(req) === expected;
 }
 
 function sanitizeSlotId(value) {
@@ -53,19 +45,25 @@ async function putBlob(pathname, body, options) {
   return blobPut(pathname, body, options);
 }
 
-async function deleteBlob(url) {
-  if (globalThis.__blobMock?.del) return globalThis.__blobMock.del(url);
-  return blobDel(url);
+function slotPrefix(slotId, segment) {
+  return `${PREFIX}${slotId}/${segment}/`;
 }
 
-async function listSlotEntries() {
+async function listSlotEntries(slotId, segment) {
+  const listing = await listBlobs({ prefix: slotPrefix(slotId, segment) });
+  return (listing.blobs || []).slice().sort((a, b) => {
+    return new Date(b.uploadedAt || 0) - new Date(a.uploadedAt || 0);
+  });
+}
+
+async function listCurrentSlots() {
   const listing = await listBlobs({ prefix: PREFIX });
   const latestBySlot = new Map();
   for (const blob of listing.blobs || []) {
-    const name = blob.pathname || '';
-    const rest = name.startsWith(PREFIX) ? name.slice(PREFIX.length) : name;
-    const slotId = rest.split('/')[0];
-    if (!slotId) continue;
+    const pathname = blob.pathname || '';
+    const rest = pathname.startsWith(PREFIX) ? pathname.slice(PREFIX.length) : pathname;
+    const [slotId, segment] = rest.split('/');
+    if (!slotId || segment !== ACTIVE_SEGMENT) continue;
     const prev = latestBySlot.get(slotId);
     if (!prev || new Date(blob.uploadedAt || 0) > new Date(prev.uploadedAt || 0)) {
       latestBySlot.set(slotId, blob);
@@ -74,12 +72,34 @@ async function listSlotEntries() {
   return latestBySlot;
 }
 
+async function listArchiveSlots() {
+  const listing = await listBlobs({ prefix: PREFIX });
+  const grouped = {};
+  for (const blob of listing.blobs || []) {
+    const pathname = blob.pathname || '';
+    const rest = pathname.startsWith(PREFIX) ? pathname.slice(PREFIX.length) : pathname;
+    const [slotId, segment] = rest.split('/');
+    if (!slotId || segment !== ARCHIVE_SEGMENT) continue;
+    if (!grouped[slotId]) grouped[slotId] = [];
+    grouped[slotId].push({
+      u: blob.url,
+      updated_at: blob.uploadedAt || null,
+      pathname: blob.pathname || null,
+    });
+  }
+  for (const slotId of Object.keys(grouped)) {
+    grouped[slotId].sort((a, b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0));
+  }
+  return grouped;
+}
+
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      const entries = await listSlotEntries();
+      const current = await listCurrentSlots();
+      const archive = await listArchiveSlots();
       const slots = {};
-      for (const [slotId, blob] of entries.entries()) {
+      for (const [slotId, blob] of current.entries()) {
         slots[slotId] = {
           u: blob.url,
           updated_at: blob.uploadedAt || null,
@@ -89,14 +109,13 @@ export default async function handler(req, res) {
           y: 0,
         };
       }
-      return json(res, 200, { slots });
+      return json(res, 200, { slots, archive });
     } catch (error) {
       return json(res, 500, { error: 'Could not list photos.', details: String(error?.message || error) });
     }
   }
 
   if (req.method === 'POST') {
-    if (!isAuthorized(req)) return json(res, 401, { error: 'Unauthorized' });
     const slotId = sanitizeSlotId(req.headers['x-slot-id']);
     const contentType = String(req.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
     if (!slotId) return json(res, 400, { error: 'Missing or invalid x-slot-id header.' });
@@ -104,22 +123,33 @@ export default async function handler(req, res) {
     try {
       const body = await readBody(req);
       if (!body.length) return json(res, 400, { error: 'Empty upload.' });
+
+      const activeEntries = await listSlotEntries(slotId, ACTIVE_SEGMENT);
+      const previous = activeEntries[0] || null;
+      if (previous) {
+        const archivedBody = await fetch(previous.url).then((r) => r.arrayBuffer());
+        const archivedType = previous.contentType || contentType;
+        const archivePath = `${slotPrefix(slotId, ARCHIVE_SEGMENT)}${Date.now()}.${extFromType(archivedType)}`;
+        await putBlob(archivePath, Buffer.from(archivedBody), {
+          access: 'public',
+          addRandomSuffix: false,
+          contentType: archivedType,
+        });
+      }
+
       const ext = extFromType(contentType);
-      const pathname = `${PREFIX}${slotId}/${Date.now()}.${ext}`;
+      const pathname = `${slotPrefix(slotId, ACTIVE_SEGMENT)}${Date.now()}.${ext}`;
       const uploaded = await putBlob(pathname, body, {
         access: 'public',
         addRandomSuffix: false,
         contentType,
       });
-      const entries = await listBlobs({ prefix: `${PREFIX}${slotId}/` });
-      await Promise.all((entries.blobs || [])
-        .filter((blob) => blob.pathname !== pathname)
-        .map((blob) => deleteBlob(blob.url)));
+
       return json(res, 200, {
         slot: {
           id: slotId,
           u: uploaded.url,
-          updated_at: new Date().toISOString(),
+          updated_at: uploaded.uploadedAt || new Date().toISOString(),
           pathname,
           s: 1,
           x: 0,
@@ -131,19 +161,6 @@ export default async function handler(req, res) {
     }
   }
 
-  if (req.method === 'DELETE') {
-    if (!isAuthorized(req)) return json(res, 401, { error: 'Unauthorized' });
-    const slotId = sanitizeSlotId(req.headers['x-slot-id']);
-    if (!slotId) return json(res, 400, { error: 'Missing or invalid x-slot-id header.' });
-    try {
-      const entries = await listBlobs({ prefix: `${PREFIX}${slotId}/` });
-      await Promise.all((entries.blobs || []).map((blob) => deleteBlob(blob.url)));
-      return json(res, 200, { ok: true });
-    } catch (error) {
-      return json(res, 500, { error: 'Could not remove photo.', details: String(error?.message || error) });
-    }
-  }
-
-  res.setHeader('Allow', 'GET, POST, DELETE');
+  res.setHeader('Allow', 'GET, POST');
   return json(res, 405, { error: 'Method not allowed.' });
 }

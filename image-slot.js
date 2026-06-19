@@ -67,10 +67,7 @@
   // the host allowlists to *.state.json basenames only.
   const subs = new Set();
   let slots = {};
-  const adminToken = (() => {
-    try { return window.localStorage.getItem('despedida_admin_token') || ''; }
-    catch { return ''; }
-  })();
+  let archiveSlots = {};
   // ids explicitly cleared before the sidecar fetch resolved — otherwise
   // the merge below can't tell "never set" from "just deleted" and would
   // resurrect the sidecar's stale value.
@@ -84,7 +81,9 @@
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
         const remoteSlots = j && j.slots && typeof j.slots === 'object' ? j.slots : null;
+        const remoteArchive = j && j.archive && typeof j.archive === 'object' ? j.archive : null;
         if (remoteSlots) {
+          if (remoteArchive) archiveSlots = remoteArchive;
           const merged = Object.assign({}, remoteSlots, slots);
           for (const k in slots) {
             if (merged[k] && !merged[k].u && remoteSlots[k]) {
@@ -123,7 +122,6 @@
   let saving = false;
   let saveDirty = false;
   async function saveRemoteSnapshot() {
-    if (!adminToken) return;
     const ops = Object.entries(slots)
       .filter(([slotId, value]) => slotId && value && value.u && /^data:image\//i.test(value.u));
     for (const [slotId, value] of ops) {
@@ -136,7 +134,6 @@
         method: 'POST',
         headers: {
           'content-type': contentType,
-          'x-admin-token': adminToken,
           'x-slot-id': slotId,
         },
         body,
@@ -300,8 +297,7 @@
         '  <div class="handle" data-c="nw"></div><div class="handle" data-c="ne"></div>' +
         '  <div class="handle" data-c="sw"></div><div class="handle" data-c="se"></div>' +
         '</div>' +
-        '<div class="ctl"><button data-act="replace" title="Replace image">Replace</button>' +
-        '  <button data-act="clear" title="Remove image">Remove</button></div>' +
+        '<div class="ctl"><button data-act="replace" title="Replace image">Replace</button></div>' +
         '<input type="file" accept="' + ACCEPT.join(',') + '" hidden>';
       this._frame = root.querySelector('.frame');
       this._ring = root.querySelector('.ring');
@@ -323,21 +319,6 @@
       root.addEventListener('click', (e) => {
         const act = e.target && e.target.getAttribute && e.target.getAttribute('data-act');
         if (act === 'replace') { this._exitReframe(true); this._input.click(); }
-        if (act === 'clear') {
-          this._exitReframe(false);
-          this._gen++;
-          this._local = null;
-          if (this.id && adminToken) {
-            fetch(API_URL, {
-              method: 'DELETE',
-              headers: {
-                'x-admin-token': adminToken,
-                'x-slot-id': this.id,
-              },
-            }).catch(() => {});
-          }
-          if (this.id) setSlot(this.id, null); else this._render();
-        }
       });
       this._input.addEventListener('change', () => {
         const f = this._input.files && this._input.files[0];
@@ -653,8 +634,8 @@
       this._ring.style.borderRadius = mask ? '' : radius;
       this._ring.style.display = mask ? 'none' : '';
 
-      // Controls and reframe entry gate on this so share links stay read-only.
-      const editable = !!(adminToken || (window.omelette && window.omelette.writeFile));
+      // Controls and reframe entry gate on this so anyone with the link can collaborate.
+      const editable = true;
       this.toggleAttribute('data-editable', editable);
       this._sub.style.display = editable ? '' : 'none';
 
@@ -663,7 +644,6 @@
       // data:image/ URLs from it. The `src` attribute is author-controlled
       // (Claude wrote it into the HTML) so it passes through unchanged.
       let stored = this.id ? getSlot(this.id) : this._local;
-      if (stored && stored.u && !/^data:image\//i.test(stored.u)) stored = null;
       const srcAttr = this.getAttribute('src') || '';
       this._userUrl = (stored && stored.u) || null;
       const url = this._userUrl || srcAttr;

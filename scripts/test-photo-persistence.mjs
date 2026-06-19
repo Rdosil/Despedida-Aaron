@@ -15,16 +15,24 @@ globalThis.__blobMock = {
       url: `https://mock.blob/${pathname}`,
       size: body?.length || 0,
       contentType,
+      body: Buffer.from(body || []),
     };
     const idx = store.findIndex((entry) => entry.pathname === pathname);
     if (idx >= 0) store.splice(idx, 1, blob);
     else store.push(blob);
     return { ...blob };
   },
-  async del(url) {
-    const idx = store.findIndex((blob) => blob.url === url);
-    if (idx >= 0) store.splice(idx, 1);
-  },
+};
+
+globalThis.fetch = async (url) => {
+  const found = store.find((blob) => blob.url === url);
+  if (!found) throw new Error(`mock blob not found: ${url}`);
+  return {
+    async arrayBuffer() {
+      const view = found.body;
+      return view.buffer.slice(view.byteOffset, view.byteOffset + view.byteLength);
+    },
+  };
 };
 
 function createRes() {
@@ -53,43 +61,39 @@ async function call(method, { headers = {}, body = '' } = {}) {
 }
 
 async function main() {
-  process.env.ADMIN_TOKEN = 'secret';
-
   const initial = await call('GET');
   if (initial.status !== 200 || Object.keys(initial.body.slots).length !== 0) {
     throw new Error('Initial GET should return empty slots');
   }
 
-  const upload = await call('POST', {
+  const upload1 = await call('POST', {
     headers: {
       'content-type': 'image/png',
-      'x-admin-token': 'secret',
       'x-slot-id': 'foto1',
     },
-    body: 'fake-image-data',
+    body: 'fake-image-data-1',
   });
-  if (upload.status !== 200 || !upload.body.slot?.u) {
-    throw new Error('Upload failed');
+  if (upload1.status !== 200 || !upload1.body.slot?.u) {
+    throw new Error('First upload failed');
+  }
+
+  const upload2 = await call('POST', {
+    headers: {
+      'content-type': 'image/png',
+      'x-slot-id': 'foto1',
+    },
+    body: 'fake-image-data-2',
+  });
+  if (upload2.status !== 200 || !upload2.body.slot?.u) {
+    throw new Error('Second upload failed');
   }
 
   const listed = await call('GET');
-  if (listed.status !== 200 || listed.body.slots.foto1?.u !== upload.body.slot.u) {
-    throw new Error('GET after upload did not return stored photo');
+  if (listed.status !== 200 || listed.body.slots.foto1?.u !== upload2.body.slot.u) {
+    throw new Error('GET after replace did not return current photo');
   }
-
-  const removed = await call('DELETE', {
-    headers: {
-      'x-admin-token': 'secret',
-      'x-slot-id': 'foto1',
-    },
-  });
-  if (removed.status !== 200) {
-    throw new Error('Delete failed');
-  }
-
-  const finalList = await call('GET');
-  if (finalList.status !== 200 || finalList.body.slots.foto1) {
-    throw new Error('Slot should be empty after delete');
+  if (!listed.body.archive?.foto1 || listed.body.archive.foto1.length < 1) {
+    throw new Error('Archive should contain previous photo');
   }
 
   console.log('photo persistence ok');

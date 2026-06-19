@@ -162,6 +162,10 @@
 
   /* GALLERY */
   .gal{display:grid;grid-template-columns:repeat(auto-fill,minmax(175px,1fr));gap:14px;margin-top:28px}
+  .archive-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:18px}
+  .archive-card{background:var(--card);border:3px solid var(--ink);box-shadow:var(--shadow);padding:10px;display:flex;flex-direction:column;gap:8px}
+  .archive-card img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;border:2px solid var(--ink)}
+  .archive-meta{font-size:12px;color:var(--ink-soft);font-style:italic}
   image-slot{width:100%;aspect-ratio:1/1;border:3px solid var(--ink);box-shadow:var(--shadow);background:var(--card)}
   .gal-note{margin-top:12px;font-style:italic;color:var(--ink-soft);font-size:13.5px}
 
@@ -644,7 +648,13 @@
       <image-slot id="foto8" shape="rect" placeholder="A foto vergonzosa"></image-slot>
     </div>
     <p class="gal-note">Arrastra unha foto a cada oco (ou fai clic para subila). Quedan gardadas.</p>
-    <p class="gal-note" style="margin-top:8px;font-size:12px">Para activar o guardado en Vercel neste navegador, abre a consola e executa <code>localStorage.setItem('despedida_admin_token','O_TEU_ADMIN_TOKEN')</code>.</p>
+    <p class="gal-note" style="margin-top:8px;font-size:12px">Calquera persoa co enlace pode subir ou substituír fotos. As antigas móvense automaticamente a “Outras fotos”.</p>
+
+    <div style="margin-top:34px">
+      <div class="eyebrow">Fondo de armario · reliquias recuperadas</div>
+      <h3 style="margin:0;font-size:clamp(22px,3vw,32px)">Outras fotos</h3>
+      <div id="archive-grid" class="archive-grid"></div>
+    </div>
   </div>
 </section>
 
@@ -695,6 +705,32 @@
     });
   });
   score();
+</script>
+<script>
+  async function renderArchive(){
+    const container = document.getElementById('archive-grid');
+    if(!container) return;
+    try{
+      const res = await fetch('/api/photos', { cache: 'no-store' });
+      if(!res.ok) throw new Error('archive fetch failed');
+      const data = await res.json();
+      const archive = data && data.archive ? data.archive : {};
+      const items = Object.entries(archive)
+        .flatMap(([slotId, photos]) => (photos || []).map(photo => ({ slotId, ...photo })))
+        .sort((a,b) => new Date(b.updated_at || 0) - new Date(a.updated_at || 0));
+      if(!items.length){
+        container.innerHTML = '<div class="archive-meta">Cando alguén substitúa unha foto, a versión anterior aparecerá aquí.</div>';
+        return;
+      }
+      container.innerHTML = items.map((item) => {
+        const when = item.updated_at ? new Date(item.updated_at).toLocaleString('gl-ES') : 'sen data';
+        return `<article class="archive-card"><img src="${item.u}" alt="Foto antiga de ${item.slotId}"><div class="archive-meta"><strong>${item.slotId}</strong> · ${when}</div></article>`;
+      }).join('');
+    }catch(_err){
+      container.innerHTML = '<div class="archive-meta">Non se puideron cargar as fotos antigas.</div>';
+    }
+  }
+  renderArchive();
 </script>
 </body>
 </html>
