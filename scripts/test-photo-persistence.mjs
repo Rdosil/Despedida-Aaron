@@ -1,4 +1,5 @@
 import handler from '../api/photos.js';
+import { JSDOM } from 'jsdom';
 
 const store = [];
 let putCounter = 0;
@@ -110,14 +111,24 @@ async function main() {
     throw new Error('Archive should contain previous photo');
   }
 
-  const { JSDOM } = await import('jsdom');
+  const remoteMerge = {
+    slots: {
+      foto1: {
+        u: 'https://mock.blob/image-slots/foto1/active/merged.webp',
+        s: 1,
+        x: 0,
+        y: 0,
+      },
+    },
+    archive: {},
+  };
   const scriptSource = await import('node:fs/promises').then(fs => fs.readFile(new URL('../image-slot.js', import.meta.url), 'utf8'));
   let postCount = 0;
   const dom = new JSDOM('<!doctype html><html><body><image-slot id="foto1"></image-slot></body></html>', { runScripts: 'outside-only', pretendToBeVisual: true, url: 'https://example.test/' });
   const { window } = dom;
   window.fetch = async (url, options = {}) => {
     if (url === '/api/photos' && (!options.method || options.method === 'GET')) {
-      return { ok: true, async json() { return { slots: {}, archive: {} }; } };
+      return { ok: true, async json() { return remoteMerge; } };
     }
     if (url === '/api/photos' && options.method === 'POST') {
       postCount += 1;
@@ -137,7 +148,11 @@ async function main() {
   window.ResizeObserver = FakeResizeObserver;
   window.eval(scriptSource);
   await flushMicrotasks(10);
-  const el = window.document.querySelector('image-slot');
+  const initialEl = window.document.querySelector('image-slot');
+  if (!initialEl.shadowRoot.querySelector('.frame img')?.getAttribute('src')?.includes('merged.webp')) {
+    throw new Error('Initial remote load did not render blob URL');
+  }
+  const el = initialEl;
   await el._ingest({ type: 'image/png' });
   await flushMicrotasks(10);
   if (postCount < 1) {

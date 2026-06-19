@@ -86,8 +86,18 @@
           if (remoteArchive) archiveSlots = remoteArchive;
           const merged = Object.assign({}, remoteSlots, slots);
           for (const k in slots) {
-            if (merged[k] && !merged[k].u && remoteSlots[k]) {
-              merged[k].u = typeof remoteSlots[k] === 'string' ? remoteSlots[k] : remoteSlots[k].u;
+            const localValue = slots[k];
+            const remoteValue = remoteSlots[k];
+            const localUrl = typeof localValue === 'string' ? localValue : localValue && localValue.u;
+            const remoteUrl = typeof remoteValue === 'string' ? remoteValue : remoteValue && remoteValue.u;
+            if (merged[k] && /^data:image\//i.test(localUrl || '') && remoteUrl) {
+              merged[k] = {
+                ...(typeof localValue === 'object' && localValue ? localValue : {}),
+                ...(typeof remoteValue === 'object' && remoteValue ? remoteValue : {}),
+                u: remoteUrl,
+              };
+            } else if (merged[k] && !merged[k].u && remoteValue) {
+              merged[k].u = remoteUrl;
             }
           }
           for (const id of tombstones) delete merged[id];
