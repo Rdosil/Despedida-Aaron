@@ -61,7 +61,7 @@ async function main() {
       const blob = {
         pathname,
         uploadedAt: new Date().toISOString(),
-        url: `https://mock.blob/${pathname.replace(/\\d+(?=\\.[a-z]+$)/, String(putCounter))}`,
+        url: `https://mock.blob/${pathname.replace(/\d+(?=\.[a-z]+$)/, String(putCounter))}`,
         size: body?.length || 0,
         contentType: options.contentType || 'application/octet-stream',
         body: Buffer.from(body || []),
@@ -70,6 +70,13 @@ async function main() {
       if (idx >= 0) store.splice(idx, 1, blob);
       else store.push(blob);
       return { ...blob };
+    },
+    async del(urlOrPathname) {
+      const targets = Array.isArray(urlOrPathname) ? urlOrPathname : [urlOrPathname];
+      for (const target of targets) {
+        const idx = store.findIndex((entry) => entry.url === target || entry.pathname === target);
+        if (idx >= 0) store.splice(idx, 1);
+      }
     },
   };
 
@@ -111,6 +118,17 @@ async function main() {
     throw new Error('Archive should contain previous photo');
   }
 
+  const deleted = await call('DELETE', {
+    headers: { 'x-slot-id': 'foto1' },
+  });
+  if (deleted.status !== 200 || !deleted.body?.ok) {
+    throw new Error('DELETE should succeed');
+  }
+  const afterDelete = await call('GET');
+  if (afterDelete.status !== 200 || afterDelete.body.slots.foto1) {
+    throw new Error('Deleted slot should disappear from GET');
+  }
+
   const remoteMerge = {
     slots: {
       foto1: {
@@ -124,6 +142,7 @@ async function main() {
   };
   const scriptSource = await import('node:fs/promises').then(fs => fs.readFile(new URL('../image-slot.js', import.meta.url), 'utf8'));
   let postCount = 0;
+  let deleteCount = 0;
   const dom = new JSDOM('<!doctype html><html><body><image-slot id="foto1"></image-slot></body></html>', { runScripts: 'outside-only', pretendToBeVisual: true, url: 'https://example.test/' });
   const { window } = dom;
   window.fetch = async (url, options = {}) => {
@@ -136,6 +155,15 @@ async function main() {
         ok: true,
         async json() {
           return { slot: { u: 'https://mock.blob/image-slots/foto1/active/123.webp', updated_at: new Date().toISOString(), pathname: 'image-slots/foto1/active/123.webp' } };
+        },
+      };
+    }
+    if (url === '/api/photos' && options.method === 'DELETE') {
+      deleteCount += 1;
+      return {
+        ok: true,
+        async json() {
+          return { ok: true, deleted: 1, slotId: 'foto1' };
         },
       };
     }
@@ -157,6 +185,14 @@ async function main() {
   await flushMicrotasks(10);
   if (postCount < 1) {
     throw new Error('Browser ingest did not POST to /api/photos');
+  }
+  await el._deleteCurrent();
+  await flushMicrotasks(10);
+  if (deleteCount < 1) {
+    throw new Error('Browser delete did not DELETE /api/photos');
+  }
+  if (el.hasAttribute('data-filled')) {
+    throw new Error('Browser delete should empty the slot');
   }
 
   console.log('photo persistence ok');

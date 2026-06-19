@@ -1,4 +1,4 @@
-import { list as blobList, put as blobPut } from '@vercel/blob';
+import { del as blobDel, list as blobList, put as blobPut } from '@vercel/blob';
 
 const PREFIX = 'image-slots/';
 const ACTIVE_SEGMENT = 'active';
@@ -50,6 +50,11 @@ async function putPublicBlob(pathname, body, options) {
     ...options,
     access: 'public',
   });
+}
+
+async function deleteBlob(urlOrPathname, options) {
+  if (globalThis.__blobMock?.del) return globalThis.__blobMock.del(urlOrPathname, options);
+  return blobDel(urlOrPathname, options);
 }
 
 function slotPrefix(slotId, segment) {
@@ -168,6 +173,21 @@ export default async function handler(req, res) {
     }
   }
 
-  res.setHeader('Allow', 'GET, POST');
+  if (req.method === 'DELETE') {
+    const slotId = sanitizeSlotId(req.headers['x-slot-id']);
+    if (!slotId) return json(res, 400, { error: 'Missing or invalid x-slot-id header.' });
+    try {
+      const activeEntries = await listSlotEntries(slotId, ACTIVE_SEGMENT);
+      const targets = activeEntries.map((blob) => blob.url || blob.pathname).filter(Boolean);
+      if (targets.length) {
+        await deleteBlob(targets);
+      }
+      return json(res, 200, { ok: true, deleted: targets.length, slotId });
+    } catch (error) {
+      return json(res, 500, { error: 'Could not delete photo.', details: String(error?.message || error) });
+    }
+  }
+
+  res.setHeader('Allow', 'GET, POST, DELETE');
   return json(res, 405, { error: 'Method not allowed.' });
 }

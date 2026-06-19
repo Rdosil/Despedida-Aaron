@@ -131,6 +131,22 @@
   // completion with the then-current slots.
   let saving = false;
   let saveDirty = false;
+  async function deleteRemoteSlot(slotId) {
+    const resp = await fetch(API_URL, {
+      method: 'DELETE',
+      headers: { 'x-slot-id': slotId },
+    });
+    if (!resp.ok) {
+      let detail = '';
+      try {
+        const payload = await resp.json();
+        detail = payload?.details || payload?.error || '';
+      } catch {}
+      throw new Error(detail ? `delete failed for ${slotId}: ${detail}` : `delete failed for ${slotId}`);
+    }
+    return resp.json().catch(() => ({ ok: true }));
+  }
+
   async function saveRemoteSnapshot() {
     const ops = Object.entries(slots)
       .filter(([slotId, value]) => slotId && value && value.u && /^data:image\//i.test(value.u));
@@ -307,7 +323,7 @@
         '  <div class="handle" data-c="nw"></div><div class="handle" data-c="ne"></div>' +
         '  <div class="handle" data-c="sw"></div><div class="handle" data-c="se"></div>' +
         '</div>' +
-        '<div class="ctl"><button data-act="replace" title="Replace image">Replace</button></div>' +
+        '<div class="ctl"><button data-act="replace" title="Replace image">Replace</button><button data-act="clear" title="Delete image">Delete</button></div>' +
         '<input type="file" accept="' + ACCEPT.join(',') + '" hidden>';
       this._frame = root.querySelector('.frame');
       this._ring = root.querySelector('.ring');
@@ -329,6 +345,14 @@
       root.addEventListener('click', (e) => {
         const act = e.target && e.target.getAttribute && e.target.getAttribute('data-act');
         if (act === 'replace') { this._exitReframe(true); this._input.click(); }
+        if (act === 'clear') {
+          e.preventDefault();
+          this._deleteCurrent().catch((err) => {
+            const detail = err && err.message ? String(err.message) : '';
+            this._setError(detail ? `Non se puido borrar a foto: ${detail}` : 'Non se puido borrar a foto.');
+            console.warn('<image-slot> delete failed:', err);
+          });
+        }
       });
       this._input.addEventListener('change', () => {
         const f = this._input.files && this._input.files[0];
@@ -516,6 +540,24 @@
         const f = e.dataTransfer && e.dataTransfer.files && e.dataTransfer.files[0];
         if (f) this._ingest(f);
       }
+    }
+
+    async _deleteCurrent() {
+      this._setError(null);
+      const id = this.id || '';
+      if (!id) {
+        this._local = null;
+        this._userUrl = null;
+        this._exitReframe(false);
+        this._render();
+        return;
+      }
+      await deleteRemoteSlot(id);
+      setSlot(id, null);
+      this._local = null;
+      this._userUrl = null;
+      this._exitReframe(false);
+      this._render();
     }
 
     async _ingest(file) {
