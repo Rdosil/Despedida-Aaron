@@ -49,6 +49,7 @@
 /* END USAGE */
 
 (() => {
+  const API_URL = '/api/photos';
   const STATE_FILE = '.image-slots.state.json';
   // 2× a ~600px slot in a 1920-wide deck — retina-sharp without making the
   // sidecar enormous. A 1200px WebP at q=0.85 is ~150-300KB.
@@ -66,6 +67,10 @@
   // the host allowlists to *.state.json basenames only.
   const subs = new Set();
   let slots = {};
+  const adminToken = (() => {
+    try { return window.localStorage.getItem('despedida_admin_token') || ''; }
+    catch { return ''; }
+  })();
   // ids explicitly cleared before the sidecar fetch resolved — otherwise
   // the merge below can't tell "never set" from "just deleted" and would
   // resurrect the sidecar's stale value.
@@ -75,28 +80,39 @@
 
   function load() {
     if (loadP) return loadP;
-    loadP = fetch(STATE_FILE)
+    loadP = fetch(API_URL, { cache: 'no-store' })
       .then((r) => (r.ok ? r.json() : null))
       .then((j) => {
-        // Merge: sidecar loses to any in-memory change that raced ahead of
-        // the fetch (drop or clear) so neither is clobbered by hydration.
-        if (j && typeof j === 'object') {
-          const merged = Object.assign({}, j, slots);
-          // A framing-only write that raced ahead of hydration must not
-          // drop a user image that's only on disk — inherit u from the
-          // sidecar for any in-memory entry that lacks one.
+        const remoteSlots = j && j.slots && typeof j.slots === 'object' ? j.slots : null;
+        if (remoteSlots) {
+          const merged = Object.assign({}, remoteSlots, slots);
           for (const k in slots) {
-            if (merged[k] && !merged[k].u && j[k]) {
-              merged[k].u = typeof j[k] === 'string' ? j[k] : j[k].u;
+            if (merged[k] && !merged[k].u && remoteSlots[k]) {
+              merged[k].u = typeof remoteSlots[k] === 'string' ? remoteSlots[k] : remoteSlots[k].u;
             }
           }
           for (const id of tombstones) delete merged[id];
           slots = merged;
+          return;
         }
-        tombstones.clear();
+        return fetch(STATE_FILE)
+          .then((r) => (r.ok ? r.json() : null))
+          .then((j) => {
+            if (j && typeof j === 'object') {
+              const merged = Object.assign({}, j, slots);
+              for (const k in slots) {
+                if (merged[k] && !merged[k].u && j[k]) {
+                  merged[k].u = typeof j[k] === 'string' ? j[k] : j[k].u;
+                }
+              }
+              for (const id of tombstones) delete merged[id];
+              slots = merged;
+            }
+          })
+          .catch(() => {});
       })
       .catch(() => {})
-      .then(() => { loaded = true; subs.forEach((fn) => fn()); });
+      .then(() => { tombstones.clear(); loaded = true; subs.forEach((fn) => fn()); });
     return loadP;
   }
 
@@ -106,13 +122,49 @@
   // completion with the then-current slots.
   let saving = false;
   let saveDirty = false;
+  async function saveRemoteSnapshot() {
+    if (!adminToken) return;
+    const ops = Object.entries(slots)
+      .filter(([slotId, value]) => slotId && value && value.u && /^data:image\//i.test(value.u));
+    for (const [slotId, value] of ops) {
+      const match = /^data:(image\/[a-zA-Z0-9.+-]+);base64,(.*)$/.exec(value.u || '');
+      if (!match) continue;
+      const contentType = match[1].toLowerCase();
+      const base64 = match[2];
+      const body = Uint8Array.from(atob(base64), (c) => c.charCodeAt(0));
+      const resp = await fetch(API_URL, {
+        method: 'POST',
+        headers: {
+          'content-type': contentType,
+          'x-admin-token': adminToken,
+          'x-slot-id': slotId,
+        },
+        body,
+      });
+      if (!resp.ok) throw new Error(`upload failed for ${slotId}`);
+      const json = await resp.json().catch(() => null);
+      if (json && json.slot) {
+        slots[slotId] = {
+          u: json.slot.u,
+          s: value.s,
+          x: value.x,
+          y: value.y,
+          updated_at: json.slot.updated_at || null,
+          pathname: json.slot.pathname || null,
+        };
+      }
+    }
+  }
+
   function save() {
     if (saving) { saveDirty = true; return; }
-    const w = window.omelette && window.omelette.writeFile;
-    if (!w) return;
     saving = true;
-    Promise.resolve(w(STATE_FILE, JSON.stringify(slots)))
-      .catch(() => {})
+    Promise.resolve(saveRemoteSnapshot())
+      .catch(() => {
+        const w = window.omelette && window.omelette.writeFile;
+        if (!w) return;
+        return Promise.resolve(w(STATE_FILE, JSON.stringify(slots)));
+      })
       .then(() => { saving = false; if (saveDirty) { saveDirty = false; save(); } });
   }
 
@@ -275,6 +327,15 @@
           this._exitReframe(false);
           this._gen++;
           this._local = null;
+          if (this.id && adminToken) {
+            fetch(API_URL, {
+              method: 'DELETE',
+              headers: {
+                'x-admin-token': adminToken,
+                'x-slot-id': this.id,
+              },
+            }).catch(() => {});
+          }
           if (this.id) setSlot(this.id, null); else this._render();
         }
       });
@@ -593,7 +654,7 @@
       this._ring.style.display = mask ? 'none' : '';
 
       // Controls and reframe entry gate on this so share links stay read-only.
-      const editable = !!(window.omelette && window.omelette.writeFile);
+      const editable = !!(adminToken || (window.omelette && window.omelette.writeFile));
       this.toggleAttribute('data-editable', editable);
       this._sub.style.display = editable ? '' : 'none';
 

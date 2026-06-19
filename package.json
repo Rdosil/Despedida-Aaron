@@ -1,0 +1,12 @@
+{
+  "name": "despedida-aaron",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "@vercel/blob": "^1.1.1"
+  },
+  "scripts": {
+    "test:persistence": "node scripts/test-photo-persistence.mjs"
+  }
+}
