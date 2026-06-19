@@ -166,6 +166,18 @@
   .archive-card{background:var(--card);border:3px solid var(--ink);box-shadow:var(--shadow);padding:10px;display:flex;flex-direction:column;gap:8px}
   .archive-card img{width:100%;aspect-ratio:1/1;object-fit:cover;display:block;border:2px solid var(--ink)}
   .archive-meta{font-size:12px;color:var(--ink-soft);font-style:italic}
+  .quotes-wrap{display:grid;grid-template-columns:1.2fr .8fr;gap:24px;margin-top:26px;align-items:start}
+  .quotes-list{display:grid;gap:14px}
+  .quote-card{padding:18px 18px 16px;border:3px solid var(--ink);box-shadow:var(--shadow);background:var(--card)}
+  .quote-text{margin:0;font-size:18px;line-height:1.4;font-weight:700}
+  .quote-meta{margin-top:10px;font-size:13px;color:var(--ink-soft);font-style:italic}
+  .quote-form{padding:18px;border:3px solid var(--ink);box-shadow:var(--shadow);background:var(--card);display:grid;gap:12px}
+  .quote-form label{display:grid;gap:6px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.06em}
+  .quote-form input,.quote-form textarea{width:100%;box-sizing:border-box;border:2px solid var(--ink);background:#fffdf7;padding:12px 13px;font:inherit;color:var(--ink)}
+  .quote-form textarea{min-height:120px;resize:vertical}
+  .quote-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+  .quote-status{font-size:13px;color:var(--ink-soft);font-style:italic}
+  .quote-empty{padding:18px;border:2px dashed var(--ink);background:rgba(255,255,255,.5);font-style:italic;color:var(--ink-soft)}
   image-slot{width:100%;aspect-ratio:1/1;border:3px solid var(--ink);box-shadow:var(--shadow);background:var(--card)}
   .gal-note{margin-top:12px;font-style:italic;color:var(--ink-soft);font-size:13.5px}
 
@@ -658,6 +670,36 @@
   </div>
 </section>
 
+<!-- FRASES -->
+<section id="frases" style="background:var(--cream-2);border-top:3px solid var(--ink);border-bottom:3px solid var(--ink)">
+  <div class="wrap">
+    <div class="eyebrow">Hemeroteca popular · sabiduría tabernaria</div>
+    <h2 class="sec-title">Frases <span class="b">míticas</span></h2>
+    <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
+    <p class="gal-note">Calquera persoa co enlace pode engadir unha frase nova para o arquivo oficial da despedida.</p>
+
+    <div class="quotes-wrap">
+      <div>
+        <div id="quotes-list" class="quotes-list"></div>
+      </div>
+      <form id="quote-form" class="quote-form">
+        <label>
+          Quen a dixo
+          <input id="quote-author" name="author" type="text" maxlength="60" placeholder="Ex: Aarón, Gelo, mister..." />
+        </label>
+        <label>
+          A frase
+          <textarea id="quote-text" name="text" maxlength="280" placeholder="Ex: Se hai curva, hai interior."></textarea>
+        </label>
+        <div class="quote-actions">
+          <button class="btn kart" type="submit">➕ Engadir frase</button>
+          <span id="quote-status" class="quote-status"></span>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
 <footer>
   <div class="f-big">Último partido<br />de <span class="b">solteiro</span></div>
   <div class="marker">¡Vamos, capitán! 🏁⚽</div>
@@ -730,7 +772,73 @@
       container.innerHTML = '<div class="archive-meta">Non se puideron cargar as fotos antigas.</div>';
     }
   }
+
+  function escapeHtml(value){
+    return String(value || '').replace(/[&<>"']/g, (ch) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
+  }
+
+  function quoteCard(item){
+    const author = escapeHtml(item.author || 'Anónimo');
+    const text = escapeHtml(item.text || '');
+    const when = item.created_at ? new Date(item.created_at).toLocaleString('gl-ES') : 'sen data';
+    return `<article class="quote-card"><p class="quote-text">“${text}”</p><div class="quote-meta">${author} · ${when}</div></article>`;
+  }
+
+  async function renderQuotes(){
+    const container = document.getElementById('quotes-list');
+    if(!container) return;
+    try{
+      const res = await fetch('/api/quotes', { cache: 'no-store' });
+      if(!res.ok) throw new Error('quotes fetch failed');
+      const data = await res.json();
+      const quotes = Array.isArray(data?.quotes) ? data.quotes : [];
+      if(!quotes.length){
+        container.innerHTML = '<div class="quote-empty">Aínda non hai frases gardadas. Sede os primeiros en deixar unha para a historia.</div>';
+        return;
+      }
+      container.innerHTML = quotes.map(quoteCard).join('');
+    }catch(_err){
+      container.innerHTML = '<div class="quote-empty">Non se puideron cargar as frases míticas.</div>';
+    }
+  }
+
+  async function setupQuoteForm(){
+    const form = document.getElementById('quote-form');
+    if(!form) return;
+    const status = document.getElementById('quote-status');
+    const textInput = document.getElementById('quote-text');
+    const authorInput = document.getElementById('quote-author');
+    form.addEventListener('submit', async (ev) => {
+      ev.preventDefault();
+      const text = (textInput?.value || '').trim();
+      const author = (authorInput?.value || '').trim();
+      if(!text){
+        status.textContent = 'Escribe unha frase antes de gardala.';
+        return;
+      }
+      status.textContent = 'Gardando...';
+      try{
+        const res = await fetch('/api/quotes', {
+          method: 'POST',
+          headers: { 'content-type': 'application/json' },
+          body: JSON.stringify({ text, author }),
+        });
+        if(!res.ok){
+          const payload = await res.json().catch(() => ({}));
+          throw new Error(payload?.details || payload?.error || 'save failed');
+        }
+        form.reset();
+        status.textContent = 'Frase gardada.';
+        await renderQuotes();
+      }catch(err){
+        status.textContent = `Non se puido gardar: ${err?.message || 'erro'}`;
+      }
+    });
+  }
+
   renderArchive();
+  renderQuotes();
+  setupQuoteForm();
 </script>
 </body>
 </html>
