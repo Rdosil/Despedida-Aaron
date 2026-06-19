@@ -80,17 +80,19 @@
     const orientation = escapeHtml(item.orientation || 'landscape');
     const photoId = escapeHtml(item.id || '');
     const url = escapeHtml(item.u || '');
+    const downloadName = escapeHtml(`${item.id || 'foto'}-${item.orientation || 'photo'}.jpg`);
     return `<article class="gal-card" data-orientation="${orientation}" data-photo-id="${photoId}">
       <img src="${url}" alt="Foto da despedida ${photoId}">
       <div class="gal-meta">${orientation} · ${when}</div>
-      <div class="gal-toolbar"><button type="button" data-act="delete">Borrar</button></div>
+      <div class="gal-toolbar"><a href="${url}" download="${downloadName}" target="_blank" rel="noopener noreferrer">Descargar</a><button type="button" data-act="delete">Borrar</button></div>
     </article>`;
   }
 
   function archiveCard(item) {
     const when = item.updated_at ? new Date(item.updated_at).toLocaleString('gl-ES') : 'sen data';
     const url = escapeHtml(item.u || '');
-    return `<article class="archive-card"><img src="${url}" alt="Foto antiga da despedida"><div class="archive-meta">${when}</div></article>`;
+    const downloadName = escapeHtml(`${item.id || 'foto-antiga'}-${item.orientation || 'archive'}.jpg`);
+    return `<article class="archive-card"><img src="${url}" alt="Foto antiga da despedida"><div class="archive-meta">${when}</div><div class="archive-actions"><a href="${url}" download="${downloadName}" target="_blank" rel="noopener noreferrer">Descargar</a></div></article>`;
   }
 
   async function renderGallery() {

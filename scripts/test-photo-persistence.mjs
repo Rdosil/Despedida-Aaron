@@ -244,6 +244,9 @@ async function main() {
   if (!portraitMarkup.includes('data-orientation="portrait"')) {
     throw new Error('Portrait card markup missing');
   }
+  if (!portraitMarkup.includes('download=')) {
+    throw new Error('Gallery cards should expose a download link');
+  }
   await window.galleryApp.uploadPhoto({
     type: '',
     __width: 700,

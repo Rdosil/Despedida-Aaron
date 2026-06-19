@@ -171,7 +171,8 @@
   .gal-card[data-orientation="square"] img{aspect-ratio:1/1}
   .gal-meta{margin-top:8px;font-size:12px;color:var(--ink-soft);font-style:italic}
   .gal-toolbar{margin-top:10px;display:flex;gap:8px;flex-wrap:wrap}
-  .gal-toolbar button{appearance:none;border:2px solid var(--ink);background:#fffdf7;padding:7px 10px;font:inherit;font-weight:700;cursor:pointer}
+  .gal-toolbar button,.gal-toolbar a,.archive-actions a{appearance:none;border:2px solid var(--ink);background:#fffdf7;padding:7px 10px;font:inherit;font-weight:700;cursor:pointer;text-decoration:none;color:var(--ink);display:inline-flex;align-items:center;justify-content:center}
+  .gal-toolbar a:hover,.archive-actions a:hover{transform:translateY(-1px)}
   .gal-uploader{margin-top:18px;padding:18px;border:3px dashed var(--ink);background:rgba(255,255,255,.55);display:grid;gap:12px;justify-items:start}
   .gal-uploader input[type="file"]{display:block}
   .archive-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:12px;margin-top:18px}
