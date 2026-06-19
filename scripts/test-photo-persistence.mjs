@@ -214,7 +214,14 @@ async function main() {
     }
     throw new Error(`Unexpected fetch ${url}`);
   };
-  window.createImageBitmap = async (file) => ({ width: file.__width || 1200, height: file.__height || 800, close() {} });
+  window.createImageBitmap = async (file) => {
+    if (file.__failBitmap) {
+      const err = new Error('The source image could not be decoded.');
+      err.name = 'InvalidStateError';
+      throw err;
+    }
+    return { width: file.__width || 1200, height: file.__height || 800, close() {} };
+  };
   window.URL.createObjectURL = (file) => `blob:mock-${file.__width || 0}x${file.__height || 0}`;
   window.URL.revokeObjectURL = () => {};
   window.Image = class MockImage {
@@ -254,6 +261,16 @@ async function main() {
   });
   if (photoPostCount < 2) {
     throw new Error('Gallery upload with explicit type should POST');
+  }
+  await window.galleryApp.uploadPhoto({
+    type: 'image/jpeg',
+    __width: 700,
+    __height: 1200,
+    __failBitmap: true,
+    async arrayBuffer() { return new Uint8Array([4, 5, 6]).buffer; },
+  });
+  if (photoPostCount < 3) {
+    throw new Error('Gallery upload should still POST when orientation decode fails');
   }
   await window.galleryApp.deletePhoto('p1');
   if (photoDeleteCount < 1) {

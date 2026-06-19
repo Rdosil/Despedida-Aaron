@@ -34,12 +34,16 @@
         img.src = probeUrl;
       });
       orientation = inferOrientation(size.width, size.height);
-    } catch (_err) {
-      const bitmap = await createImageBitmap(file);
+    } catch (_probeErr) {
       try {
-        orientation = inferOrientation(bitmap.width, bitmap.height);
-      } finally {
-        bitmap.close && bitmap.close();
+        const bitmap = await createImageBitmap(file);
+        try {
+          orientation = inferOrientation(bitmap.width, bitmap.height);
+        } finally {
+          bitmap.close && bitmap.close();
+        }
+      } catch (_bitmapErr) {
+        orientation = 'landscape';
       }
     } finally {
       URL.revokeObjectURL(probeUrl);
