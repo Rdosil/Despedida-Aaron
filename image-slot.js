@@ -159,7 +159,7 @@
     Promise.resolve(saveRemoteSnapshot())
       .catch(() => {
         const w = window.omelette && window.omelette.writeFile;
-        if (!w) return;
+        if (!w) throw new Error('remote snapshot failed');
         return Promise.resolve(w(STATE_FILE, JSON.stringify(slots)));
       })
       .then(() => { saving = false; if (saveDirty) { saveDirty = false; save(); } });

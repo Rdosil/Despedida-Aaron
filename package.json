@@ -6,6 +6,9 @@
   "dependencies": {
     "@vercel/blob": "^1.1.1"
   },
+  "devDependencies": {
+    "jsdom": "^26.1.0"
+  },
   "scripts": {
     "test:persistence": "node scripts/test-photo-persistence.mjs"
   }
