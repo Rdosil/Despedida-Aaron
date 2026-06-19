@@ -22,6 +22,8 @@
   }
 
   async function uploadPhoto(file) {
+    const normalizedType = String(file?.type || '').trim().toLowerCase();
+    const contentType = normalizedType || 'image/jpeg';
     let orientation = 'landscape';
     const probeUrl = URL.createObjectURL(file);
     try {
@@ -45,7 +47,7 @@
     const res = await fetch(API_URL, {
       method: 'POST',
       headers: {
-        'content-type': file.type,
+        'content-type': contentType,
         'x-photo-orientation': orientation,
       },
       body: new Uint8Array(await file.arrayBuffer()),

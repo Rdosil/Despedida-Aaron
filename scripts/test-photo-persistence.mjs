@@ -97,6 +97,14 @@ async function main() {
     throw new Error('Portrait upload failed');
   }
 
+  const uploadMissingType = await call(photoHandler, 'POST', {
+    headers: { 'content-type': 'image/jpeg', 'x-photo-orientation': 'portrait' },
+    body: 'fake-image-data-1b',
+  });
+  if (uploadMissingType.status !== 200 || uploadMissingType.body.photo?.orientation !== 'portrait') {
+    throw new Error('Fallback content-type upload failed');
+  }
+
   const uploadLandscape = await call(photoHandler, 'POST', {
     headers: { 'content-type': 'image/png', 'x-photo-orientation': 'landscape' },
     body: 'fake-image-data-2',
@@ -106,8 +114,8 @@ async function main() {
   }
 
   const listed = await call(photoHandler, 'GET');
-  if (listed.status !== 200 || listed.body.photos.length !== 2) {
-    throw new Error('Gallery GET should return both uploaded photos');
+  if (listed.status !== 200 || listed.body.photos.length !== 3) {
+    throw new Error('Gallery GET should return all uploaded photos');
   }
   if (!listed.body.photos.some((photo) => photo.orientation === 'portrait')) {
     throw new Error('Gallery GET should include portrait item');
@@ -230,13 +238,22 @@ async function main() {
     throw new Error('Portrait card markup missing');
   }
   await window.galleryApp.uploadPhoto({
-    type: 'image/png',
+    type: '',
     __width: 700,
     __height: 1200,
     async arrayBuffer() { return new Uint8Array([1, 2, 3]).buffer; },
   });
   if (photoPostCount < 1) {
     throw new Error('Gallery upload should POST');
+  }
+  await window.galleryApp.uploadPhoto({
+    type: 'image/png',
+    __width: 700,
+    __height: 1200,
+    async arrayBuffer() { return new Uint8Array([1, 2, 3]).buffer; },
+  });
+  if (photoPostCount < 2) {
+    throw new Error('Gallery upload with explicit type should POST');
   }
   await window.galleryApp.deletePhoto('p1');
   if (photoDeleteCount < 1) {
