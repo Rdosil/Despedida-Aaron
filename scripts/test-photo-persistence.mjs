@@ -225,6 +225,10 @@ async function main() {
   if (!window.document.getElementById('gallery-grid').innerHTML.includes('data-orientation="landscape"')) {
     throw new Error('Gallery render should show landscape card');
   }
+  const portraitMarkup = window.document.getElementById('gallery-grid').innerHTML;
+  if (!portraitMarkup.includes('data-orientation="portrait"')) {
+    throw new Error('Portrait card markup missing');
+  }
   await window.galleryApp.uploadPhoto({
     type: 'image/png',
     __width: 700,
