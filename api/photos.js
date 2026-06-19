@@ -3,7 +3,7 @@ import { del as blobDel, list as blobList, put as blobPut } from '@vercel/blob';
 const PREFIX = 'gallery/';
 const ACTIVE_SEGMENT = 'active';
 const ARCHIVE_SEGMENT = 'archive';
-const ACCEPT = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/avif']);
+const ACCEPT = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'image/heic', 'image/heif']);
 
 function json(res, status, payload) {
   res.status(status);
@@ -25,6 +25,8 @@ function extFromType(type) {
     case 'image/jpeg': return 'jpg';
     case 'image/webp': return 'webp';
     case 'image/avif': return 'avif';
+    case 'image/heic': return 'heic';
+    case 'image/heif': return 'heif';
     default: return 'bin';
   }
 }

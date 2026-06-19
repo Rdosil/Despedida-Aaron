@@ -105,6 +105,14 @@ async function main() {
     throw new Error('Fallback content-type upload failed');
   }
 
+  const uploadHeic = await call(photoHandler, 'POST', {
+    headers: { 'content-type': 'image/heic', 'x-photo-orientation': 'portrait' },
+    body: 'fake-image-data-heic',
+  });
+  if (uploadHeic.status !== 200 || !String(uploadHeic.body.photo?.pathname || '').endsWith('.heic')) {
+    throw new Error('HEIC upload failed');
+  }
+
   const uploadLandscape = await call(photoHandler, 'POST', {
     headers: { 'content-type': 'image/png', 'x-photo-orientation': 'landscape' },
     body: 'fake-image-data-2',
@@ -114,7 +122,7 @@ async function main() {
   }
 
   const listed = await call(photoHandler, 'GET');
-  if (listed.status !== 200 || listed.body.photos.length !== 3) {
+  if (listed.status !== 200 || listed.body.photos.length !== 4) {
     throw new Error('Gallery GET should return all uploaded photos');
   }
   if (!listed.body.photos.some((photo) => photo.orientation === 'portrait')) {
