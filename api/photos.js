@@ -3,7 +3,19 @@ import { del as blobDel, list as blobList, put as blobPut } from '@vercel/blob';
 const PREFIX = 'gallery/';
 const ACTIVE_SEGMENT = 'active';
 const ARCHIVE_SEGMENT = 'archive';
-const ACCEPT = new Set(['image/png', 'image/jpeg', 'image/webp', 'image/avif', 'image/heic', 'image/heif']);
+const MIME_EXT = new Map([
+  ['image/png', 'png'],
+  ['image/jpeg', 'jpg'],
+  ['image/webp', 'webp'],
+  ['image/avif', 'avif'],
+  ['image/heic', 'heic'],
+  ['image/heif', 'heif'],
+  ['image/gif', 'gif'],
+  ['image/bmp', 'bmp'],
+  ['image/tiff', 'tiff'],
+  ['image/x-tiff', 'tiff'],
+]);
+const ALLOWED_IMAGE_PREFIXES = ['image/'];
 
 function json(res, status, payload) {
   res.status(status);
@@ -20,15 +32,11 @@ function sanitizePhotoId(value) {
 }
 
 function extFromType(type) {
-  switch (type) {
-    case 'image/png': return 'png';
-    case 'image/jpeg': return 'jpg';
-    case 'image/webp': return 'webp';
-    case 'image/avif': return 'avif';
-    case 'image/heic': return 'heic';
-    case 'image/heif': return 'heif';
-    default: return 'bin';
-  }
+  return MIME_EXT.get(type) || 'jpg';
+}
+
+function isAllowedImageType(type) {
+  return Boolean(type) && ALLOWED_IMAGE_PREFIXES.some((prefix) => type.startsWith(prefix));
 }
 
 async function readBody(req) {
@@ -110,7 +118,7 @@ export default async function handler(req, res) {
   if (req.method === 'POST') {
     const contentType = String(req.headers['content-type'] || '').split(';')[0].trim().toLowerCase();
     const orientation = String(req.headers['x-photo-orientation'] || 'landscape').trim().toLowerCase();
-    if (!ACCEPT.has(contentType)) return json(res, 400, { error: 'Unsupported image type.' });
+    if (!isAllowedImageType(contentType)) return json(res, 400, { error: 'Unsupported image type.' });
     try {
       const body = await readBody(req);
       if (!body.length) return json(res, 400, { error: 'Empty upload.' });

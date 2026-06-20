@@ -292,6 +292,15 @@ async function main() {
   if (photoPostCount < 4) {
     throw new Error('Gallery upload should POST HEIC files too');
   }
+  await window.galleryApp.uploadPhoto({
+    type: 'image/gif',
+    __width: 640,
+    __height: 640,
+    async arrayBuffer() { return new Uint8Array([10, 11, 12]).buffer; },
+  });
+  if (photoPostCount < 5) {
+    throw new Error('Gallery upload should POST files even for unsupported browser image types');
+  }
   await window.galleryApp.deletePhoto('p1');
   if (photoDeleteCount < 1) {
     throw new Error('Gallery delete should DELETE');

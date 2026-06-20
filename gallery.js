@@ -1,5 +1,6 @@
 (function () {
   const API_URL = '/api/photos';
+  const DEFAULT_CONTENT_TYPE = 'image/jpeg';
 
   function escapeHtml(value) {
     return String(value || '').replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[ch]));
@@ -9,6 +10,12 @@
     if (!width || !height) return 'landscape';
     if (Math.abs(width - height) < Math.max(width, height) * 0.08) return 'square';
     return width > height ? 'landscape' : 'portrait';
+  }
+
+  function normalizeUploadContentType(file) {
+    const type = String(file?.type || '').trim().toLowerCase();
+    if (!type || !type.startsWith('image/')) return DEFAULT_CONTENT_TYPE;
+    return type;
   }
 
   async function loadPhotos() {
@@ -22,8 +29,7 @@
   }
 
   async function uploadPhoto(file) {
-    const normalizedType = String(file?.type || '').trim().toLowerCase();
-    const contentType = normalizedType || 'image/jpeg';
+    const contentType = normalizeUploadContentType(file);
     let orientation = 'landscape';
     const probeUrl = URL.createObjectURL(file);
     try {
@@ -162,5 +168,6 @@
     uploadPhoto,
     deletePhoto,
     inferOrientation,
+    normalizeUploadContentType,
   };
 })();
