@@ -11,6 +11,7 @@ const DEFAULT_CHALLENGES = [
   { id: 'r6', text: 'Conseguir unha foto co camareiro máis serio… sorrindo.' },
   { id: 'r7', text: 'Bailar «o robot» polo menos unha vez na noite.' },
   { id: 'r8', text: 'Conseguir que tres descoñecidas lle dean un consello matrimonial.' },
+  { id: 'r9', text: 'Dirixirse a unha chavala e preguntarlle: «Qué opinas de José Luis Ábalos? Yo creo que ni los buenos son tan buenos ni los malos son tan malos».' },
 ];
 const DEFAULT_DONE = Object.fromEntries(DEFAULT_CHALLENGES.map((item) => [item.id, false]));
 const VALID_IDS = new Set(DEFAULT_CHALLENGES.map((item) => item.id));

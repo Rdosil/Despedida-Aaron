@@ -164,7 +164,7 @@ async function main() {
   }
 
   const challengesInitial = await call(challengesHandler, 'GET');
-  if (challengesInitial.status !== 200 || challengesInitial.body.items?.length !== 8 || challengesInitial.body.items?.[0]?.text !== 'Facer a pole (ou intentalo con honra) no karting.' || challengesInitial.body.done?.r8 !== false) {
+  if (challengesInitial.status !== 200 || challengesInitial.body.items?.length !== 9 || challengesInitial.body.items?.[0]?.text !== 'Facer a pole (ou intentalo con honra) no karting.' || challengesInitial.body.done?.r9 !== false) {
     throw new Error('Challenges GET should return default shared challenges');
   }
   const challengesSaved = await call(challengesHandler, 'POST', {
@@ -179,16 +179,17 @@ async function main() {
         { id: 'r6', text: 'Novo reto 6' },
         { id: 'r7', text: 'Novo reto 7' },
         { id: 'r8', text: 'Novo reto 8' },
+        { id: 'r9', text: 'Novo reto 9' },
         { id: 'nope', text: 'Ignorar' },
       ],
-      done: { r1: true, r3: true, r8: true, nope: true },
+      done: { r1: true, r3: true, r8: true, r9: true, nope: true },
     }),
   });
   if (challengesSaved.status !== 200 || challengesSaved.body.done?.r1 !== true || challengesSaved.body.done?.r2 !== false || challengesSaved.body.items?.[0]?.text !== 'Novo reto 1' || challengesSaved.body.items?.some((item) => item.id === 'nope')) {
     throw new Error('Challenges POST should persist only known challenge items and flags');
   }
   const challengesListed = await call(challengesHandler, 'GET');
-  if (challengesListed.status !== 200 || challengesListed.body.done?.r3 !== true || challengesListed.body.done?.r8 !== true || challengesListed.body.items?.[7]?.text !== 'Novo reto 8') {
+  if (challengesListed.status !== 200 || challengesListed.body.done?.r3 !== true || challengesListed.body.done?.r8 !== true || challengesListed.body.done?.r9 !== true || challengesListed.body.items?.[8]?.text !== 'Novo reto 9') {
     throw new Error('Challenges GET should return persisted items and flags');
   }
 
@@ -215,6 +216,7 @@ async function main() {
       <div class="card reto" data-id="r6"><div class="box-c">✓</div><div class="rt">R6</div></div>
       <div class="card reto" data-id="r7"><div class="box-c">✓</div><div class="rt">R7</div></div>
       <div class="card reto" data-id="r8"><div class="box-c">✓</div><div class="rt">R8</div></div>
+      <div class="card reto" data-id="r9"><div class="box-c">✓</div><div class="rt">R9</div></div>
     </div>
     <div id="reto-score"></div>
   </body></html>`, { runScripts: 'outside-only', pretendToBeVisual: true, url: 'https://example.test/' });
@@ -225,7 +227,7 @@ async function main() {
   let quoteDeleteCount = 0;
   let challengeGetCount = 0;
   let challengePostCount = 0;
-  let currentDone = { r1: false, r2: false, r3: false, r4: false, r5: false, r6: false, r7: false, r8: false };
+  let currentDone = { r1: false, r2: false, r3: false, r4: false, r5: false, r6: false, r7: false, r8: false, r9: false };
   let currentItems = [
     { id: 'r1', text: 'R1' },
     { id: 'r2', text: 'R2' },
@@ -235,6 +237,7 @@ async function main() {
     { id: 'r6', text: 'R6' },
     { id: 'r7', text: 'R7' },
     { id: 'r8', text: 'R8' },
+    { id: 'r9', text: 'R9' },
   ];
   window.fetch = async (url, options = {}) => {
     if (url === '/api/photos' && (!options.method || options.method === 'GET')) {
@@ -428,7 +431,7 @@ async function main() {
   if (!currentDone.r1 || firstChallenge.classList.contains('done') !== true) {
     throw new Error('Challenge toggle should update local shared state and DOM');
   }
-  if (!window.document.getElementById('reto-score')?.textContent?.includes('1 / 8')) {
+  if (!window.document.getElementById('reto-score')?.textContent?.includes('1 / 9')) {
     throw new Error('Challenge score should update after shared toggle');
   }
 
