@@ -283,6 +283,15 @@ async function main() {
   if (photoPostCount < 3) {
     throw new Error('Gallery upload should still POST when orientation decode fails');
   }
+  await window.galleryApp.uploadPhoto({
+    type: 'image/heic',
+    __width: 960,
+    __height: 1280,
+    async arrayBuffer() { return new Uint8Array([7, 8, 9]).buffer; },
+  });
+  if (photoPostCount < 4) {
+    throw new Error('Gallery upload should POST HEIC files too');
+  }
   await window.galleryApp.deletePhoto('p1');
   if (photoDeleteCount < 1) {
     throw new Error('Gallery delete should DELETE');
