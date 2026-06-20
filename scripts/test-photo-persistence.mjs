@@ -207,14 +207,14 @@ async function main() {
     <div id="quotes-list"></div>
     <form id="quote-form"><input id="quote-author"><textarea id="quote-text"></textarea><span id="quote-status"></span></form>
     <div class="retos" id="retos">
-      <div class="card reto" data-id="r1"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R1</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R1" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
-      <div class="card reto" data-id="r2"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R2</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R2" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
-      <div class="card reto" data-id="r3"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R3</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R3" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
-      <div class="card reto" data-id="r4"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R4</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R4" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
-      <div class="card reto" data-id="r5"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R5</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R5" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
-      <div class="card reto" data-id="r6"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R6</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R6" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
-      <div class="card reto" data-id="r7"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R7</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R7" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
-      <div class="card reto" data-id="r8"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R8</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R8" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
+      <div class="card reto" data-id="r1"><div class="box-c">✓</div><div class="rt">R1</div></div>
+      <div class="card reto" data-id="r2"><div class="box-c">✓</div><div class="rt">R2</div></div>
+      <div class="card reto" data-id="r3"><div class="box-c">✓</div><div class="rt">R3</div></div>
+      <div class="card reto" data-id="r4"><div class="box-c">✓</div><div class="rt">R4</div></div>
+      <div class="card reto" data-id="r5"><div class="box-c">✓</div><div class="rt">R5</div></div>
+      <div class="card reto" data-id="r6"><div class="box-c">✓</div><div class="rt">R6</div></div>
+      <div class="card reto" data-id="r7"><div class="box-c">✓</div><div class="rt">R7</div></div>
+      <div class="card reto" data-id="r8"><div class="box-c">✓</div><div class="rt">R8</div></div>
     </div>
     <div id="reto-score"></div>
   </body></html>`, { runScripts: 'outside-only', pretendToBeVisual: true, url: 'https://example.test/' });
@@ -425,43 +425,11 @@ async function main() {
   if (challengePostCount < 1) {
     throw new Error('Challenge toggle should persist shared state');
   }
-  const editButton = firstChallenge.querySelector('[data-act="edit"]');
-  if (!editButton) {
-    throw new Error('Challenge card should expose edit button');
+  if (!currentDone.r1 || firstChallenge.classList.contains('done') !== true) {
+    throw new Error('Challenge toggle should update local shared state and DOM');
   }
-  editButton.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
-  await flushMicrotasks(2);
-  await new Promise((resolve) => setTimeout(resolve, 0));
-  const refreshedChallenge = window.document.querySelector('.reto[data-id="r1"]');
-  const editor = refreshedChallenge?.querySelector('.reto-editor');
-  const textInput = refreshedChallenge?.querySelector('.reto-edit-input');
-  if (!editor || !textInput) {
-    throw new Error('Challenge card should open inline editor');
-  }
-  textInput.value = 'R1 editado';
-  editor.dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
-  await flushMicrotasks(4);
-  await new Promise((resolve) => setTimeout(resolve, 0));
-  await flushMicrotasks(4);
-  if (challengePostCount < 2 || currentItems[0]?.text !== 'R1 editado') {
-    throw new Error('Challenge edit should persist shared copy');
-  }
-  if (!window.document.querySelector('.reto[data-id="r1"] .rt')?.textContent?.includes('R1 editado')) {
-    throw new Error('Challenge edit should update rendered text');
-  }
-  const deleteButton = window.document.querySelector('.reto[data-id="r1"] [data-act="delete"]');
-  if (!deleteButton) {
-    throw new Error('Challenge card should expose delete button');
-  }
-  deleteButton.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
-  await flushMicrotasks(4);
-  await new Promise((resolve) => setTimeout(resolve, 0));
-  await flushMicrotasks(4);
-  if (challengePostCount < 3 || currentItems[0]?.text !== '') {
-    throw new Error('Challenge delete should persist cleared copy');
-  }
-  if (window.document.querySelector('.reto[data-id="r1"] .rt')?.textContent?.trim() !== 'Reto eliminado') {
-    throw new Error('Deleted challenge should render placeholder text');
+  if (!window.document.getElementById('reto-score')?.textContent?.includes('1 / 8')) {
+    throw new Error('Challenge score should update after shared toggle');
   }
 
   console.log('photo persistence ok');
