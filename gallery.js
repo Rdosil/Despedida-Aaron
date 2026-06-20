@@ -28,39 +28,98 @@
     };
   }
 
-  async function uploadPhoto(file) {
-    const contentType = normalizeUploadContentType(file);
-    let orientation = 'landscape';
+  async function getImageBitmapSize(file) {
+    const bitmap = await createImageBitmap(file);
+    try {
+      return { width: bitmap.width, height: bitmap.height };
+    } finally {
+      bitmap.close && bitmap.close();
+    }
+  }
+
+  async function probeImageSize(file) {
     const probeUrl = URL.createObjectURL(file);
     try {
-      const size = await new Promise((resolve, reject) => {
+      return await new Promise((resolve, reject) => {
         const img = new Image();
         img.onload = () => resolve({ width: img.naturalWidth, height: img.naturalHeight });
         img.onerror = () => reject(new Error('image probe failed'));
         img.src = probeUrl;
       });
-      orientation = inferOrientation(size.width, size.height);
-    } catch (_probeErr) {
-      try {
-        const bitmap = await createImageBitmap(file);
-        try {
-          orientation = inferOrientation(bitmap.width, bitmap.height);
-        } finally {
-          bitmap.close && bitmap.close();
-        }
-      } catch (_bitmapErr) {
-        orientation = 'landscape';
-      }
     } finally {
       URL.revokeObjectURL(probeUrl);
     }
+  }
+
+  async function normalizeUploadPayload(file) {
+    const size = typeof file?.size === 'number' ? file.size : 0;
+    if (size && size < 4_000_000) {
+      return new Uint8Array(await file.arrayBuffer());
+    }
+    let dimensions = null;
+    try {
+      dimensions = await probeImageSize(file);
+    } catch (_probeErr) {
+      try {
+        dimensions = await getImageBitmapSize(file);
+      } catch (_bitmapErr) {
+        return new Uint8Array(await file.arrayBuffer());
+      }
+    }
+    try {
+      const bitmap = await createImageBitmap(file);
+      try {
+        const maxDim = 2000;
+        const scale = Math.min(1, maxDim / Math.max(bitmap.width, bitmap.height));
+        const width = Math.max(1, Math.round(bitmap.width * scale));
+        const height = Math.max(1, Math.round(bitmap.height * scale));
+        const canvas = document.createElement('canvas');
+        canvas.width = width;
+        canvas.height = height;
+        let ctx = null;
+        try {
+          ctx = canvas.getContext('2d');
+        } catch (_ctxErr) {
+          ctx = null;
+        }
+        if (!ctx) {
+          throw new Error('image compression unavailable');
+        }
+        ctx.drawImage(bitmap, 0, 0, width, height);
+        const blob = await new Promise((resolve, reject) => {
+          canvas.toBlob((result) => result ? resolve(result) : reject(new Error('image compression failed')), 'image/jpeg', 0.82);
+        });
+        return new Uint8Array(await blob.arrayBuffer());
+      } finally {
+        bitmap.close && bitmap.close();
+      }
+    } catch (_compressErr) {
+      return new Uint8Array(await file.arrayBuffer());
+    }
+  }
+
+  async function uploadPhoto(file) {
+    const contentType = normalizeUploadContentType(file);
+    let orientation = 'landscape';
+    try {
+      const size = await probeImageSize(file);
+      orientation = inferOrientation(size.width, size.height);
+    } catch (_probeErr) {
+      try {
+        const size = await getImageBitmapSize(file);
+        orientation = inferOrientation(size.width, size.height);
+      } catch (_bitmapErr) {
+        orientation = 'landscape';
+      }
+    }
+    const body = await normalizeUploadPayload(file);
     const res = await fetch(API_URL, {
       method: 'POST',
       headers: {
-        'content-type': contentType,
+        'content-type': body.byteLength < (file?.size || Number.MAX_SAFE_INTEGER) ? 'image/jpeg' : contentType,
         'x-photo-orientation': orientation,
       },
-      body: new Uint8Array(await file.arrayBuffer()),
+      body,
     });
     if (!res.ok) {
       const payload = await res.json().catch(() => ({}));

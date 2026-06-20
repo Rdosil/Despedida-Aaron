@@ -193,6 +193,10 @@ async function main() {
     }
     if (url === '/api/photos' && options.method === 'POST') {
       photoPostCount += 1;
+      const bodySize = options.body?.byteLength ?? options.body?.length ?? 0;
+      if (photoPostCount === 6 && bodySize >= 4_997_422) {
+        throw new Error('Large JPEG uploads should be downscaled before POST');
+      }
       return {
         ok: true,
         async json() {
@@ -232,6 +236,15 @@ async function main() {
   };
   window.URL.createObjectURL = (file) => `blob:mock-${file.__width || 0}x${file.__height || 0}`;
   window.URL.revokeObjectURL = () => {};
+  const realCreateElement = window.document.createElement.bind(window.document);
+  window.document.createElement = (tagName, options) => {
+    const el = realCreateElement(tagName, options);
+    if (String(tagName).toLowerCase() === 'canvas') {
+      el.getContext = () => ({ drawImage() {} });
+      el.toBlob = (cb, type) => cb(new window.Blob([new Uint8Array([1,2,3,4])], { type: type || 'image/jpeg' }));
+    }
+    return el;
+  };
   window.Image = class MockImage {
     set src(value) {
       const match = /blob:mock-(\d+)x(\d+)/.exec(value || '');
@@ -300,6 +313,16 @@ async function main() {
   });
   if (photoPostCount < 5) {
     throw new Error('Gallery upload should POST files even for unsupported browser image types');
+  }
+  await window.galleryApp.uploadPhoto({
+    type: 'image/jpeg',
+    size: 4_997_422,
+    __width: 3072,
+    __height: 4096,
+    async arrayBuffer() { return new Uint8Array([13, 14, 15]).buffer; },
+  });
+  if (photoPostCount < 6) {
+    throw new Error('Large JPEG uploads should be downscaled before POST');
   }
   await window.galleryApp.deletePhoto('p1');
   if (photoDeleteCount < 1) {
