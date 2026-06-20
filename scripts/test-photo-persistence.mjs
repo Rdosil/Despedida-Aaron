@@ -164,29 +164,41 @@ async function main() {
   }
 
   const challengesInitial = await call(challengesHandler, 'GET');
-  if (challengesInitial.status !== 200 || challengesInitial.body.done?.r1 !== false || challengesInitial.body.done?.r8 !== false) {
-    throw new Error('Challenges GET should return defaults');
+  if (challengesInitial.status !== 200 || challengesInitial.body.items?.length !== 8 || challengesInitial.body.items?.[0]?.text !== 'Facer a pole (ou intentalo con honra) no karting.' || challengesInitial.body.done?.r8 !== false) {
+    throw new Error('Challenges GET should return default shared challenges');
   }
   const challengesSaved = await call(challengesHandler, 'POST', {
     headers: { 'content-type': 'application/json' },
-    body: JSON.stringify({ done: { r1: true, r3: true, r8: true, nope: true } }),
+    body: JSON.stringify({
+      items: [
+        { id: 'r1', text: 'Novo reto 1' },
+        { id: 'r2', text: 'Novo reto 2' },
+        { id: 'r3', text: 'Novo reto 3' },
+        { id: 'r4', text: 'Novo reto 4' },
+        { id: 'r5', text: 'Novo reto 5' },
+        { id: 'r6', text: 'Novo reto 6' },
+        { id: 'r7', text: 'Novo reto 7' },
+        { id: 'r8', text: 'Novo reto 8' },
+        { id: 'nope', text: 'Ignorar' },
+      ],
+      done: { r1: true, r3: true, r8: true, nope: true },
+    }),
   });
-  if (challengesSaved.status !== 200 || challengesSaved.body.done?.r1 !== true || challengesSaved.body.done?.r2 !== false || challengesSaved.body.done?.nope !== undefined) {
-    throw new Error('Challenges POST should persist only known challenge flags');
+  if (challengesSaved.status !== 200 || challengesSaved.body.done?.r1 !== true || challengesSaved.body.done?.r2 !== false || challengesSaved.body.items?.[0]?.text !== 'Novo reto 1' || challengesSaved.body.items?.some((item) => item.id === 'nope')) {
+    throw new Error('Challenges POST should persist only known challenge items and flags');
   }
   const challengesListed = await call(challengesHandler, 'GET');
-  if (challengesListed.status !== 200 || challengesListed.body.done?.r3 !== true || challengesListed.body.done?.r8 !== true) {
-    throw new Error('Challenges GET should return persisted flags');
+  if (challengesListed.status !== 200 || challengesListed.body.done?.r3 !== true || challengesListed.body.done?.r8 !== true || challengesListed.body.items?.[7]?.text !== 'Novo reto 8') {
+    throw new Error('Challenges GET should return persisted items and flags');
   }
 
   const gallerySource = await import('node:fs/promises').then(fs => fs.readFile(new URL('../gallery.js', import.meta.url), 'utf8'));
   const indexSource = await import('node:fs/promises').then(fs => fs.readFile(new URL('../index.html', import.meta.url), 'utf8'));
-  const retosStart = indexSource.indexOf('// RETOS');
-  const retosEnd = indexSource.indexOf('</script>', retosStart);
-  if (retosStart < 0 || retosEnd < 0) {
+  const retosBody = indexSource.match(/\/\* RETOS_INLINE_START \*\/([\s\S]*?)\/\* RETOS_INLINE_END \*\//);
+  if (!retosBody) {
     throw new Error('Retos script should exist in index.html');
   }
-  const retosScript = indexSource.slice(retosStart, retosEnd);
+  const retosScript = retosBody[1];
   const dom = new JSDOM(`<!doctype html><html><body>
     <div id="gallery-grid"></div>
     <div id="archive-grid"></div>
@@ -195,14 +207,14 @@ async function main() {
     <div id="quotes-list"></div>
     <form id="quote-form"><input id="quote-author"><textarea id="quote-text"></textarea><span id="quote-status"></span></form>
     <div class="retos" id="retos">
-      <div class="card reto" data-id="r1"><div class="box-c">✓</div><div class="rt">R1</div></div>
-      <div class="card reto" data-id="r2"><div class="box-c">✓</div><div class="rt">R2</div></div>
-      <div class="card reto" data-id="r3"><div class="box-c">✓</div><div class="rt">R3</div></div>
-      <div class="card reto" data-id="r4"><div class="box-c">✓</div><div class="rt">R4</div></div>
-      <div class="card reto" data-id="r5"><div class="box-c">✓</div><div class="rt">R5</div></div>
-      <div class="card reto" data-id="r6"><div class="box-c">✓</div><div class="rt">R6</div></div>
-      <div class="card reto" data-id="r7"><div class="box-c">✓</div><div class="rt">R7</div></div>
-      <div class="card reto" data-id="r8"><div class="box-c">✓</div><div class="rt">R8</div></div>
+      <div class="card reto" data-id="r1"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R1</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R1" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
+      <div class="card reto" data-id="r2"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R2</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R2" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
+      <div class="card reto" data-id="r3"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R3</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R3" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
+      <div class="card reto" data-id="r4"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R4</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R4" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
+      <div class="card reto" data-id="r5"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R5</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R5" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
+      <div class="card reto" data-id="r6"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R6</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R6" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
+      <div class="card reto" data-id="r7"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R7</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R7" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
+      <div class="card reto" data-id="r8"><div class="reto-display"><div class="box-c">✓</div><div class="rt">R8</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="R8" placeholder="Edita o reto"><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
     </div>
     <div id="reto-score"></div>
   </body></html>`, { runScripts: 'outside-only', pretendToBeVisual: true, url: 'https://example.test/' });
@@ -214,6 +226,16 @@ async function main() {
   let challengeGetCount = 0;
   let challengePostCount = 0;
   let currentDone = { r1: false, r2: false, r3: false, r4: false, r5: false, r6: false, r7: false, r8: false };
+  let currentItems = [
+    { id: 'r1', text: 'R1' },
+    { id: 'r2', text: 'R2' },
+    { id: 'r3', text: 'R3' },
+    { id: 'r4', text: 'R4' },
+    { id: 'r5', text: 'R5' },
+    { id: 'r6', text: 'R6' },
+    { id: 'r7', text: 'R7' },
+    { id: 'r8', text: 'R8' },
+  ];
   window.fetch = async (url, options = {}) => {
     if (url === '/api/photos' && (!options.method || options.method === 'GET')) {
       return {
@@ -264,13 +286,16 @@ async function main() {
     }
     if (url === '/api/challenges' && (!options.method || options.method === 'GET')) {
       challengeGetCount += 1;
-      return { ok: true, async json() { return { done: { ...currentDone } }; } };
+      return { ok: true, async json() { return { items: currentItems.map((item) => ({ ...item })), done: { ...currentDone } }; } };
     }
     if (url === '/api/challenges' && options.method === 'POST') {
       challengePostCount += 1;
       const payload = JSON.parse(String(options.body || '{}'));
       currentDone = { ...currentDone, ...(payload.done || {}) };
-      return { ok: true, async json() { return { ok: true, done: { ...currentDone } }; } };
+      if (Array.isArray(payload.items)) {
+        currentItems = payload.items.map((item) => ({ ...item }));
+      }
+      return { ok: true, async json() { return { ok: true, items: currentItems.map((item) => ({ ...item })), done: { ...currentDone } }; } };
     }
     throw new Error(`Unexpected fetch ${url}`);
   };
@@ -289,7 +314,7 @@ async function main() {
     const el = realCreateElement(tagName, options);
     if (String(tagName).toLowerCase() === 'canvas') {
       el.getContext = () => ({ drawImage() {} });
-      el.toBlob = (cb, type) => cb(new window.Blob([new Uint8Array([1,2,3,4])], { type: type || 'image/jpeg' }));
+      el.toBlob = (cb, type) => cb(new window.Blob([new Uint8Array([1, 2, 3, 4])], { type: type || 'image/jpeg' }));
     }
     return el;
   };
@@ -389,16 +414,54 @@ async function main() {
   if (!firstChallenge) {
     throw new Error('Challenge card should exist in DOM');
   }
-  firstChallenge.click();
+  const firstText = firstChallenge.querySelector('.rt');
+  if (!firstText) {
+    throw new Error('Challenge card text should exist in DOM');
+  }
+  firstChallenge.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  await flushMicrotasks(4);
+  await new Promise((resolve) => setTimeout(resolve, 0));
   await flushMicrotasks(4);
   if (challengePostCount < 1) {
     throw new Error('Challenge toggle should persist shared state');
   }
-  if (!currentDone.r1 || firstChallenge.classList.contains('done') !== true) {
-    throw new Error('Challenge toggle should update local shared state and DOM');
+  const editButton = firstChallenge.querySelector('[data-act="edit"]');
+  if (!editButton) {
+    throw new Error('Challenge card should expose edit button');
   }
-  if (!window.document.getElementById('reto-score')?.textContent?.includes('1 / 8')) {
-    throw new Error('Challenge score should update after shared toggle');
+  editButton.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  await flushMicrotasks(2);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  const refreshedChallenge = window.document.querySelector('.reto[data-id="r1"]');
+  const editor = refreshedChallenge?.querySelector('.reto-editor');
+  const textInput = refreshedChallenge?.querySelector('.reto-edit-input');
+  if (!editor || !textInput) {
+    throw new Error('Challenge card should open inline editor');
+  }
+  textInput.value = 'R1 editado';
+  editor.dispatchEvent(new window.Event('submit', { bubbles: true, cancelable: true }));
+  await flushMicrotasks(4);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await flushMicrotasks(4);
+  if (challengePostCount < 2 || currentItems[0]?.text !== 'R1 editado') {
+    throw new Error('Challenge edit should persist shared copy');
+  }
+  if (!window.document.querySelector('.reto[data-id="r1"] .rt')?.textContent?.includes('R1 editado')) {
+    throw new Error('Challenge edit should update rendered text');
+  }
+  const deleteButton = window.document.querySelector('.reto[data-id="r1"] [data-act="delete"]');
+  if (!deleteButton) {
+    throw new Error('Challenge card should expose delete button');
+  }
+  deleteButton.dispatchEvent(new window.MouseEvent('click', { bubbles: true, cancelable: true }));
+  await flushMicrotasks(4);
+  await new Promise((resolve) => setTimeout(resolve, 0));
+  await flushMicrotasks(4);
+  if (challengePostCount < 3 || currentItems[0]?.text !== '') {
+    throw new Error('Challenge delete should persist cleared copy');
+  }
+  if (window.document.querySelector('.reto[data-id="r1"] .rt')?.textContent?.trim() !== 'Reto eliminado') {
+    throw new Error('Deleted challenge should render placeholder text');
   }
 
   console.log('photo persistence ok');

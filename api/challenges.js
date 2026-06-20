@@ -2,16 +2,18 @@ import { del as blobDel, list as blobList, put as blobPut } from '@vercel/blob';
 
 const PREFIX = 'challenges/';
 const CONTENT_TYPE = 'application/json; charset=utf-8';
-const DEFAULT_CHALLENGES = {
-  r1: false,
-  r2: false,
-  r3: false,
-  r4: false,
-  r5: false,
-  r6: false,
-  r7: false,
-  r8: false,
-};
+const DEFAULT_CHALLENGES = [
+  { id: 'r1', text: 'Facer a pole (ou intentalo con honra) no karting.' },
+  { id: 'r2', text: 'Pedir a cea enteira imitando a un comentarista deportivo.' },
+  { id: 'r3', text: 'Soltar un discurso de 30 segundos agradecendo ao «seu equipo».' },
+  { id: 'r4', text: 'Responder durante 10 minutos a todo como se estivese nunha rolda de prensa pre-boda.' },
+  { id: 'r5', text: 'Entregar o seu número a unha descoñecida cunha frase digna de expulsión inmediata.' },
+  { id: 'r6', text: 'Conseguir unha foto co camareiro máis serio… sorrindo.' },
+  { id: 'r7', text: 'Bailar «o robot» polo menos unha vez na noite.' },
+  { id: 'r8', text: 'Conseguir que tres descoñecidas lle dean un consello matrimonial.' },
+];
+const DEFAULT_DONE = Object.fromEntries(DEFAULT_CHALLENGES.map((item) => [item.id, false]));
+const VALID_IDS = new Set(DEFAULT_CHALLENGES.map((item) => item.id));
 
 function json(res, status, payload) {
   res.status(status);
@@ -41,13 +43,28 @@ async function deleteBlob(urlOrPathname, options) {
   return blobDel(urlOrPathname, options);
 }
 
-function normalizeDoneMap(raw) {
-  const next = { ...DEFAULT_CHALLENGES };
+function sanitizeText(value, max = 180) {
+  return String(value || '').replace(/\s+/g, ' ').trim().slice(0, max);
+}
+
+function normalizeDoneMap(raw, items = DEFAULT_CHALLENGES) {
+  const next = Object.fromEntries(items.map((item) => [item.id, false]));
   if (!raw || typeof raw !== 'object') return next;
-  for (const id of Object.keys(DEFAULT_CHALLENGES)) {
-    next[id] = Boolean(raw[id]);
+  for (const item of items) {
+    next[item.id] = Boolean(raw[item.id]);
   }
   return next;
+}
+
+function normalizeChallengeItems(raw) {
+  if (!Array.isArray(raw)) {
+    return DEFAULT_CHALLENGES.map((item) => ({ ...item }));
+  }
+  const byId = new Map(raw.map((item) => [String(item?.id || '').trim(), sanitizeText(item?.text)]));
+  return DEFAULT_CHALLENGES.map((item) => ({
+    id: item.id,
+    text: VALID_IDS.has(item.id) ? (byId.get(item.id) ?? item.text) : item.text,
+  }));
 }
 
 async function loadChallengesBlob() {
@@ -58,15 +75,22 @@ async function loadChallengesBlob() {
 
 async function readChallenges() {
   const latest = await loadChallengesBlob();
-  if (!latest) return normalizeDoneMap();
+  if (!latest) {
+    const items = DEFAULT_CHALLENGES.map((item) => ({ ...item }));
+    return { items, done: normalizeDoneMap({}, items) };
+  }
   const text = await fetch(latest.url).then((r) => r.text());
   const parsed = JSON.parse(text);
-  return normalizeDoneMap(parsed?.done);
+  const items = normalizeChallengeItems(parsed?.items);
+  return {
+    items,
+    done: normalizeDoneMap(parsed?.done, items),
+  };
 }
 
-async function writeChallenges(done) {
+async function writeChallenges(state) {
   const pathname = `${PREFIX}${Date.now()}.json`;
-  await putPublicBlob(pathname, JSON.stringify({ done }, null, 2), {
+  await putPublicBlob(pathname, JSON.stringify(state, null, 2), {
     addRandomSuffix: false,
     allowOverwrite: true,
     contentType: CONTENT_TYPE,
@@ -82,8 +106,8 @@ async function writeChallenges(done) {
 export default async function handler(req, res) {
   if (req.method === 'GET') {
     try {
-      const done = await readChallenges();
-      return json(res, 200, { done });
+      const state = await readChallenges();
+      return json(res, 200, state);
     } catch (error) {
       return json(res, 500, { error: 'Could not list challenges.', details: String(error?.message || error) });
     }
@@ -93,9 +117,11 @@ export default async function handler(req, res) {
     try {
       const raw = await readBody(req);
       const payload = JSON.parse(raw || '{}');
-      const done = normalizeDoneMap(payload.done);
-      await writeChallenges(done);
-      return json(res, 200, { ok: true, done });
+      const items = normalizeChallengeItems(payload.items);
+      const done = normalizeDoneMap(payload.done, items);
+      const state = { items, done };
+      await writeChallenges(state);
+      return json(res, 200, { ok: true, ...state });
     } catch (error) {
       return json(res, 500, { error: 'Could not save challenges.', details: String(error?.message || error) });
     }

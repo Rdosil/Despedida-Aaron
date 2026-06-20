@@ -192,6 +192,21 @@
   .quote-editor{display:none;gap:10px;margin-top:12px}
   .quote-editor input,.quote-editor textarea{width:100%;box-sizing:border-box;border:2px solid var(--ink);background:#fffdf7;padding:10px 12px;font:inherit;color:var(--ink)}
   .quote-editor textarea{min-height:100px;resize:vertical}
+  .retos-head{display:flex;gap:12px;justify-content:space-between;align-items:flex-end;flex-wrap:wrap}
+  .retos-head-copy{display:grid;gap:4px}
+  .retos-manage{border:2px solid var(--ink);background:#fffdf7;padding:9px 13px;font:inherit;font-weight:700;cursor:pointer;box-shadow:4px 4px 0 rgba(0,0,0,.16)}
+  .retos-manage:hover{background:var(--yellow)}
+  .retos-manage.is-active{background:var(--yellow)}
+  .reto-toolbar{display:none;gap:8px;flex-wrap:wrap;margin-left:auto}
+  .retos[data-manage="true"] .reto-toolbar{display:flex}
+  .reto-action{border:2px solid var(--ink);background:#fffdf7;padding:6px 9px;font:inherit;font-weight:700;cursor:pointer}
+  .reto-action:hover{background:var(--yellow)}
+  .reto[data-editing="true"] .reto-display{display:none}
+  .reto[data-editing="true"] .reto-editor{display:grid}
+  .reto-display{display:flex;align-items:center;gap:14px;width:100%}
+  .reto-editor{display:none;gap:10px;width:100%}
+  .reto-edit-input{width:100%;box-sizing:border-box;border:2px solid var(--ink);background:#fffdf7;padding:10px 12px;font:inherit;color:var(--ink)}
+  .reto-editor-actions{display:flex;gap:8px;flex-wrap:wrap}
   .quote-form{padding:18px;border:3px solid var(--ink);box-shadow:var(--shadow);background:var(--card);display:grid;gap:12px}
   .quote-form label{display:grid;gap:6px;font-weight:700;font-size:13px;text-transform:uppercase;letter-spacing:.06em}
   .quote-form input,.quote-form textarea{width:100%;box-sizing:border-box;border:2px solid var(--ink);background:#fffdf7;padding:12px 13px;font:inherit;color:var(--ink)}
@@ -504,19 +519,24 @@
 <!-- RETOS -->
 <section id="retos" style="background:var(--cream-2);border-top:3px solid var(--ink);border-bottom:3px solid var(--ink)">
   <div class="wrap">
-    <div class="eyebrow">Misións do capitán · marca as que complete</div>
-    <h2 class="sec-title">Retos para o <span class="b">noivo</span></h2>
+    <div class="retos-head">
+      <div class="retos-head-copy">
+        <div class="eyebrow">Misións do capitán · marca as que complete</div>
+        <h2 class="sec-title">Retos para o <span class="b">noivo</span></h2>
+      </div>
+      <button id="retos-manage-toggle" class="retos-manage" type="button">✏️ Editar retos</button>
+    </div>
     <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
 
     <div class="retos" id="retos">
-      <div class="card reto" data-id="r1"><div class="box-c">✓</div><div class="rt">Facer a pole (ou intentalo con honra) no karting.</div></div>
-      <div class="card reto" data-id="r2"><div class="box-c">✓</div><div class="rt">Pedir a cea enteira imitando a un comentarista deportivo.</div></div>
-      <div class="card reto" data-id="r3"><div class="box-c">✓</div><div class="rt">Soltar un discurso de 30 segundos agradecendo ao «seu equipo».</div></div>
-      <div class="card reto" data-id="r4"><div class="box-c">✓</div><div class="rt">Responder durante 10 minutos a todo como se estivese nunha rolda de prensa pre-boda.</div></div>
-      <div class="card reto" data-id="r5"><div class="box-c">✓</div><div class="rt">Entregar o seu número a unha descoñecida cunha frase digna de expulsión inmediata.</div></div>
-      <div class="card reto" data-id="r6"><div class="box-c">✓</div><div class="rt">Conseguir unha foto co camareiro máis serio… sorrindo.</div></div>
-      <div class="card reto" data-id="r7"><div class="box-c">✓</div><div class="rt">Bailar «o robot» polo menos unha vez na noite.</div></div>
-      <div class="card reto" data-id="r8"><div class="box-c">✓</div><div class="rt">Conseguir que tres descoñecidas lle dean un consello matrimonial.</div></div>
+      <div class="card reto" data-id="r1"><div class="reto-display"><div class="box-c">✓</div><div class="rt">Facer a pole (ou intentalo con honra) no karting.</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="Facer a pole (ou intentalo con honra) no karting." placeholder="Texto do reto" /><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
+      <div class="card reto" data-id="r2"><div class="reto-display"><div class="box-c">✓</div><div class="rt">Pedir a cea enteira imitando a un comentarista deportivo.</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="Pedir a cea enteira imitando a un comentarista deportivo." placeholder="Texto do reto" /><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
+      <div class="card reto" data-id="r3"><div class="reto-display"><div class="box-c">✓</div><div class="rt">Soltar un discurso de 30 segundos agradecendo ao «seu equipo».</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="Soltar un discurso de 30 segundos agradecendo ao «seu equipo»." placeholder="Texto do reto" /><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
+      <div class="card reto" data-id="r4"><div class="reto-display"><div class="box-c">✓</div><div class="rt">Responder durante 10 minutos a todo como se estivese nunha rolda de prensa pre-boda.</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="Responder durante 10 minutos a todo como se estivese nunha rolda de prensa pre-boda." placeholder="Texto do reto" /><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
+      <div class="card reto" data-id="r5"><div class="reto-display"><div class="box-c">✓</div><div class="rt">Entregar o seu número a unha descoñecida cunha frase digna de expulsión inmediata.</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="Entregar o seu número a unha descoñecida cunha frase digna de expulsión inmediata." placeholder="Texto do reto" /><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
+      <div class="card reto" data-id="r6"><div class="reto-display"><div class="box-c">✓</div><div class="rt">Conseguir unha foto co camareiro máis serio… sorrindo.</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="Conseguir unha foto co camareiro máis serio… sorrindo." placeholder="Texto do reto" /><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
+      <div class="card reto" data-id="r7"><div class="reto-display"><div class="box-c">✓</div><div class="rt">Bailar «o robot» polo menos unha vez na noite.</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="Bailar «o robot» polo menos unha vez na noite." placeholder="Texto do reto" /><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
+      <div class="card reto" data-id="r8"><div class="reto-display"><div class="box-c">✓</div><div class="rt">Conseguir que tres descoñecidas lle dean un consello matrimonial.</div><div class="reto-toolbar"><button class="reto-action" type="button" data-act="edit">Editar</button><button class="reto-action" type="button" data-act="delete">Borrar</button></div></div><form class="reto-editor"><input class="reto-edit-input" name="text" maxlength="180" value="Conseguir que tres descoñecidas lle dean un consello matrimonial." placeholder="Texto do reto" /><div class="reto-editor-actions"><button class="reto-action" type="submit">Gardar</button><button class="reto-action" type="button" data-act="cancel">Cancelar</button></div></form></div>
     </div>
     <div class="retos-foot" id="reto-score">0 / 8 retos completados</div>
   </div>
@@ -745,11 +765,18 @@
   }
   tick(); setInterval(tick, 1000);
 
+  /* RETOS_INLINE_START */
   // RETOS
   const RETOS_API_URL = '/api/challenges';
   const KEY = 'despedida-aaron-retos';
-  const retos = Array.from(document.querySelectorAll('.reto'));
-  let done = Object.fromEntries(retos.map((r) => [r.dataset.id, false]));
+  const retosWrap = document.getElementById('retos');
+  const manageToggle = document.getElementById('retos-manage-toggle');
+  let retos = Array.from(document.querySelectorAll('.reto'));
+  let items = retos.map((r) => ({
+    id: r.dataset.id,
+    text: r.querySelector('.rt')?.textContent?.trim() || '',
+  }));
+  let done = Object.fromEntries(items.map((item) => [item.id, false]));
   try {
     const cached = JSON.parse(localStorage.getItem(KEY) || '{}');
     if (cached && typeof cached === 'object') {
@@ -761,31 +788,132 @@
   function saveLocalDone(){
     localStorage.setItem(KEY, JSON.stringify(done));
   }
+  function textForItem(id){
+    return items.find((item) => item.id === id)?.text || '';
+  }
+  function bindChallengeCard(card){
+    const id = card.dataset.id;
+    const editButton = card.querySelector('[data-act="edit"]');
+    const deleteButton = card.querySelector('[data-act="delete"]');
+    const cancelButton = card.querySelector('.reto-editor [data-act="cancel"]');
+    const form = card.querySelector('.reto-editor');
+    const input = card.querySelector('.reto-edit-input');
+    if (input) input.value = textForItem(id);
+    editButton?.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      card.dataset.editing = 'true';
+      if (input) {
+        input.value = textForItem(id);
+        input.focus();
+        input.select();
+      }
+    });
+    deleteButton?.addEventListener('click', async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const previousItems = items.map((item) => ({ ...item }));
+      items = items.map((item) => item.id === id ? { ...item, text: '' } : item);
+      renderRetos();
+      try{
+        await persistChallenges();
+      }catch(_err){
+        items = previousItems;
+        renderRetos();
+      }
+    });
+    cancelButton?.addEventListener('click', (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      card.dataset.editing = 'false';
+      if (input) input.value = textForItem(id);
+    });
+    form?.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      event.stopPropagation();
+      const previousItems = items.map((item) => ({ ...item }));
+      items = items.map((item) => item.id === id ? { ...item, text: input?.value?.trim?.() || '' } : item);
+      card.dataset.editing = 'false';
+      renderRetos();
+      try{
+        await persistChallenges();
+      }catch(_err){
+        items = previousItems;
+        renderRetos();
+      }
+    });
+    card.addEventListener('click', async (event) => {
+      if (event.target.closest('.reto-toolbar') || event.target.closest('.reto-editor')) {
+        return;
+      }
+      if (manageToggle?.classList.contains('is-active')) {
+        event.preventDefault();
+        return;
+      }
+      const previous = { ...done };
+      done[id] = !done[id];
+      applyDoneState();
+      score();
+      try{
+        await persistChallenges();
+      }catch(_err){
+        done = previous;
+        applyDoneState();
+        score();
+      }
+    });
+  }
+  function bindRetos(){
+    retos = Array.from(document.querySelectorAll('.reto'));
+    retos.forEach(bindChallengeCard);
+  }
   function applyDoneState(){
     retos.forEach((r) => {
       const id = r.dataset.id;
       r.classList.toggle('done', Boolean(done[id]));
+      const text = r.querySelector('.rt');
+      if (text) {
+        text.textContent = textForItem(id) || 'Reto eliminado';
+      }
+      const input = r.querySelector('.reto-edit-input');
+      if (input) {
+        input.value = textForItem(id);
+      }
     });
   }
   function score(){
     const n = Object.values(done).filter(Boolean).length;
     document.getElementById('reto-score').textContent = n + ' / ' + retos.length + ' retos completados';
   }
-  async function persistDone(){
+  function challengePayload(){
+    return { items, done };
+  }
+  async function persistChallenges(){
     const res = await fetch(RETOS_API_URL, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
-      body: JSON.stringify({ done }),
+      body: JSON.stringify(challengePayload()),
     });
     if(!res.ok){
       const payload = await res.json().catch(() => ({}));
       throw new Error(payload?.details || payload?.error || 'challenge save failed');
     }
     const payload = await res.json();
-    if(payload?.done && typeof payload.done === 'object'){
+    if(Array.isArray(payload?.items)){
+      items = payload.items.map((item) => ({ id: item.id, text: item.text || '' }));
+    }
+    if (payload?.done && typeof payload.done === 'object') {
       done = { ...done, ...payload.done };
     }
     saveLocalDone();
+    applyDoneState();
+    score();
+  }
+  function renderRetos() {
+    retos = Array.from(document.querySelectorAll('.reto'));
+    retos.forEach((card) => {
+      bindChallengeCard(card);
+    });
     applyDoneState();
     score();
   }
@@ -794,6 +922,9 @@
       const res = await fetch(RETOS_API_URL, { cache: 'no-store' });
       if(!res.ok) throw new Error('challenge fetch failed');
       const payload = await res.json();
+      if(Array.isArray(payload?.items)){
+        items = payload.items.map((item) => ({ id: item.id, text: item.text || '' }));
+      }
       if(payload?.done && typeof payload.done === 'object'){
         done = { ...done, ...payload.done };
         saveLocalDone();
@@ -801,28 +932,19 @@
     }catch(_err){
       // fallback to local cache
     }
-    applyDoneState();
-    score();
+    renderRetos();
   }
-  retos.forEach((r) => {
-    const id = r.dataset.id;
-    r.addEventListener('click', async () => {
-      const previous = { ...done };
-      done[id] = !done[id];
-      applyDoneState();
-      score();
-      try{
-        await persistDone();
-      }catch(_err){
-        done = previous;
-        applyDoneState();
-        score();
-      }
+  manageToggle?.addEventListener('click', () => {
+    const next = manageToggle.classList.toggle('is-active');
+    manageToggle.textContent = next ? '✅ Rematar edición' : '✏️ Editar retos';
+    retosWrap?.setAttribute('data-manage', next ? 'true' : 'false');
+    retos.forEach((card) => {
+      if (!next) card.dataset.editing = 'false';
     });
   });
-  applyDoneState();
-  score();
+  renderRetos();
   loadDone();
+  /* RETOS_INLINE_END */
 </script>
 <script>
   async function renderArchive(){
