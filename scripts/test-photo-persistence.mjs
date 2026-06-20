@@ -1,5 +1,6 @@
 import photoHandler from '../api/photos.js';
 import quotesHandler from '../api/quotes.js';
+import challengesHandler from '../api/challenges.js';
 import { JSDOM } from 'jsdom';
 
 const store = [];
@@ -162,7 +163,30 @@ async function main() {
     throw new Error('Quotes DELETE should remove quote');
   }
 
+  const challengesInitial = await call(challengesHandler, 'GET');
+  if (challengesInitial.status !== 200 || challengesInitial.body.done?.r1 !== false || challengesInitial.body.done?.r8 !== false) {
+    throw new Error('Challenges GET should return defaults');
+  }
+  const challengesSaved = await call(challengesHandler, 'POST', {
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify({ done: { r1: true, r3: true, r8: true, nope: true } }),
+  });
+  if (challengesSaved.status !== 200 || challengesSaved.body.done?.r1 !== true || challengesSaved.body.done?.r2 !== false || challengesSaved.body.done?.nope !== undefined) {
+    throw new Error('Challenges POST should persist only known challenge flags');
+  }
+  const challengesListed = await call(challengesHandler, 'GET');
+  if (challengesListed.status !== 200 || challengesListed.body.done?.r3 !== true || challengesListed.body.done?.r8 !== true) {
+    throw new Error('Challenges GET should return persisted flags');
+  }
+
   const gallerySource = await import('node:fs/promises').then(fs => fs.readFile(new URL('../gallery.js', import.meta.url), 'utf8'));
+  const indexSource = await import('node:fs/promises').then(fs => fs.readFile(new URL('../index.html', import.meta.url), 'utf8'));
+  const retosStart = indexSource.indexOf('// RETOS');
+  const retosEnd = indexSource.indexOf('</script>', retosStart);
+  if (retosStart < 0 || retosEnd < 0) {
+    throw new Error('Retos script should exist in index.html');
+  }
+  const retosScript = indexSource.slice(retosStart, retosEnd);
   const dom = new JSDOM(`<!doctype html><html><body>
     <div id="gallery-grid"></div>
     <div id="archive-grid"></div>
@@ -170,12 +194,26 @@ async function main() {
     <div id="gallery-status"></div>
     <div id="quotes-list"></div>
     <form id="quote-form"><input id="quote-author"><textarea id="quote-text"></textarea><span id="quote-status"></span></form>
+    <div class="retos" id="retos">
+      <div class="card reto" data-id="r1"><div class="box-c">✓</div><div class="rt">R1</div></div>
+      <div class="card reto" data-id="r2"><div class="box-c">✓</div><div class="rt">R2</div></div>
+      <div class="card reto" data-id="r3"><div class="box-c">✓</div><div class="rt">R3</div></div>
+      <div class="card reto" data-id="r4"><div class="box-c">✓</div><div class="rt">R4</div></div>
+      <div class="card reto" data-id="r5"><div class="box-c">✓</div><div class="rt">R5</div></div>
+      <div class="card reto" data-id="r6"><div class="box-c">✓</div><div class="rt">R6</div></div>
+      <div class="card reto" data-id="r7"><div class="box-c">✓</div><div class="rt">R7</div></div>
+      <div class="card reto" data-id="r8"><div class="box-c">✓</div><div class="rt">R8</div></div>
+    </div>
+    <div id="reto-score"></div>
   </body></html>`, { runScripts: 'outside-only', pretendToBeVisual: true, url: 'https://example.test/' });
   const { window } = dom;
   let photoPostCount = 0;
   let photoDeleteCount = 0;
   let quotePostCount = 0;
   let quoteDeleteCount = 0;
+  let challengeGetCount = 0;
+  let challengePostCount = 0;
+  let currentDone = { r1: false, r2: false, r3: false, r4: false, r5: false, r6: false, r7: false, r8: false };
   window.fetch = async (url, options = {}) => {
     if (url === '/api/photos' && (!options.method || options.method === 'GET')) {
       return {
@@ -224,6 +262,16 @@ async function main() {
       quoteDeleteCount += 1;
       return { ok: true, async json() { return { ok: true, deleted: 'q1' }; } };
     }
+    if (url === '/api/challenges' && (!options.method || options.method === 'GET')) {
+      challengeGetCount += 1;
+      return { ok: true, async json() { return { done: { ...currentDone } }; } };
+    }
+    if (url === '/api/challenges' && options.method === 'POST') {
+      challengePostCount += 1;
+      const payload = JSON.parse(String(options.body || '{}'));
+      currentDone = { ...currentDone, ...(payload.done || {}) };
+      return { ok: true, async json() { return { ok: true, done: { ...currentDone } }; } };
+    }
     throw new Error(`Unexpected fetch ${url}`);
   };
   window.createImageBitmap = async (file) => {
@@ -254,6 +302,7 @@ async function main() {
     }
   };
   window.eval(gallerySource);
+  window.eval(retosScript);
   await window.galleryApp.renderGallery();
   if (!window.document.getElementById('gallery-grid').innerHTML.includes('data-orientation="portrait"')) {
     throw new Error('Gallery render should show portrait card');
@@ -327,6 +376,29 @@ async function main() {
   await window.galleryApp.deletePhoto('p1');
   if (photoDeleteCount < 1) {
     throw new Error('Gallery delete should DELETE');
+  }
+  await flushMicrotasks(8);
+  if (challengeGetCount < 1) {
+    await new Promise((resolve) => setTimeout(resolve, 0));
+    await flushMicrotasks(8);
+  }
+  if (challengeGetCount < 1) {
+    throw new Error('Challenges should load shared state on boot');
+  }
+  const firstChallenge = window.document.querySelector('.reto[data-id="r1"]');
+  if (!firstChallenge) {
+    throw new Error('Challenge card should exist in DOM');
+  }
+  firstChallenge.click();
+  await flushMicrotasks(4);
+  if (challengePostCount < 1) {
+    throw new Error('Challenge toggle should persist shared state');
+  }
+  if (!currentDone.r1 || firstChallenge.classList.contains('done') !== true) {
+    throw new Error('Challenge toggle should update local shared state and DOM');
+  }
+  if (!window.document.getElementById('reto-score')?.textContent?.includes('1 / 8')) {
+    throw new Error('Challenge score should update after shared toggle');
   }
 
   console.log('photo persistence ok');

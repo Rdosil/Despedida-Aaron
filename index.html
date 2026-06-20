@@ -746,24 +746,83 @@
   tick(); setInterval(tick, 1000);
 
   // RETOS
+  const RETOS_API_URL = '/api/challenges';
   const KEY = 'despedida-aaron-retos';
-  let done = {};
-  try { done = JSON.parse(localStorage.getItem(KEY) || '{}'); } catch(e){ done = {}; }
-  const retos = document.querySelectorAll('.reto');
+  const retos = Array.from(document.querySelectorAll('.reto'));
+  let done = Object.fromEntries(retos.map((r) => [r.dataset.id, false]));
+  try {
+    const cached = JSON.parse(localStorage.getItem(KEY) || '{}');
+    if (cached && typeof cached === 'object') {
+      done = { ...done, ...cached };
+    }
+  } catch(e){
+    done = { ...done };
+  }
+  function saveLocalDone(){
+    localStorage.setItem(KEY, JSON.stringify(done));
+  }
+  function applyDoneState(){
+    retos.forEach((r) => {
+      const id = r.dataset.id;
+      r.classList.toggle('done', Boolean(done[id]));
+    });
+  }
   function score(){
     const n = Object.values(done).filter(Boolean).length;
     document.getElementById('reto-score').textContent = n + ' / ' + retos.length + ' retos completados';
   }
-  retos.forEach(r => {
+  async function persistDone(){
+    const res = await fetch(RETOS_API_URL, {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ done }),
+    });
+    if(!res.ok){
+      const payload = await res.json().catch(() => ({}));
+      throw new Error(payload?.details || payload?.error || 'challenge save failed');
+    }
+    const payload = await res.json();
+    if(payload?.done && typeof payload.done === 'object'){
+      done = { ...done, ...payload.done };
+    }
+    saveLocalDone();
+    applyDoneState();
+    score();
+  }
+  async function loadDone(){
+    try{
+      const res = await fetch(RETOS_API_URL, { cache: 'no-store' });
+      if(!res.ok) throw new Error('challenge fetch failed');
+      const payload = await res.json();
+      if(payload?.done && typeof payload.done === 'object'){
+        done = { ...done, ...payload.done };
+        saveLocalDone();
+      }
+    }catch(_err){
+      // fallback to local cache
+    }
+    applyDoneState();
+    score();
+  }
+  retos.forEach((r) => {
     const id = r.dataset.id;
-    if(done[id]) r.classList.add('done');
-    r.addEventListener('click', () => {
-      done[id] = r.classList.toggle('done');
-      localStorage.setItem(KEY, JSON.stringify(done));
+    r.addEventListener('click', async () => {
+      const previous = { ...done };
+      done[id] = !done[id];
+      applyDoneState();
       score();
+      try{
+        await persistDone();
+      }catch(_err){
+        done = previous;
+        applyDoneState();
+        score();
+      }
     });
   });
+  applyDoneState();
   score();
+  loadDone();
 </script>
 <script>
   async function renderArchive(){
