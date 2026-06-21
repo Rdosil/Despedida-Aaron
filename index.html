@@ -202,15 +202,47 @@
   .quote-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .quote-status{font-size:13px;color:var(--ink-soft);font-style:italic}
   .quote-empty{padding:18px;border:2px dashed var(--ink);background:rgba(255,255,255,.5);font-style:italic;color:var(--ink-soft)}
-  .live-wrap{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(280px,.88fr);gap:24px;margin-top:28px;align-items:start}
+  .live-shell{display:grid;grid-template-columns:minmax(300px,.82fr) minmax(0,1.08fr) minmax(260px,.7fr);gap:22px;margin-top:28px;align-items:start}
+  .live-config{padding:22px;display:grid;gap:18px}
+  .live-config-copy h3,.live-copy h3{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:30px;line-height:.95;margin:0 0 8px}
+  .live-config-copy h3 .b,.live-copy h3 .b{color:var(--blue)}
+  .live-config-copy p,.live-copy p{margin:0;color:var(--ink-soft);font-size:15px;line-height:1.55}
+  .live-config-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .live-field{display:grid;gap:6px;font-weight:700;font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:var(--ink)}
+  .live-field input{width:100%;box-sizing:border-box;border:2px solid var(--ink);background:#fffdf7;padding:12px 13px;font:inherit;color:var(--ink)}
+  .live-field-wide{grid-column:1/-1}
+  .live-toggle{display:flex;align-items:center;gap:10px;padding:10px 12px;border:2px solid var(--ink);background:#fffdf7;font-weight:700;font-size:13px;cursor:pointer}
+  .live-toggle input{display:none}
+  .live-toggle-ui{position:relative;width:42px;height:24px;border-radius:999px;background:#4f4a56;border:2px solid var(--ink);flex:none;transition:.2s ease}
+  .live-toggle-ui::after{content:"";position:absolute;top:1px;left:1px;width:18px;height:18px;border-radius:50%;background:#fff;transition:.2s ease}
+  .live-toggle input:checked + .live-toggle-ui{background:var(--blue)}
+  .live-toggle input:checked + .live-toggle-ui::after{transform:translateX(18px)}
+  .live-config-actions{display:flex;flex-wrap:wrap;gap:10px}
+  .live-note{margin:0}
   .live-stage{position:relative;background:linear-gradient(180deg,#241b2d 0%,#110f15 100%);border:3px solid var(--ink);border-radius:18px;box-shadow:var(--shadow);padding:14px;overflow:hidden}
   .live-stage::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at top left,rgba(116,180,226,.18),transparent 34%),radial-gradient(circle at bottom right,rgba(212,160,18,.15),transparent 28%);pointer-events:none}
+  .live-stage.faithful{padding:16px;background:linear-gradient(180deg,#1f1b2d 0%,#0e0d15 100%)}
   .live-frame{position:relative;aspect-ratio:9/16;max-height:780px;min-height:540px;border:3px solid rgba(255,255,255,.12);border-radius:28px;overflow:hidden;background:linear-gradient(135deg,#2c2b35 0%,#0d0d14 50%,#21243b 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
-  .live-bg{position:absolute;inset:0;background:radial-gradient(circle at 18% 18%,rgba(255,215,110,.33),transparent 18%),radial-gradient(circle at 80% 22%,rgba(225,48,108,.30),transparent 22%),radial-gradient(circle at 50% 72%,rgba(116,180,226,.28),transparent 30%),linear-gradient(145deg,#282232 0%,#171821 42%,#0e1016 100%)}
-  .live-scan{position:absolute;inset:-10% 0 auto 0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,0));mix-blend-mode:screen;opacity:.35;animation:liveScan 6s linear infinite}
-  .live-noise{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.12) 0.7px,transparent 0.7px);background-size:8px 8px;opacity:.08;pointer-events:none}
-  .live-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.54),rgba(0,0,0,0) 24%,rgba(0,0,0,0) 55%,rgba(0,0,0,.68));pointer-events:none}
-  .live-topbar{position:absolute;top:16px;left:16px;right:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;z-index:2}
+  .live-frame.faithful{background:#08080d;touch-action:none;user-select:none;outline:none}
+  .live-video,.live-placeholder,.live-bg,.live-noise,.live-overlay,.live-scan,.live-floating-hearts,.live-pop-layer{position:absolute;inset:0}
+  .live-video{width:100%;height:100%;object-fit:cover;background:#050507;display:none}
+  .live-video.active{display:block}
+  .live-placeholder{overflow:hidden;background:linear-gradient(160deg,#20192c 0%,#11131a 44%,#09090d 100%)}
+  .live-bg.faithful{background:radial-gradient(circle at 18% 16%,rgba(255,220,123,.32),transparent 20%),radial-gradient(circle at 84% 22%,rgba(214,41,118,.25),transparent 22%),radial-gradient(circle at 55% 80%,rgba(0,149,246,.23),transparent 30%),linear-gradient(150deg,#2a2234 0%,#161723 45%,#090a10 100%)}
+  .live-gradient-orb{position:absolute;border-radius:50%;filter:blur(4px);opacity:.8;mix-blend-mode:screen}
+  .orb-a{width:180px;height:180px;top:18%;left:8%;background:radial-gradient(circle,rgba(255,210,110,.45),rgba(255,210,110,0))}
+  .orb-b{width:240px;height:240px;top:14%;right:-8%;background:radial-gradient(circle,rgba(225,48,108,.35),rgba(225,48,108,0))}
+  .orb-c{width:220px;height:220px;bottom:-4%;left:32%;background:radial-gradient(circle,rgba(0,149,246,.28),rgba(0,149,246,0))}
+  .live-placeholder-center{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);display:grid;justify-items:center;gap:12px;text-align:center;color:#fff;padding:0 24px;z-index:1}
+  .live-camera-glyph{width:82px;height:82px;border-radius:24px;border:2px solid rgba(255,255,255,.2);background:rgba(10,10,16,.34);backdrop-filter:blur(10px);position:relative;box-shadow:0 18px 30px rgba(0,0,0,.25)}
+  .live-camera-glyph::before{content:"";position:absolute;left:18px;right:18px;top:24px;bottom:24px;border:3px solid #fff;border-radius:16px}
+  .live-camera-glyph::after{content:"";position:absolute;right:12px;top:28px;width:18px;height:18px;border-radius:6px;background:#fff}
+  .live-placeholder-label{font-family:'Barlow Condensed',sans-serif;font-size:18px;letter-spacing:.03em;text-transform:uppercase;max-width:260px}
+  .live-scan{inset:-10% 0 auto 0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,0));mix-blend-mode:screen;opacity:.35;animation:liveScan 6s linear infinite}
+  .live-noise{background-image:radial-gradient(rgba(255,255,255,.12) 0.7px,transparent 0.7px);background-size:8px 8px;opacity:.08;pointer-events:none}
+  .live-overlay{background:linear-gradient(to bottom,rgba(0,0,0,.56),rgba(0,0,0,0) 24%,rgba(0,0,0,0) 58%,rgba(0,0,0,.72));pointer-events:none}
+  .live-topbar{position:absolute;top:16px;left:16px;right:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;z-index:3;transition:opacity .25s ease,transform .25s ease}
+  .live-shell.chrome-hidden .live-topbar,.live-shell.chrome-hidden .live-bottom,.live-shell.chrome-hidden .live-heart-col{opacity:0;pointer-events:none;transform:translateY(10px)}
   .live-user{display:flex;align-items:center;gap:10px;min-width:0;background:rgba(10,10,16,.34);backdrop-filter:blur(10px);padding:6px 11px 6px 6px;border-radius:999px;border:1px solid rgba(255,255,255,.08)}
   .live-avatar{width:40px;height:40px;border-radius:50%;padding:2px;background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5)}
   .live-avatar-inner{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#201f2a;color:#fff;font-family:'Anton',sans-serif;font-size:18px;letter-spacing:.5px}
@@ -222,17 +254,22 @@
   .live-pill{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:12px;font-family:'Barlow Condensed',sans-serif;font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:#fff;background:rgba(0,0,0,.42);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08)}
   .live-pill.live{background:linear-gradient(45deg,#d62976,#fa7e1e)}
   .live-pill.live::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;animation:livePulse 1.4s ease-in-out infinite}
-  .live-toast-stack{position:absolute;top:92px;left:16px;right:92px;display:grid;gap:9px;z-index:2}
-  .live-toast{display:flex;align-items:center;gap:9px;max-width:100%;background:rgba(10,10,16,.48);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px);padding:7px 12px 7px 7px;border-radius:999px;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.2)}
+  .live-icon-btn{width:40px;height:40px;border-radius:50%;border:1px solid rgba(255,255,255,.14);background:rgba(10,10,16,.46);color:#fff;display:inline-flex;align-items:center;justify-content:center;font-size:18px;backdrop-filter:blur(10px);box-shadow:0 8px 18px rgba(0,0,0,.24);cursor:pointer}
+  .live-icon-btn.secondary{width:48px;height:48px;font-size:20px}
+  .live-toast-stack{position:absolute;top:92px;left:16px;right:92px;display:grid;gap:9px;z-index:3}
+  .live-toast{display:flex;align-items:center;gap:9px;max-width:100%;background:rgba(10,10,16,.48);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px);padding:7px 12px 7px 7px;border-radius:999px;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.2);animation:liveToastIn .35s ease}
   .live-toast .icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;background:linear-gradient(45deg,#fa7e1e,#feda75);color:#17150f;flex:none}
   .live-toast.follow .icon{background:linear-gradient(45deg,#d62976,#962fbf);color:#fff}
   .live-toast.join .icon{background:rgba(255,255,255,.18);color:#fff}
   .live-toast b,.live-comment b{font-weight:800}
-  .live-heart-col{position:absolute;right:18px;bottom:112px;display:grid;gap:14px;justify-items:center;z-index:2}
-  .live-heart-btn{width:54px;height:54px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(10,10,16,.42);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;box-shadow:0 8px 18px rgba(0,0,0,.28)}
-  .live-heart-burst{display:grid;gap:8px;justify-items:center}
-  .live-heart{font-size:24px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.28));animation:heartFloat var(--dur,3s) ease-in infinite;opacity:0;transform:translateY(0) scale(.55)}
-  .live-bottom{position:absolute;left:16px;right:16px;bottom:14px;z-index:2;color:#fff}
+  .live-hint{position:absolute;left:50%;top:28%;transform:translateX(-50%);padding:10px 14px;border-radius:999px;background:rgba(10,10,16,.52);color:#fff;font-size:12px;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(12px);z-index:3;opacity:0;pointer-events:none;transition:opacity .25s ease}
+  .live-hint.visible{opacity:1}
+  .live-heart-col{position:absolute;right:18px;bottom:112px;display:grid;gap:12px;justify-items:center;z-index:3;transition:opacity .25s ease,transform .25s ease}
+  .live-heart-btn{width:58px;height:58px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(10,10,16,.42);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:25px;box-shadow:0 8px 18px rgba(0,0,0,.28);cursor:pointer}
+  .live-floating-hearts,.live-pop-layer{pointer-events:none;z-index:2}
+  .live-heart{position:absolute;right:24px;bottom:108px;font-size:24px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.28));animation:heartFloat var(--dur,3s) ease-in forwards;opacity:0;transform:translateY(0) scale(.55)}
+  .live-pop{position:absolute;font-family:'Anton',sans-serif;font-size:32px;color:#fff;animation:popFloat 1.2s ease forwards;text-shadow:0 10px 25px rgba(0,0,0,.35)}
+  .live-bottom{position:absolute;left:16px;right:16px;bottom:14px;z-index:3;color:#fff;transition:opacity .25s ease,transform .25s ease}
   .live-comments{display:grid;gap:8px;max-width:82%}
   .live-comment{display:flex;align-items:flex-start;gap:9px;background:rgba(10,10,16,.45);backdrop-filter:blur(10px);padding:8px 11px;border-radius:18px;border:1px solid rgba(255,255,255,.08);font-size:13px;line-height:1.35;box-shadow:0 8px 20px rgba(0,0,0,.2)}
   .live-comment.mine{background:rgba(31,95,196,.36)}
@@ -242,12 +279,12 @@
   .live-pinned strong{font-family:'Barlow Condensed',sans-serif;letter-spacing:.08em;text-transform:uppercase}
   .live-composer{margin-top:12px;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:999px;background:rgba(10,10,16,.54);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px);box-shadow:0 8px 20px rgba(0,0,0,.22)}
   .live-composer span{font-size:13px;color:rgba(255,255,255,.84);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .live-composer .send{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#fff;color:#17150f;font-size:16px;font-weight:900}
+  .live-composer.interactive input{flex:1;min-width:0;border:0;background:transparent;color:#fff;font:inherit;outline:none}
+  .live-composer.interactive input::placeholder{color:rgba(255,255,255,.6)}
+  .live-composer .send{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#fff;color:#17150f;font-size:16px;font-weight:900;border:0;cursor:pointer}
   .live-side{display:grid;gap:18px}
+  .live-side.faithful{align-content:start}
   .live-copy{padding:22px 22px 24px}
-  .live-copy h3{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:30px;line-height:.95;margin:0 0 8px}
-  .live-copy h3 .b{color:var(--blue)}
-  .live-copy p{margin:0;color:var(--ink-soft);font-size:15px;line-height:1.55}
   .live-copy .mini-note{margin-top:12px;font-style:italic;font-size:13px}
   .live-points{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:11px}
   .live-points li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;color:var(--ink)}
@@ -258,8 +295,11 @@
   .live-stat .big{display:block;margin-top:6px;font-family:'Anton',sans-serif;font-size:30px;line-height:1;color:var(--ink)}
   .live-stat .sub{margin-top:6px;font-size:13px;color:var(--ink-soft)}
   .live-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+  .live-shell.is-live .live-config{border-color:var(--blue)}
   @keyframes liveScan{0%{transform:translateY(-18%)}100%{transform:translateY(122%)}}
   @keyframes heartFloat{0%{opacity:0;transform:translateY(0) translateX(0) scale(.55)}15%{opacity:1}100%{opacity:0;transform:translateY(-230px) translateX(var(--dx,0px)) scale(1.12)}}
+  @keyframes popFloat{0%{opacity:0;transform:translate(-50%,0) scale(.7)}20%{opacity:1}100%{opacity:0;transform:translate(-50%,-90px) scale(1.05)}}
+  @keyframes liveToastIn{0%{opacity:0;transform:translateY(10px)}100%{opacity:1;transform:translateY(0)}}
   image-slot{width:100%;aspect-ratio:1/1;border:3px solid var(--ink);box-shadow:var(--shadow);background:var(--card)}
   .gal-note{margin-top:12px;font-style:italic;color:var(--ink-soft);font-size:13.5px}
 
@@ -277,8 +317,9 @@
     .two{grid-template-columns:1fr}
     .count-inner{justify-content:center;text-align:center}
     .count-lab{width:100%;text-align:center}
-    .live-wrap,.quotes-wrap{grid-template-columns:1fr}
-    .live-side{order:-1}
+    .live-shell,.quotes-wrap{grid-template-columns:1fr}
+    .live-side{order:0}
+    .live-config{order:-1}
     .live-frame{min-height:500px}
   }
   @media(max-width:560px){
@@ -289,6 +330,7 @@
     .tok{width:58px}.jersey{width:38px;height:38px;font-size:16px}.tok .nm{font-size:10px}
     .pitch .lines::after{width:70px;height:70px}
     .live-stage{padding:10px}
+    .live-config-grid,.live-stat-grid{grid-template-columns:1fr}
     .live-frame{min-height:420px;border-radius:22px}
     .live-topbar{top:12px;left:12px;right:12px}
     .live-toast-stack{top:86px;left:12px;right:82px}
@@ -297,6 +339,7 @@
     .live-comments{max-width:100%}
     .live-comment{font-size:12.5px}
     .live-pinned{max-width:100%}
+    .live-config-actions{flex-direction:column}
   }
 </style>
 </head>
@@ -742,90 +785,130 @@
 <!-- DIRECTO -->
 <section id="directo" style="background:var(--cream-2);border-top:3px solid var(--ink);border-bottom:3px solid var(--ink)">
   <div class="wrap">
-    <div class="eyebrow">Emisión non autorizada · arquivo comprometedor do capitán</div>
+    <div class="eyebrow">Emisión non autorizada · simulador visual do comité</div>
     <h2 class="sec-title">O <span class="b">directo</span> do noivo</h2>
     <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
-    <p class="gal-note">Un simulador visual do momento no que o comité colle o móbil, entra en Instagram Live e expón ao capitán ante a humanidade.</p>
+    <p class="gal-note">Versión máis fiel ao prototipo: cámara opcional, vista móbil máis inmersiva e pantalla completa para facer o ridículo con todas as letras.</p>
 
-    <div class="live-wrap">
-      <div class="live-stage">
-        <div class="live-frame">
-          <div class="live-bg"></div>
+    <div class="live-shell" id="live-shell">
+      <div class="card live-config" id="live-config-card">
+        <div class="live-config-copy">
+          <h3>Configura o <span class="b">directo</span></h3>
+          <p>Activa a cámara se queres meter a cara do comité ou deixa o fondo demo. Ao iniciar, a app tentará abrirse a pantalla completa como no mockup que pasaches.</p>
+        </div>
+        <div class="live-config-grid">
+          <label class="live-field">
+            <span>Usuario</span>
+            <input id="live-handle" type="text" maxlength="28" value="@aaron.casase" />
+          </label>
+          <label class="live-field">
+            <span>Título</span>
+            <input id="live-title" type="text" maxlength="70" value="Último directo antes do altar ✨" />
+          </label>
+          <label class="live-field live-field-wide">
+            <span>Tema / vibe</span>
+            <input id="live-topic" type="text" maxlength="70" value="Previa oficial da despedida en León" />
+          </label>
+          <label class="live-field">
+            <span>Viewers iniciais</span>
+            <input id="live-viewers" type="number" min="0" max="999999" value="12453" />
+          </label>
+          <label class="live-toggle">
+            <input id="live-camera-toggle" type="checkbox" checked />
+            <span class="live-toggle-ui"></span>
+            <span>Activar cámara</span>
+          </label>
+          <label class="live-toggle">
+            <input id="live-events-toggle" type="checkbox" checked />
+            <span class="live-toggle-ui"></span>
+            <span>Eventos e regalos</span>
+          </label>
+          <label class="live-toggle">
+            <input id="live-likes-toggle" type="checkbox" checked />
+            <span class="live-toggle-ui"></span>
+            <span>Likes e corazóus</span>
+          </label>
+          <label class="live-toggle">
+            <input id="live-chat-toggle" type="checkbox" checked />
+            <span class="live-toggle-ui"></span>
+            <span>Chat automático</span>
+          </label>
+        </div>
+        <div class="live-config-actions">
+          <button class="btn" id="live-start-btn" type="button">▶ Iniciar simulación</button>
+          <button class="btn ghost" id="live-fullscreen-btn" type="button">⛶ Pantalla completa</button>
+          <button class="btn ghost" id="live-reset-btn" type="button">↺ Reiniciar</button>
+        </div>
+        <p class="note live-note" id="live-status">Ao iniciar, intentaremos pedir cámara e fullscreen se o navegador o permite.</p>
+      </div>
+
+      <div class="live-stage faithful" id="live-stage">
+        <div class="live-frame faithful" id="live-frame" tabindex="0">
+          <video id="live-video" class="live-video" autoplay muted playsinline></video>
+          <div class="live-placeholder" id="live-placeholder">
+            <div class="live-bg faithful"></div>
+            <div class="live-gradient-orb orb-a"></div>
+            <div class="live-gradient-orb orb-b"></div>
+            <div class="live-gradient-orb orb-c"></div>
+            <div class="live-placeholder-center">
+              <div class="live-camera-glyph"></div>
+              <div class="live-placeholder-label" id="live-placeholder-label">Cámara lista para activarse no directo</div>
+            </div>
+          </div>
           <div class="live-scan"></div>
           <div class="live-noise"></div>
           <div class="live-overlay"></div>
 
-          <div class="live-topbar">
+          <div class="live-topbar" id="live-topbar">
             <div class="live-user">
-              <div class="live-avatar"><div class="live-avatar-inner">A</div></div>
+              <div class="live-avatar"><div class="live-avatar-inner" id="live-avatar-initial">A</div></div>
               <div class="live-user-meta">
-                <strong>@aaron.casase</strong>
-                <span>Último directo antes do altar</span>
+                <strong id="live-handle-display">@aaron.casase</strong>
+                <span id="live-title-display">Último directo antes do altar ✨</span>
               </div>
             </div>
             <div class="live-badges">
               <div class="live-pill live">En vivo</div>
-              <div class="live-pill">👁 12.453</div>
+              <div class="live-pill">👁 <span id="live-viewers-display">12.453</span></div>
+              <button class="live-icon-btn" id="live-close-btn" type="button" aria-label="Saír do directo">✕</button>
             </div>
           </div>
 
-          <div class="live-toast-stack">
-            <div class="live-toast follow"><span class="icon">+</span><span><b>@teo</b> empezou a seguir o directo</span></div>
-            <div class="live-toast"><span class="icon">🎁</span><span><b>@carlos</b> enviou unha rosa para o noivo</span></div>
-            <div class="live-toast join"><span class="icon">👋</span><span><b>@gelo</b> uniuse para fiscalizar o espectáculo</span></div>
+          <div class="live-toast-stack" id="live-toast-stack"></div>
+
+          <div class="live-hint" id="live-hint">Toca dúas veces para ❤️ · desliza ↓ para ocultar interface</div>
+
+          <div class="live-heart-col" id="live-heart-col">
+            <button class="live-heart-btn" id="live-like-btn" type="button">❤</button>
+            <button class="live-icon-btn secondary" id="live-toggle-ui-btn" type="button">⇵</button>
+            <button class="live-icon-btn secondary" id="live-pause-btn" type="button">❚❚</button>
+            <button class="live-icon-btn secondary" id="live-fullscreen-fab" type="button">⛶</button>
           </div>
 
-          <div class="live-heart-col" aria-hidden="true">
-            <div class="live-heart-btn">❤</div>
-            <div class="live-heart-burst">
-              <span class="live-heart" style="--dx:-10px;--dur:3.2s">💜</span>
-              <span class="live-heart" style="--dx:12px;--dur:2.7s">❤️</span>
-              <span class="live-heart" style="--dx:-18px;--dur:3.5s">🔥</span>
-              <span class="live-heart" style="--dx:16px;--dur:2.9s">💛</span>
-              <span class="live-heart" style="--dx:-6px;--dur:3.1s">💚</span>
-            </div>
-          </div>
+          <div class="live-floating-hearts" id="live-floating-hearts" aria-hidden="true"></div>
+          <div class="live-pop-layer" id="live-pop-layer" aria-hidden="true"></div>
 
-          <div class="live-bottom">
-            <div class="live-comments">
-              <div class="live-comment">
-                <div class="avatar">T</div>
-                <div class="bubble"><b>@teo</b> hoxe hai pole por decreto ou qué?</div>
-              </div>
-              <div class="live-comment">
-                <div class="avatar">C</div>
-                <div class="bubble"><b>@carlos</b> o Peter Crouch da Costa xa vai quente 🔥</div>
-              </div>
-              <div class="live-comment mine">
-                <div class="avatar">G</div>
-                <div class="bubble"><b>@gelo</b> se hai curva, hai interior. E se hai boda, hai directo.</div>
-              </div>
-              <div class="live-comment">
-                <div class="avatar">E</div>
-                <div class="bubble"><b>@eloy</b> a ver se me consegue dobrar antes das copas</div>
-              </div>
-            </div>
-
-            <div class="live-pinned"><strong>Comentario fixado</strong><span>«Hoxe o noivo non pode escapar. O comité ten cobertura total.»</span></div>
-
-            <div class="live-composer">
-              <span>Engade un comentario épico para o arquivo...</span>
-              <span class="send">➤</span>
+          <div class="live-bottom" id="live-bottom">
+            <div class="live-comments" id="live-comments"></div>
+            <div class="live-pinned" id="live-pinned"><strong>Comentario fixado</strong><span id="live-pinned-text">«Hoxe o noivo non escapa. O comité ten cobertura total.»</span></div>
+            <div class="live-composer interactive">
+              <input id="live-composer-input" type="text" maxlength="90" placeholder="Engade un comentario épico para o arquivo..." />
+              <button class="send" id="live-send-btn" type="button">➤</button>
             </div>
           </div>
         </div>
       </div>
 
-      <div class="live-side">
+      <div class="live-side faithful">
         <div class="card live-copy">
-          <h3>Instagram Live, pero <span class="b">modo despedida</span></h3>
-          <p>Non é un vídeo real nin unha cámara funcional: é unha peza visual integrada na web para recrear o caos do grupo, os comentarios, os follows, os viewers e os corazóus voando mentres Aarón intenta manter a dignidade.</p>
+          <h3>Agora si, máis <span class="b">parecido ao mockup</span></h3>
+          <p>Esta versión xa intenta comportarse como a app que pasaches: vista vertical máis limpa, cámara real cando o navegador o permite, fullscreen, likes interactivos, comentarios dinámicos e chrome que se pode ocultar cun xesto.</p>
           <ul class="live-points">
-            <li>Queda como sección nativa da web, sen romper a estética xeral.</li>
-            <li>Está inspirada no simulador do ZIP, pero adaptada ao ton futbolero-tabernario desta páxina.</li>
-            <li>Se queredes, no seguinte paso pódese volver interactiva de verdade con comentarios aleatorios, contador vivo e botóns.</li>
+            <li>Dobre toque no escenario para soltar un corazón grande.</li>
+            <li>Botón de fullscreen arriba/abaixo e intento automático ao iniciar.</li>
+            <li>Se a cámara falla, queda un fondo demo co mesmo espírito visual.</li>
           </ul>
-          <p class="mini-note">Versión 1: showcase visual. Lista para evolucionar a simulador real se vos mola.</p>
+          <p class="mini-note">Se queres, na seguinte iteración podo achegalo aínda máis ao HTML do ZIP e engadir presets/editores máis avanzados.</p>
           <div class="live-cta">
             <a class="btn" href="#frases">💬 Levar ás frases míticas</a>
             <a class="btn ghost" href="#fotos">📸 Saltar á galería</a>
@@ -834,24 +917,24 @@
 
         <div class="live-stat-grid">
           <div class="card live-stat">
-            <div class="ey">Formato</div>
-            <span class="big">9:16</span>
-            <div class="sub">Maqueta vertical tipo directo móbil</div>
+            <div class="ey">Cámara</div>
+            <span class="big" id="live-camera-state">ON</span>
+            <div class="sub">Pedirase permiso ao iniciar se está activada</div>
           </div>
           <div class="card live-stat">
-            <div class="ey">Estado</div>
-            <span class="big">LIVE</span>
-            <div class="sub">Peza visual xa integrada na navegación</div>
+            <div class="ey">Pantalla</div>
+            <span class="big" id="live-fullscreen-state">AUTO</span>
+            <div class="sub">Botón dedicado e fallback manual</div>
           </div>
           <div class="card live-stat">
-            <div class="ey">Tono</div>
-            <span class="big">100%</span>
-            <div class="sub">Memes, comité e humillación con cariño</div>
+            <div class="ey">Modo</div>
+            <span class="big" id="live-mode-state">DEMO</span>
+            <div class="sub">Pasa a LIVE cando arranca a simulación</div>
           </div>
           <div class="card live-stat">
-            <div class="ey">Seguinte nivel</div>
-            <span class="big">2.0</span>
-            <div class="sub">Animación real + comentarios dinámicos se queres</div>
+            <div class="ey">Interacción</div>
+            <span class="big">TOUCH</span>
+            <div class="sub">Dobre toque, likes, chat e ocultar UI</div>
           </div>
         </div>
       </div>
@@ -1070,6 +1153,358 @@
   function escapeHtml(value){
     return String(value || '').replace(/[&<>"']/g, (ch) => ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[ch]));
   }
+
+  const liveShell = document.getElementById('live-shell');
+  const liveFrame = document.getElementById('live-frame');
+  const liveVideo = document.getElementById('live-video');
+  const livePlaceholder = document.getElementById('live-placeholder');
+  const livePlaceholderLabel = document.getElementById('live-placeholder-label');
+  const liveStatus = document.getElementById('live-status');
+  const liveHandleInput = document.getElementById('live-handle');
+  const liveTitleInput = document.getElementById('live-title');
+  const liveTopicInput = document.getElementById('live-topic');
+  const liveViewersInput = document.getElementById('live-viewers');
+  const liveCameraToggle = document.getElementById('live-camera-toggle');
+  const liveEventsToggle = document.getElementById('live-events-toggle');
+  const liveLikesToggle = document.getElementById('live-likes-toggle');
+  const liveChatToggle = document.getElementById('live-chat-toggle');
+  const liveStartBtn = document.getElementById('live-start-btn');
+  const liveFullscreenBtn = document.getElementById('live-fullscreen-btn');
+  const liveResetBtn = document.getElementById('live-reset-btn');
+  const liveLikeBtn = document.getElementById('live-like-btn');
+  const liveToggleUiBtn = document.getElementById('live-toggle-ui-btn');
+  const livePauseBtn = document.getElementById('live-pause-btn');
+  const liveFullscreenFab = document.getElementById('live-fullscreen-fab');
+  const liveCloseBtn = document.getElementById('live-close-btn');
+  const liveComposerInput = document.getElementById('live-composer-input');
+  const liveSendBtn = document.getElementById('live-send-btn');
+  const liveToastStack = document.getElementById('live-toast-stack');
+  const liveComments = document.getElementById('live-comments');
+  const liveFloatingHearts = document.getElementById('live-floating-hearts');
+  const livePopLayer = document.getElementById('live-pop-layer');
+  const liveViewersDisplay = document.getElementById('live-viewers-display');
+  const liveHandleDisplay = document.getElementById('live-handle-display');
+  const liveTitleDisplay = document.getElementById('live-title-display');
+  const liveAvatarInitial = document.getElementById('live-avatar-initial');
+  const liveHint = document.getElementById('live-hint');
+  const livePinnedText = document.getElementById('live-pinned-text');
+  const liveCameraState = document.getElementById('live-camera-state');
+  const liveFullscreenState = document.getElementById('live-fullscreen-state');
+  const liveModeState = document.getElementById('live-mode-state');
+
+  const liveSim = (() => {
+    const fallbackComments = [
+      'hoxe hai pole por decreto ou qué?',
+      'o Peter Crouch da Costa xa vai quente 🔥',
+      'se hai curva, hai interior. e se hai boda, hai directo.',
+      'a ver se me consegue dobrar antes das copas',
+      'quen lle deu ao comité acceso ao móbil?',
+      'isto é cine, non unha despedida',
+      'saúdos desde Muros, sen VAR nin vergoña',
+      'non cortes agora que vén a mellor parte',
+    ];
+    const fallbackToasts = [
+      { cls:'follow', icon:'+', text:'<b>@teo</b> empezou a seguir o directo' },
+      { cls:'gift', icon:'🎁', text:'<b>@carlos</b> enviou unha rosa para o noivo' },
+      { cls:'join', icon:'👋', text:'<b>@gelo</b> uniuse para fiscalizar o espectáculo' },
+      { cls:'gift', icon:'🏁', text:'<b>@juan</b> mandou unha bandeira a cadros' },
+      { cls:'join', icon:'🔥', text:'<b>@eloy</b> pide repetición da última curva' },
+    ];
+    const users = ['@teo','@carlos','@gelo','@eloy','@juan','@pablo'];
+    const colors = ['#6cc0ff','#ff8cb4','#ffd166','#7ef0c2','#b69cff','#ffb17a'];
+    const state = {
+      isLive:false,
+      paused:false,
+      chromeHidden:false,
+      viewers:12453,
+      likes:0,
+      stream:null,
+      timers:[],
+      tapTs:0,
+      gesture:null,
+      commentIdx:0,
+      toastIdx:0,
+      comments:[],
+      settings:{
+        handle:'@aaron.casase',
+        title:'Último directo antes do altar ✨',
+        topic:'Previa oficial da despedida en León',
+        viewers:12453,
+        camera:true,
+        events:true,
+        likes:true,
+        chat:true,
+      }
+    };
+
+    function fmtViewers(n){ return new Intl.NumberFormat('es-ES').format(Math.max(0, Math.round(n))); }
+    function rand(min,max){ return min + Math.random() * (max-min); }
+    function clearTimers(){ state.timers.forEach(clearTimeout); state.timers = []; }
+    function schedule(fn, ms){ const id = setTimeout(fn, ms); state.timers.push(id); return id; }
+    function updateMeta(){
+      state.settings.handle = liveHandleInput.value.trim() || '@aaron.casase';
+      state.settings.title = liveTitleInput.value.trim() || 'Último directo antes do altar ✨';
+      state.settings.topic = liveTopicInput.value.trim() || 'Previa oficial da despedida en León';
+      state.settings.viewers = Number(liveViewersInput.value) || 12453;
+      state.settings.camera = liveCameraToggle.checked;
+      state.settings.events = liveEventsToggle.checked;
+      state.settings.likes = liveLikesToggle.checked;
+      state.settings.chat = liveChatToggle.checked;
+      liveHandleDisplay.textContent = state.settings.handle;
+      liveTitleDisplay.textContent = state.settings.title;
+      liveAvatarInitial.textContent = state.settings.handle.replace('@','').charAt(0).toUpperCase() || 'A';
+      if(!state.isLive) state.viewers = state.settings.viewers;
+      liveViewersDisplay.textContent = fmtViewers(state.viewers || state.settings.viewers);
+      liveCameraState.textContent = state.settings.camera ? 'ON' : 'OFF';
+    }
+    function setStatus(msg){ liveStatus.textContent = msg; }
+    function setMode(mode){ liveModeState.textContent = mode; }
+    function setPauseUI(){ livePauseBtn.textContent = state.paused ? '▶' : '❚❚'; }
+    function setFullscreenLabel(){
+      const on = !!document.fullscreenElement;
+      liveFullscreenState.textContent = on ? 'FULL' : 'AUTO';
+    }
+    function showHint(){
+      liveHint.classList.add('visible');
+      schedule(()=> liveHint.classList.remove('visible'), 3200);
+    }
+    function addComment(text, user, mine=false){
+      const handle = user || users[Math.floor(Math.random()*users.length)];
+      const card = document.createElement('div');
+      card.className = 'live-comment' + (mine ? ' mine' : '');
+      const avatar = document.createElement('div');
+      avatar.className = 'avatar';
+      avatar.textContent = handle.replace('@','').charAt(0).toUpperCase();
+      avatar.style.background = mine ? 'rgba(255,255,255,.18)' : colors[state.comments.length % colors.length];
+      avatar.style.color = '#17150f';
+      if(mine){ avatar.style.color = '#fff'; avatar.style.background = 'rgba(255,255,255,.18)'; }
+      const bubble = document.createElement('div');
+      bubble.className = 'bubble';
+      bubble.innerHTML = `<b>${handle}</b> ${text}`;
+      card.append(avatar, bubble);
+      liveComments.appendChild(card);
+      state.comments.push(card);
+      while(state.comments.length > 7){ const first = state.comments.shift(); first.remove(); }
+    }
+    function seedComments(){
+      liveComments.innerHTML = '';
+      state.comments = [];
+      addComment('hoxe hai pole por decreto ou qué?', '@teo');
+      addComment('o Peter Crouch da Costa xa vai quente 🔥', '@carlos');
+      addComment('se hai curva, hai interior. e se hai boda, hai directo.', '@gelo', true);
+      addComment('a ver se me consegue dobrar antes das copas', '@eloy');
+    }
+    function spawnToast(){
+      if(!state.settings.events || !state.isLive || state.paused) return;
+      const data = fallbackToasts[state.toastIdx % fallbackToasts.length];
+      state.toastIdx += 1;
+      const row = document.createElement('div');
+      row.className = `live-toast ${data.cls}`;
+      row.innerHTML = `<span class="icon">${data.icon}</span><span>${data.text}</span>`;
+      liveToastStack.prepend(row);
+      while(liveToastStack.children.length > 3) liveToastStack.lastElementChild.remove();
+      setTimeout(()=> row.remove(), 4200);
+      schedule(loopEvent, rand(3400, 5600));
+    }
+    function spawnHearts(count=1){
+      if(!state.settings.likes) return;
+      const glyphs = ['❤','💜','💛','🔥','💙'];
+      for(let i=0;i<count;i++){
+        const heart = document.createElement('span');
+        heart.className = 'live-heart';
+        heart.textContent = glyphs[Math.floor(Math.random()*glyphs.length)];
+        heart.style.setProperty('--dx', `${Math.round(rand(-22,22))}px`);
+        heart.style.setProperty('--dur', `${rand(2.5,3.8).toFixed(2)}s`);
+        heart.style.right = `${18 + rand(-8,16)}px`;
+        heart.style.bottom = `${96 + rand(-12,16)}px`;
+        liveFloatingHearts.appendChild(heart);
+        setTimeout(()=> heart.remove(), 3900);
+      }
+    }
+    function spawnPop(x,y){
+      const pop = document.createElement('div');
+      pop.className = 'live-pop';
+      pop.textContent = '+1';
+      pop.style.left = `${x}px`;
+      pop.style.top = `${y}px`;
+      livePopLayer.appendChild(pop);
+      setTimeout(()=> pop.remove(), 1200);
+    }
+    function pulseLike(x,y){
+      state.likes += 1;
+      spawnHearts(3);
+      spawnPop(x,y);
+    }
+    function loopComment(){
+      if(!state.settings.chat || !state.isLive || state.paused) return;
+      addComment(fallbackComments[state.commentIdx % fallbackComments.length]);
+      state.commentIdx += 1;
+      schedule(loopComment, rand(2200, 4200));
+    }
+    function loopHeart(){
+      if(!state.settings.likes || !state.isLive || state.paused) return;
+      spawnHearts(Math.random() > 0.62 ? 2 : 1);
+      schedule(loopHeart, rand(900, 1600));
+    }
+    function loopViewer(){
+      if(!state.isLive || state.paused) return;
+      state.viewers = Math.max(120, state.viewers + Math.round(rand(-18, 34)));
+      liveViewersDisplay.textContent = fmtViewers(state.viewers);
+      schedule(loopViewer, rand(1400, 2600));
+    }
+    function loopEvent(){ spawnToast(); }
+    async function requestCamera(){
+      if(!state.settings.camera){
+        liveVideo.classList.remove('active');
+        livePlaceholder.style.display = 'block';
+        livePlaceholderLabel.textContent = 'Cámara desactivada — queda o fondo demo';
+        setStatus('Cámara desactivada. Queda o fondo visual do simulador.');
+        return;
+      }
+      if(!window.isSecureContext || !navigator.mediaDevices || !navigator.mediaDevices.getUserMedia){
+        livePlaceholderLabel.textContent = 'A cámara necesita HTTPS ou localhost compatible';
+        setStatus('Non se puido activar a cámara aquí. Mantense o fondo demo.');
+        liveCameraState.textContent = 'DEMO';
+        return;
+      }
+      try{
+        state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+        liveVideo.srcObject = state.stream;
+        liveVideo.classList.add('active');
+        livePlaceholder.style.display = 'none';
+        liveCameraState.textContent = 'LIVE';
+        setStatus('Cámara activa. O directo xa vai con vídeo real.');
+      }catch(err){
+        livePlaceholder.style.display = 'block';
+        livePlaceholderLabel.textContent = 'Permiso denegado ou cámara non dispoñible';
+        liveCameraState.textContent = 'DEMO';
+        setStatus('Non houbo permiso de cámara. Seguimos co fondo demo.');
+      }
+    }
+    function stopCamera(){
+      if(state.stream){ state.stream.getTracks().forEach(track => track.stop()); state.stream = null; }
+      liveVideo.srcObject = null;
+      liveVideo.classList.remove('active');
+    }
+    async function goFullscreen(){
+      try{
+        const el = liveFrame;
+        const req = el.requestFullscreen || el.webkitRequestFullscreen || el.webkitRequestFullScreen;
+        if(req && !document.fullscreenElement){ await req.call(el); setStatus('Pantalla completa activada.'); }
+      }catch(err){
+        setStatus('O navegador bloqueou o fullscreen automático. Usa o botón ⛶.');
+      }
+      setFullscreenLabel();
+    }
+    async function leaveFullscreen(){
+      try{ if(document.fullscreenElement) await document.exitFullscreen(); }catch(err){}
+      setFullscreenLabel();
+    }
+    function toggleChrome(force){
+      state.chromeHidden = typeof force === 'boolean' ? force : !state.chromeHidden;
+      liveShell.classList.toggle('chrome-hidden', state.chromeHidden);
+    }
+    function startLoops(){ schedule(loopComment, 1500); schedule(loopHeart, 900); schedule(loopViewer, 1200); schedule(loopEvent, 2200); }
+    async function start(){
+      updateMeta();
+      clearTimers();
+      state.isLive = true;
+      state.paused = false;
+      state.viewers = state.settings.viewers;
+      liveViewersDisplay.textContent = fmtViewers(state.viewers);
+      livePinnedText.textContent = `«${state.settings.topic} · hoxe o noivo non escapa do comité.»`;
+      liveToastStack.innerHTML = '';
+      liveFloatingHearts.innerHTML = '';
+      livePopLayer.innerHTML = '';
+      seedComments();
+      liveShell.classList.add('is-live');
+      setMode('LIVE');
+      setPauseUI();
+      toggleChrome(false);
+      showHint();
+      setStatus('Iniciando simulación… pedindo fullscreen e cámara se están activados.');
+      await goFullscreen();
+      await requestCamera();
+      startLoops();
+    }
+    function reset(){
+      clearTimers();
+      state.isLive = false;
+      state.paused = false;
+      stopCamera();
+      toggleChrome(false);
+      liveToastStack.innerHTML = '';
+      liveFloatingHearts.innerHTML = '';
+      livePopLayer.innerHTML = '';
+      seedComments();
+      livePlaceholder.style.display = 'block';
+      livePlaceholderLabel.textContent = 'Cámara lista para activarse no directo';
+      liveShell.classList.remove('is-live');
+      state.viewers = Number(liveViewersInput.value) || 12453;
+      liveViewersDisplay.textContent = fmtViewers(state.viewers);
+      setMode('DEMO');
+      liveCameraState.textContent = liveCameraToggle.checked ? 'ON' : 'OFF';
+      setPauseUI();
+      setStatus('Simulador reiniciado. Ao iniciar, tentaremos pedir cámara e fullscreen se o navegador o permite.');
+    }
+    function togglePause(){
+      if(!state.isLive) return;
+      state.paused = !state.paused;
+      setPauseUI();
+      if(!state.paused){ clearTimers(); startLoops(); setStatus('Directo reanudado.'); }
+      else { clearTimers(); setStatus('Directo pausado.'); }
+    }
+    function sendOwn(){
+      const val = liveComposerInput.value.trim();
+      if(!val) return;
+      addComment(val, state.settings.handle || '@aaron.casase', true);
+      liveComposerInput.value = '';
+      pulseLike(liveFrame.clientWidth * 0.56, liveFrame.clientHeight * 0.74);
+    }
+    function onPointerDown(e){ state.gesture = { x:e.clientX, y:e.clientY, t:Date.now() }; }
+    function onPointerUp(e){
+      const g = state.gesture; state.gesture = null; if(!g) return;
+      const dx = e.clientX - g.x, dy = e.clientY - g.y, dt = Date.now() - g.t;
+      const moved = Math.hypot(dx,dy);
+      if(moved > 55 && Math.abs(dy) > Math.abs(dx)){
+        if(dy > 0) toggleChrome(true); else toggleChrome(false);
+        return;
+      }
+      if(moved < 16 && dt < 320){
+        const rect = liveFrame.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const now = Date.now();
+        if(now - state.tapTs < 300){ pulseLike(x, y); state.tapTs = 0; }
+        else state.tapTs = now;
+      }
+    }
+    function bind(){
+      [liveHandleInput, liveTitleInput, liveTopicInput, liveViewersInput, liveCameraToggle, liveEventsToggle, liveLikesToggle, liveChatToggle].forEach(el => {
+        el.addEventListener('input', updateMeta);
+        el.addEventListener('change', updateMeta);
+      });
+      liveStartBtn.addEventListener('click', start);
+      liveResetBtn.addEventListener('click', reset);
+      liveFullscreenBtn.addEventListener('click', goFullscreen);
+      liveFullscreenFab.addEventListener('click', goFullscreen);
+      liveCloseBtn.addEventListener('click', async ()=>{ await leaveFullscreen(); reset(); });
+      liveToggleUiBtn.addEventListener('click', ()=> toggleChrome());
+      livePauseBtn.addEventListener('click', togglePause);
+      liveLikeBtn.addEventListener('click', ()=> pulseLike(liveFrame.clientWidth - 60, liveFrame.clientHeight - 150));
+      liveSendBtn.addEventListener('click', sendOwn);
+      liveComposerInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); sendOwn(); }});
+      liveFrame.addEventListener('pointerdown', onPointerDown);
+      liveFrame.addEventListener('pointerup', onPointerUp);
+      document.addEventListener('fullscreenchange', setFullscreenLabel);
+      updateMeta();
+      seedComments();
+      setFullscreenLabel();
+    }
+    return { bind, reset, start };
+  })();
+
+  liveSim.bind();
 
   function quoteCard(item){
     const id = escapeHtml(item.id || '');
