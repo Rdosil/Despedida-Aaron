@@ -27,6 +27,8 @@
   nav .brand b{color:var(--celeste)}
   nav a.link{font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;font-size:12px;letter-spacing:.4px;color:var(--cream);text-decoration:none;padding:5px 8px;border-radius:4px;opacity:.78;white-space:nowrap}
   nav a.link:hover{opacity:1;background:var(--blue)}
+  .nav-live{display:inline-flex;align-items:center;gap:6px}
+  .nav-live::before{content:"";width:8px;height:8px;border-radius:50%;background:#ff4d67;box-shadow:0 0 0 2px rgba(255,77,103,.24);animation:livePulse 1.4s ease-in-out infinite}
 
   /* LAYOUT */
   section{padding:72px 22px;position:relative}
@@ -88,6 +90,7 @@
   .tl-tag{display:inline-block;margin-top:8px;background:var(--celeste-soft);border:2px solid var(--ink);font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;font-size:11px;letter-spacing:.5px;padding:3px 9px;border-radius:20px}
   .tl-tag.hot{background:var(--blue);color:var(--cream);border-color:var(--blue)}
   .note{font-style:italic;color:var(--ink-soft);font-size:13.5px;margin-top:6px}
+  @keyframes livePulse{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(.72);opacity:.45}}
 
   /* PITCH / SQUAD */
   .pitch{position:relative;width:100%;aspect-ratio:16/10;background:repeating-linear-gradient(90deg,#2f7d3e 0 9.09%,#2c763a 9.09% 18.18%);border:4px solid var(--ink);border-radius:14px;box-shadow:var(--shadow);margin-top:30px;overflow:hidden}
@@ -199,6 +202,64 @@
   .quote-actions{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
   .quote-status{font-size:13px;color:var(--ink-soft);font-style:italic}
   .quote-empty{padding:18px;border:2px dashed var(--ink);background:rgba(255,255,255,.5);font-style:italic;color:var(--ink-soft)}
+  .live-wrap{display:grid;grid-template-columns:minmax(0,1.12fr) minmax(280px,.88fr);gap:24px;margin-top:28px;align-items:start}
+  .live-stage{position:relative;background:linear-gradient(180deg,#241b2d 0%,#110f15 100%);border:3px solid var(--ink);border-radius:18px;box-shadow:var(--shadow);padding:14px;overflow:hidden}
+  .live-stage::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at top left,rgba(116,180,226,.18),transparent 34%),radial-gradient(circle at bottom right,rgba(212,160,18,.15),transparent 28%);pointer-events:none}
+  .live-frame{position:relative;aspect-ratio:9/16;max-height:780px;min-height:540px;border:3px solid rgba(255,255,255,.12);border-radius:28px;overflow:hidden;background:linear-gradient(135deg,#2c2b35 0%,#0d0d14 50%,#21243b 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
+  .live-bg{position:absolute;inset:0;background:radial-gradient(circle at 18% 18%,rgba(255,215,110,.33),transparent 18%),radial-gradient(circle at 80% 22%,rgba(225,48,108,.30),transparent 22%),radial-gradient(circle at 50% 72%,rgba(116,180,226,.28),transparent 30%),linear-gradient(145deg,#282232 0%,#171821 42%,#0e1016 100%)}
+  .live-scan{position:absolute;inset:-10% 0 auto 0;height:50%;background:linear-gradient(180deg,rgba(255,255,255,.12),rgba(255,255,255,0));mix-blend-mode:screen;opacity:.35;animation:liveScan 6s linear infinite}
+  .live-noise{position:absolute;inset:0;background-image:radial-gradient(rgba(255,255,255,.12) 0.7px,transparent 0.7px);background-size:8px 8px;opacity:.08;pointer-events:none}
+  .live-overlay{position:absolute;inset:0;background:linear-gradient(to bottom,rgba(0,0,0,.54),rgba(0,0,0,0) 24%,rgba(0,0,0,0) 55%,rgba(0,0,0,.68));pointer-events:none}
+  .live-topbar{position:absolute;top:16px;left:16px;right:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;z-index:2}
+  .live-user{display:flex;align-items:center;gap:10px;min-width:0;background:rgba(10,10,16,.34);backdrop-filter:blur(10px);padding:6px 11px 6px 6px;border-radius:999px;border:1px solid rgba(255,255,255,.08)}
+  .live-avatar{width:40px;height:40px;border-radius:50%;padding:2px;background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5)}
+  .live-avatar-inner{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#201f2a;color:#fff;font-family:'Anton',sans-serif;font-size:18px;letter-spacing:.5px}
+  .live-user-meta{min-width:0;color:#fff}
+  .live-user-meta strong,.live-user-meta span{display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .live-user-meta strong{font-family:'Barlow Condensed',sans-serif;font-size:16px;letter-spacing:.03em;text-transform:uppercase}
+  .live-user-meta span{font-size:12px;color:rgba(255,255,255,.82)}
+  .live-badges{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+  .live-pill{display:inline-flex;align-items:center;gap:7px;padding:7px 10px;border-radius:12px;font-family:'Barlow Condensed',sans-serif;font-weight:800;letter-spacing:.08em;text-transform:uppercase;font-size:11px;color:#fff;background:rgba(0,0,0,.42);backdrop-filter:blur(10px);border:1px solid rgba(255,255,255,.08)}
+  .live-pill.live{background:linear-gradient(45deg,#d62976,#fa7e1e)}
+  .live-pill.live::before{content:"";width:7px;height:7px;border-radius:50%;background:#fff;animation:livePulse 1.4s ease-in-out infinite}
+  .live-toast-stack{position:absolute;top:92px;left:16px;right:92px;display:grid;gap:9px;z-index:2}
+  .live-toast{display:flex;align-items:center;gap:9px;max-width:100%;background:rgba(10,10,16,.48);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(12px);padding:7px 12px 7px 7px;border-radius:999px;color:#fff;box-shadow:0 8px 20px rgba(0,0,0,.2)}
+  .live-toast .icon{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:15px;background:linear-gradient(45deg,#fa7e1e,#feda75);color:#17150f;flex:none}
+  .live-toast.follow .icon{background:linear-gradient(45deg,#d62976,#962fbf);color:#fff}
+  .live-toast.join .icon{background:rgba(255,255,255,.18);color:#fff}
+  .live-toast b,.live-comment b{font-weight:800}
+  .live-heart-col{position:absolute;right:18px;bottom:112px;display:grid;gap:14px;justify-items:center;z-index:2}
+  .live-heart-btn{width:54px;height:54px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(10,10,16,.42);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:24px;box-shadow:0 8px 18px rgba(0,0,0,.28)}
+  .live-heart-burst{display:grid;gap:8px;justify-items:center}
+  .live-heart{font-size:24px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.28));animation:heartFloat var(--dur,3s) ease-in infinite;opacity:0;transform:translateY(0) scale(.55)}
+  .live-bottom{position:absolute;left:16px;right:16px;bottom:14px;z-index:2;color:#fff}
+  .live-comments{display:grid;gap:8px;max-width:82%}
+  .live-comment{display:flex;align-items:flex-start;gap:9px;background:rgba(10,10,16,.45);backdrop-filter:blur(10px);padding:8px 11px;border-radius:18px;border:1px solid rgba(255,255,255,.08);font-size:13px;line-height:1.35;box-shadow:0 8px 20px rgba(0,0,0,.2)}
+  .live-comment.mine{background:rgba(31,95,196,.36)}
+  .live-comment .bubble{min-width:0}
+  .live-comment .avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.14);font-family:'Anton',sans-serif;font-size:14px;flex:none}
+  .live-pinned{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:8px 12px;border-radius:999px;background:rgba(245,190,54,.18);border:1px solid rgba(255,217,128,.4);backdrop-filter:blur(10px);font-size:12px;color:#fff;max-width:88%}
+  .live-pinned strong{font-family:'Barlow Condensed',sans-serif;letter-spacing:.08em;text-transform:uppercase}
+  .live-composer{margin-top:12px;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:999px;background:rgba(10,10,16,.54);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px);box-shadow:0 8px 20px rgba(0,0,0,.22)}
+  .live-composer span{font-size:13px;color:rgba(255,255,255,.84);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .live-composer .send{margin-left:auto;display:inline-flex;align-items:center;justify-content:center;width:34px;height:34px;border-radius:50%;background:#fff;color:#17150f;font-size:16px;font-weight:900}
+  .live-side{display:grid;gap:18px}
+  .live-copy{padding:22px 22px 24px}
+  .live-copy h3{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:30px;line-height:.95;margin:0 0 8px}
+  .live-copy h3 .b{color:var(--blue)}
+  .live-copy p{margin:0;color:var(--ink-soft);font-size:15px;line-height:1.55}
+  .live-copy .mini-note{margin-top:12px;font-style:italic;font-size:13px}
+  .live-points{list-style:none;margin:16px 0 0;padding:0;display:grid;gap:11px}
+  .live-points li{display:flex;gap:10px;align-items:flex-start;font-size:14.5px;color:var(--ink)}
+  .live-points li::before{content:"●";color:var(--blue);font-size:16px;line-height:1.15;margin-top:1px}
+  .live-stat-grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+  .live-stat{padding:16px 16px 15px}
+  .live-stat .ey{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.12em;font-size:11px;color:var(--blue)}
+  .live-stat .big{display:block;margin-top:6px;font-family:'Anton',sans-serif;font-size:30px;line-height:1;color:var(--ink)}
+  .live-stat .sub{margin-top:6px;font-size:13px;color:var(--ink-soft)}
+  .live-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
+  @keyframes liveScan{0%{transform:translateY(-18%)}100%{transform:translateY(122%)}}
+  @keyframes heartFloat{0%{opacity:0;transform:translateY(0) translateX(0) scale(.55)}15%{opacity:1}100%{opacity:0;transform:translateY(-230px) translateX(var(--dx,0px)) scale(1.12)}}
   image-slot{width:100%;aspect-ratio:1/1;border:3px solid var(--ink);box-shadow:var(--shadow);background:var(--card)}
   .gal-note{margin-top:12px;font-style:italic;color:var(--ink-soft);font-size:13.5px}
 
@@ -216,6 +277,9 @@
     .two{grid-template-columns:1fr}
     .count-inner{justify-content:center;text-align:center}
     .count-lab{width:100%;text-align:center}
+    .live-wrap,.quotes-wrap{grid-template-columns:1fr}
+    .live-side{order:-1}
+    .live-frame{min-height:500px}
   }
   @media(max-width:560px){
     section{padding:50px 16px}
@@ -224,6 +288,15 @@
     .tl-time{font-size:19px}
     .tok{width:58px}.jersey{width:38px;height:38px;font-size:16px}.tok .nm{font-size:10px}
     .pitch .lines::after{width:70px;height:70px}
+    .live-stage{padding:10px}
+    .live-frame{min-height:420px;border-radius:22px}
+    .live-topbar{top:12px;left:12px;right:12px}
+    .live-toast-stack{top:86px;left:12px;right:82px}
+    .live-heart-col{right:12px;bottom:108px}
+    .live-heart-btn{width:48px;height:48px}
+    .live-comments{max-width:100%}
+    .live-comment{font-size:12.5px}
+    .live-pinned{max-width:100%}
   }
 </style>
 </head>
@@ -241,6 +314,7 @@
   <a class="link" href="#karting">Karting</a>
   <a class="link" href="#camisolas">Camisolas</a>
   <a class="link" href="#mapa">Mapa</a>
+  <a class="link nav-live" href="#directo">Directo</a>
   <a class="link" href="#fotos">Fotos</a>
 </nav>
 
@@ -660,6 +734,126 @@
         <h3>Palacio Real Hostel</h3>
         <p>A base de operacións para dous días. Check-in sábado tarde, checkout domingo. León a dous pasos.</p>
         <a class="btn hostel" href="https://www.google.com/maps/search/?api=1&query=Palacio+Real+Hostel+Le%C3%B3n" target="_blank" rel="noopener">🏨 Abrir en Maps</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- DIRECTO -->
+<section id="directo" style="background:var(--cream-2);border-top:3px solid var(--ink);border-bottom:3px solid var(--ink)">
+  <div class="wrap">
+    <div class="eyebrow">Emisión non autorizada · arquivo comprometedor do capitán</div>
+    <h2 class="sec-title">O <span class="b">directo</span> do noivo</h2>
+    <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
+    <p class="gal-note">Un simulador visual do momento no que o comité colle o móbil, entra en Instagram Live e expón ao capitán ante a humanidade.</p>
+
+    <div class="live-wrap">
+      <div class="live-stage">
+        <div class="live-frame">
+          <div class="live-bg"></div>
+          <div class="live-scan"></div>
+          <div class="live-noise"></div>
+          <div class="live-overlay"></div>
+
+          <div class="live-topbar">
+            <div class="live-user">
+              <div class="live-avatar"><div class="live-avatar-inner">A</div></div>
+              <div class="live-user-meta">
+                <strong>@aaron.casase</strong>
+                <span>Último directo antes do altar</span>
+              </div>
+            </div>
+            <div class="live-badges">
+              <div class="live-pill live">En vivo</div>
+              <div class="live-pill">👁 12.453</div>
+            </div>
+          </div>
+
+          <div class="live-toast-stack">
+            <div class="live-toast follow"><span class="icon">+</span><span><b>@teo</b> empezou a seguir o directo</span></div>
+            <div class="live-toast"><span class="icon">🎁</span><span><b>@carlos</b> enviou unha rosa para o noivo</span></div>
+            <div class="live-toast join"><span class="icon">👋</span><span><b>@gelo</b> uniuse para fiscalizar o espectáculo</span></div>
+          </div>
+
+          <div class="live-heart-col" aria-hidden="true">
+            <div class="live-heart-btn">❤</div>
+            <div class="live-heart-burst">
+              <span class="live-heart" style="--dx:-10px;--dur:3.2s">💜</span>
+              <span class="live-heart" style="--dx:12px;--dur:2.7s">❤️</span>
+              <span class="live-heart" style="--dx:-18px;--dur:3.5s">🔥</span>
+              <span class="live-heart" style="--dx:16px;--dur:2.9s">💛</span>
+              <span class="live-heart" style="--dx:-6px;--dur:3.1s">💚</span>
+            </div>
+          </div>
+
+          <div class="live-bottom">
+            <div class="live-comments">
+              <div class="live-comment">
+                <div class="avatar">T</div>
+                <div class="bubble"><b>@teo</b> hoxe hai pole por decreto ou qué?</div>
+              </div>
+              <div class="live-comment">
+                <div class="avatar">C</div>
+                <div class="bubble"><b>@carlos</b> o Peter Crouch da Costa xa vai quente 🔥</div>
+              </div>
+              <div class="live-comment mine">
+                <div class="avatar">G</div>
+                <div class="bubble"><b>@gelo</b> se hai curva, hai interior. E se hai boda, hai directo.</div>
+              </div>
+              <div class="live-comment">
+                <div class="avatar">E</div>
+                <div class="bubble"><b>@eloy</b> a ver se me consegue dobrar antes das copas</div>
+              </div>
+            </div>
+
+            <div class="live-pinned"><strong>Comentario fixado</strong><span>«Hoxe o noivo non pode escapar. O comité ten cobertura total.»</span></div>
+
+            <div class="live-composer">
+              <span>Engade un comentario épico para o arquivo...</span>
+              <span class="send">➤</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="live-side">
+        <div class="card live-copy">
+          <h3>Instagram Live, pero <span class="b">modo despedida</span></h3>
+          <p>Non é un vídeo real nin unha cámara funcional: é unha peza visual integrada na web para recrear o caos do grupo, os comentarios, os follows, os viewers e os corazóus voando mentres Aarón intenta manter a dignidade.</p>
+          <ul class="live-points">
+            <li>Queda como sección nativa da web, sen romper a estética xeral.</li>
+            <li>Está inspirada no simulador do ZIP, pero adaptada ao ton futbolero-tabernario desta páxina.</li>
+            <li>Se queredes, no seguinte paso pódese volver interactiva de verdade con comentarios aleatorios, contador vivo e botóns.</li>
+          </ul>
+          <p class="mini-note">Versión 1: showcase visual. Lista para evolucionar a simulador real se vos mola.</p>
+          <div class="live-cta">
+            <a class="btn" href="#frases">💬 Levar ás frases míticas</a>
+            <a class="btn ghost" href="#fotos">📸 Saltar á galería</a>
+          </div>
+        </div>
+
+        <div class="live-stat-grid">
+          <div class="card live-stat">
+            <div class="ey">Formato</div>
+            <span class="big">9:16</span>
+            <div class="sub">Maqueta vertical tipo directo móbil</div>
+          </div>
+          <div class="card live-stat">
+            <div class="ey">Estado</div>
+            <span class="big">LIVE</span>
+            <div class="sub">Peza visual xa integrada na navegación</div>
+          </div>
+          <div class="card live-stat">
+            <div class="ey">Tono</div>
+            <span class="big">100%</span>
+            <div class="sub">Memes, comité e humillación con cariño</div>
+          </div>
+          <div class="card live-stat">
+            <div class="ey">Seguinte nivel</div>
+            <span class="big">2.0</span>
+            <div class="sub">Animación real + comentarios dinámicos se queres</div>
+          </div>
+        </div>
       </div>
     </div>
   </div>
