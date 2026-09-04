@@ -31,7 +31,7 @@
   .nav-live::before{content:"";width:8px;height:8px;border-radius:50%;background:#ff4d67;box-shadow:0 0 0 2px rgba(255,77,103,.24);animation:livePulse 1.4s ease-in-out infinite}
 
   /* LAYOUT */
-  section{padding:72px 22px;position:relative}
+  section{padding:72px 22px;position:relative;scroll-margin-top:72px}
   .wrap{max-width:1080px;margin:0 auto}
   .eyebrow{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:3px;color:var(--blue);font-size:14px;margin-bottom:10px}
   .sec-title{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(32px,6vw,60px);line-height:.92}
@@ -129,6 +129,40 @@
   .reto.done .rt{text-decoration:line-through;color:var(--ink-soft);opacity:.7}
   .reto .rt{font-weight:600;font-size:15.5px}
   .retos-foot{margin-top:12px;font-family:'Barlow Condensed',sans-serif;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--blue);font-size:16px}
+
+  /* VODA */
+  .wedding-intro{max-width:720px;margin:18px 0 0;color:var(--ink-soft);font-size:17px;line-height:1.55}
+  .wedding-ticket{margin-top:28px;background:var(--ink);color:var(--cream);border:3px solid var(--ink);box-shadow:var(--shadow);display:grid;grid-template-columns:minmax(0,1.25fr) minmax(260px,.75fr);overflow:hidden}
+  .wedding-ticket-main{padding:clamp(24px,4vw,42px);position:relative;background:linear-gradient(135deg,var(--blue-deep),var(--blue))}
+  .wedding-ticket-main::after{content:"05·09·26";position:absolute;right:-10px;bottom:-20px;font-family:'Anton',sans-serif;font-size:clamp(64px,11vw,126px);line-height:1;color:rgba(255,255,255,.09);pointer-events:none}
+  .wedding-ticket-kicker{font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:3px;font-size:13px;color:var(--gold-soft)}
+  .wedding-names{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(42px,7vw,82px);line-height:.92;margin-top:10px;position:relative;z-index:1}
+  .wedding-names span{color:var(--gold-soft)}
+  .wedding-ticket-side{padding:24px;display:grid;align-content:center;gap:14px;background:var(--ink)}
+  .wedding-detail{display:grid;grid-template-columns:58px 1fr;gap:12px;align-items:baseline;padding-bottom:12px;border-bottom:1px solid rgba(241,234,215,.28)}
+  .wedding-detail:last-child{border-bottom:0;padding-bottom:0}
+  .wedding-detail b{font-family:'Anton',sans-serif;font-size:20px;color:var(--celeste)}
+  .wedding-detail span{font-weight:600;line-height:1.35}
+  .wedding-playground{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(280px,.92fr);gap:22px;margin-top:24px;align-items:stretch}
+  .wedding-mission{padding:26px;background:var(--gold-soft);display:flex;flex-direction:column;justify-content:space-between;min-height:310px}
+  .wedding-mission h3,.wedding-verdict h3,.wedding-bingo h3{font-family:'Anton',sans-serif;text-transform:uppercase;font-size:clamp(25px,3vw,36px);line-height:.95;margin:0}
+  .wedding-label{display:inline-flex;align-self:flex-start;background:var(--ink);color:var(--cream);font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:1.4px;font-size:12px;padding:6px 10px;margin-bottom:18px}
+  .wedding-output{font-family:'Permanent Marker',cursive;font-size:clamp(21px,3vw,31px);line-height:1.25;margin:22px 0;color:var(--blue-deep);max-width:28ch}
+  .wedding-verdict{padding:26px;background:var(--card);display:flex;flex-direction:column}
+  .wedding-scenario{font-size:18px;font-weight:700;line-height:1.45;margin:22px 0;flex:1}
+  .wedding-votes{display:flex;gap:10px;flex-wrap:wrap}
+  .wedding-vote{appearance:none;border:3px solid var(--ink);padding:10px 14px;background:var(--cream);font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:.7px;font-size:15px;cursor:pointer;box-shadow:3px 3px 0 var(--ink)}
+  .wedding-vote[data-wedding-vote="cinema"]{background:var(--blue);color:var(--cream)}
+  .wedding-vote:focus-visible,.wedding-bingo-cell:focus-visible{outline:4px solid var(--gold);outline-offset:3px}
+  .wedding-vote-score{margin-top:15px;font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;color:var(--blue);letter-spacing:.7px}
+  .wedding-bingo{grid-column:1/-1;padding:26px;background:var(--ink);color:var(--cream)}
+  .wedding-bingo-head{display:flex;justify-content:space-between;align-items:end;gap:20px;flex-wrap:wrap}
+  .wedding-bingo-head p{margin:0;max-width:54ch;color:rgba(241,234,215,.86)}
+  .wedding-bingo-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:22px}
+  .wedding-bingo-cell{appearance:none;min-height:104px;padding:14px;border:2px solid var(--cream);background:var(--cream);color:var(--ink);font:700 15px/1.3 'Barlow',sans-serif;text-align:left;cursor:pointer;transition:transform .16s ease-out,background .16s ease-out,color .16s ease-out}
+  .wedding-bingo-cell:hover{transform:translateY(-2px)}
+  .wedding-bingo-cell[aria-pressed="true"]{background:var(--blue);color:var(--cream);text-decoration:line-through;border-color:var(--celeste)}
+  .wedding-bingo-status{margin-top:14px;font-family:'Barlow Condensed',sans-serif;font-weight:800;text-transform:uppercase;letter-spacing:1px;color:var(--celeste)}
 
   /* TWO COL */
   .two{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:28px}
@@ -321,8 +355,13 @@
     .live-side{order:0}
     .live-config{order:-1}
     .live-frame{min-height:500px}
+    .wedding-ticket,.wedding-playground{grid-template-columns:1fr}
   }
   @media(max-width:560px){
+    nav{flex-wrap:nowrap;overflow-x:auto;scrollbar-width:none;overscroll-behavior-inline:contain}
+    nav::-webkit-scrollbar{display:none}
+    nav .brand{position:sticky;left:0;z-index:2;background:var(--ink);padding:8px 10px 8px 0;flex:none}
+    nav a.link{min-height:44px;display:inline-flex;align-items:center;flex:none}
     section{padding:50px 16px}
     .cu{min-width:60px}.cu .n{font-size:28px}
     .tl-row{grid-template-columns:66px 1fr;gap:11px}
@@ -337,6 +376,11 @@
     .live-heart-col{right:12px;bottom:108px}
     .live-heart-btn{width:48px;height:48px}
     .live-comments{max-width:100%}
+    .wedding-bingo-grid{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .wedding-bingo-cell{min-height:112px}
+    .wedding-bingo-cell:last-child{grid-column:1/-1}
+    .wedding-ticket-main::after{right:-4px;bottom:-10px;font-size:76px}
+    .wedding-mission{min-height:260px}
     .live-comment{font-size:12.5px}
     .live-pinned{max-width:100%}
     .live-config-actions{flex-direction:column}
@@ -353,6 +397,7 @@
   <a class="link" href="#equipo">Equipo</a>
   <a class="link" href="#regras">Regras</a>
   <a class="link" href="#retos">Retos</a>
+  <a class="link" href="#voda">A voda</a>
   <a class="link" href="#bote">Bote</a>
   <a class="link" href="#karting">Karting</a>
   <a class="link" href="#camisolas">Camisolas</a>
@@ -638,6 +683,73 @@
       <div class="card reto" data-id="r10"><div class="box-c">✓</div><div class="rt">Conseguir dobrar a Tanque Eloy.</div></div>
     </div>
     <div class="retos-foot" id="reto-score">0 / 8 retos completados</div>
+  </div>
+</section>
+
+<!-- VODA -->
+<section id="voda">
+  <div class="wrap">
+    <div class="eyebrow">Operación Casa Anido · manual non oficial</div>
+    <h2 class="sec-title">A <span class="b">voda</span> que vén</h2>
+    <svg class="swoosh" viewBox="0 0 160 14"><path d="M4 10 C 48 2, 116 2, 156 7"/></svg>
+    <p class="wedding-intro">A despedida é só a pretemporada. O partido importante chega en setembro, con roupa elegante, emoción sincera e unha pista de baile na que cada convidado acabará revelando quen é de verdade.</p>
+
+    <div class="wedding-ticket">
+      <div class="wedding-ticket-main">
+        <div class="wedding-ticket-kicker">Convocatoria definitiva</div>
+        <div class="wedding-names">Aarón <span>e</span><br> Lucía</div>
+      </div>
+      <div class="wedding-ticket-side">
+        <div class="wedding-detail"><b>DATA</b><span>5 de setembro de 2026</span></div>
+        <div class="wedding-detail"><b>20:00</b><span>Picoteo, apertas e compostura inicial</span></div>
+        <div class="wedding-detail"><b>22:00</b><span>Barra libre e DJ, comeza a verdade</span></div>
+        <div class="wedding-detail"><b>LUGAR</b><span>Casa Anido · Muros (A Coruña)</span></div>
+      </div>
+    </div>
+
+    <div class="wedding-playground">
+      <article class="card wedding-mission">
+        <div>
+          <div class="wedding-label">Só para valentes</div>
+          <h3>Misión secreta</h3>
+          <p class="wedding-output" id="wedding-mission-output" aria-live="polite">Toca o botón e acepta o que che toque. Non hai VAR.</p>
+        </div>
+        <button class="btn" id="wedding-mission-btn" type="button">🎲 Dáme unha misión</button>
+      </article>
+
+      <article class="card wedding-verdict">
+        <div class="wedding-label">Xulgado popular</div>
+        <h3>Cinema ou delito?</h3>
+        <p class="wedding-scenario" id="wedding-scenario" aria-live="polite">Entrar na barra libre con gafas de sol ás dez da noite.</p>
+        <div class="wedding-votes">
+          <button class="wedding-vote" data-wedding-vote="cinema" type="button">🎬 Cinema</button>
+          <button class="wedding-vote" data-wedding-vote="delito" type="button">🚨 Delito</button>
+        </div>
+        <div class="wedding-vote-score" id="wedding-vote-score" aria-live="polite">0 cinema · 0 delitos</div>
+      </article>
+
+      <article class="wedding-bingo">
+        <div class="wedding-bingo-head">
+          <div>
+            <div class="wedding-label">Investigación de campo</div>
+            <h3>Bingo de Casa Anido</h3>
+          </div>
+          <p>Marca os momentos cando sucedan. Completar unha liña dá dereito a presumir; completar o cartón enteiro obriga a quedar ata o final.</p>
+        </div>
+        <div class="wedding-bingo-grid">
+          <button class="wedding-bingo-cell" type="button" aria-pressed="false">Alguén di «eu hoxe tranquilo»</button>
+          <button class="wedding-bingo-cell" type="button" aria-pressed="false">Primeira bágoa antes da cea</button>
+          <button class="wedding-bingo-cell" type="button" aria-pressed="false">Piden a mesma canción tres veces</button>
+          <button class="wedding-bingo-cell" type="button" aria-pressed="false">Unha gravata abandona o seu posto</button>
+          <button class="wedding-bingo-cell" type="button" aria-pressed="false">Alguén farmea aura sen querer</button>
+          <button class="wedding-bingo-cell" type="button" aria-pressed="false">A persoa menos esperada rompe a pista</button>
+          <button class="wedding-bingo-cell" type="button" aria-pressed="false">Brindis improvisado con información de máis</button>
+          <button class="wedding-bingo-cell" type="button" aria-pressed="false">«A última e marchamos»</button>
+          <button class="wedding-bingo-cell" type="button" aria-pressed="false">Foto de grupo na que alguén non mira</button>
+        </div>
+        <div class="wedding-bingo-status" id="wedding-bingo-status" aria-live="polite">0 de 9 momentos confirmados</div>
+      </article>
+    </div>
   </div>
 </section>
 
@@ -1124,6 +1236,86 @@
   score();
   loadDone();
   /* RETOS_INLINE_END */
+
+  /* WEDDING_INLINE_START */
+  const weddingMissions = [
+    'Consegue unha foto con alguén que acabes de coñecer e inventade unha historia común crible.',
+    'Pídelle o mesmo consello matrimonial a tres xeracións distintas e compara os resultados.',
+    'Inicia un brindis coa frase «segundo fontes próximas á parella…».',
+    'Convence cinco persoas para facer dez segundos de baile a cámara lenta.',
+    'Atopa o futuro boss final da pista e consigue unha promesa de duelo.',
+    'Dedícalle unha canción á parella sen dicirlle ao DJ quen a pediu.',
+    'Entrega verbalmente +1000 de aura á mellor entrada da noite e xustifica o veredicto.',
+    'Fai unha foto de portada de disco con outras tres persoas sen sorrir.',
+    'Consegue que alguén maior che ensine un paso de baile e úsao máis tarde na pista.',
+    'Forma un comité de tres persoas para decidir cal foi o momento máis cinema da noite.'
+  ];
+  const weddingScenarios = [
+    'Entrar na barra libre con gafas de sol ás dez da noite.',
+    'Ler o discurso directamente desde a app de Notas.',
+    'Levar a gravata na cabeza antes de que soe a terceira canción.',
+    'Pedir a mesma canción ao DJ tres veces con distinto ton de voz.',
+    'Que unha avoa abra a pista e non deixe opción de réplica.',
+    'Desaparecer corenta minutos e volver cun prato de comida.',
+    'Chorar, recompoñerse e volver chorar no mesmo discurso.',
+    'Facer unha entrada épica e tropezar no último segundo.',
+    'Dicir «eu non bailo» e acabar liderando unha coreografía.',
+    'Montar unha foto de equipo no baño como se fose unha portada histórica.'
+  ];
+  const weddingMissionOutput = document.getElementById('wedding-mission-output');
+  const weddingScenario = document.getElementById('wedding-scenario');
+  const weddingVoteScore = document.getElementById('wedding-vote-score');
+  const weddingBingoCells = Array.from(document.querySelectorAll('.wedding-bingo-cell'));
+  const weddingBingoStatus = document.getElementById('wedding-bingo-status');
+  let weddingMissionIndex = -1;
+  let weddingScenarioIndex = 0;
+  const weddingVotes = { cinema: 0, delito: 0 };
+
+  function nextWeddingIndex(current, length){
+    if(length < 2) return 0;
+    let next = current;
+    while(next === current) next = Math.floor(Math.random() * length);
+    return next;
+  }
+
+  document.getElementById('wedding-mission-btn').addEventListener('click', () => {
+    weddingMissionIndex = nextWeddingIndex(weddingMissionIndex, weddingMissions.length);
+    weddingMissionOutput.textContent = weddingMissions[weddingMissionIndex];
+  });
+
+  document.querySelectorAll('[data-wedding-vote]').forEach((button) => {
+    button.addEventListener('click', () => {
+      const vote = button.dataset.weddingVote;
+      weddingVotes[vote] += 1;
+      weddingVoteScore.textContent = `${weddingVotes.cinema} cinema · ${weddingVotes.delito} delitos`;
+      weddingScenarioIndex = (weddingScenarioIndex + 1) % weddingScenarios.length;
+      weddingScenario.textContent = weddingScenarios[weddingScenarioIndex];
+    });
+  });
+
+  const WEDDING_BINGO_KEY = 'despedida-aaron-wedding-bingo';
+  let weddingBingoDone = [];
+  try {
+    const stored = JSON.parse(localStorage.getItem(WEDDING_BINGO_KEY) || '[]');
+    if(Array.isArray(stored)) weddingBingoDone = stored;
+  } catch(_err) {
+    weddingBingoDone = [];
+  }
+  function renderWeddingBingo(){
+    weddingBingoCells.forEach((cell, index) => cell.setAttribute('aria-pressed', String(weddingBingoDone.includes(index))));
+    weddingBingoStatus.textContent = `${weddingBingoDone.length} de ${weddingBingoCells.length} momentos confirmados`;
+  }
+  weddingBingoCells.forEach((cell, index) => {
+    cell.addEventListener('click', () => {
+      weddingBingoDone = weddingBingoDone.includes(index)
+        ? weddingBingoDone.filter((item) => item !== index)
+        : [...weddingBingoDone, index];
+      localStorage.setItem(WEDDING_BINGO_KEY, JSON.stringify(weddingBingoDone));
+      renderWeddingBingo();
+    });
+  });
+  renderWeddingBingo();
+  /* WEDDING_INLINE_END */
 </script>
 <script>
   async function renderArchive(){

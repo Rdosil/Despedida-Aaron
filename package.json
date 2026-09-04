@@ -10,6 +10,8 @@
     "jsdom": "^26.1.0"
   },
   "scripts": {
-    "test:persistence": "node scripts/test-photo-persistence.mjs"
+    "test": "npm run test:persistence && npm run test:wedding",
+    "test:persistence": "node scripts/test-photo-persistence.mjs",
+    "test:wedding": "node scripts/test-wedding-section.mjs"
   }
 }
