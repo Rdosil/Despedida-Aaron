@@ -15,6 +15,12 @@ assert.match(section.textContent, /5 de setembro de 2026/i);
 assert.match(section.textContent, /Casa Anido/i);
 assert.match(section.textContent, /picoteo/i);
 assert.match(section.textContent, /barra libre/i);
+assert.ok(html.indexOf('<!-- VODA -->') < html.indexOf('<!-- PALMARÉS -->'), 'o apartado da voda debe aparecer antes do palmarés');
+const invitation = section.querySelector('img[src="assets/invitacion-aaron-lucia.jpg"]');
+assert.ok(invitation, 'debe integrarse a invitación enviada polo usuario');
+assert.equal(invitation.getAttribute('width'), '908');
+assert.equal(invitation.getAttribute('height'), '1280');
+assert.match(invitation.getAttribute('alt') || '', /Aarón e Lucía/i);
 assert.match(html, /section\{[^}]*scroll-margin-top:/, 'as áncoras deben reservar o alto da navegación fixa');
 assert.match(html, /nav\{[^}]*flex-wrap:nowrap/, 'a navegación móbil debe manter unha soa fila desprazable');
 
