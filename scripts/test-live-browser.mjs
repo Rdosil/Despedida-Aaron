@@ -35,6 +35,7 @@ try {
  await page.click('#live-inline-record-btn');await page.waitForFunction(()=>document.querySelector('#live-record-status').textContent.includes('Gravando'));
  await page.waitForTimeout(800);await page.click('#live-close-btn');
  await page.waitForFunction(()=>!document.querySelector('#live-record-preview').hidden);
+ assert.ok(await page.evaluate(()=>document.querySelectorAll('#live-record-drafts button').length>=1),'a second take must keep the previous local video');
  assert.equal(await page.locator('#live-record-save').isDisabled(),true);
  await page.check('#live-record-consent');assert.equal(await page.locator('#live-record-save').isEnabled(),true);
 
@@ -59,7 +60,7 @@ try {
  await page.waitForTimeout(500);await page.click('#live-inline-record-stop');await page.waitForFunction(()=>!document.querySelector('#live-record-preview').hidden);
  await page.waitForFunction(()=>!document.querySelector('#live-record-discard').disabled);
  await page.evaluate(()=>{const c=window.confirm;window.confirm=()=>true;document.querySelector('#live-record-discard').click();window.confirm=c;});
- await page.waitForFunction(()=>document.querySelector('#live-record-preview').hidden);
+ await page.waitForFunction(()=>!document.querySelector('#live-record-discard').disabled || document.querySelector('#live-record-preview').hidden);
  assert.equal(await page.locator('#live-record-btn').isEnabled(),true,'recording must restart after leaving live');
  console.log('direct SDK upload mock, duplicate prevention and gallery pagination ok');
  await page.evaluate(()=>document.querySelector('#live-record-btn').click());

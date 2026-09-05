@@ -5,25 +5,27 @@ const preview=$('live-record-preview'), playback=$('live-record-playback');
 const save=$('live-record-save'), discard=$('live-record-discard'), consent=$('live-record-consent');
 const download=$('live-record-download'), video=$('live-video');
 const inlineRecord=$('live-inline-record-btn'), inlineStop=$('live-inline-record-stop');
+const drafts=$('live-record-drafts');
 const MAX_BYTES=50*1024*1024;
 const mime=typeof MediaRecorder!=='undefined' && ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/mp4','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));
 const supported=Boolean(window.isSecureContext && navigator.mediaDevices?.getUserMedia && mime && HTMLCanvasElement.prototype.captureStream);
-let active=null, generation=0, frame, blob=null, objectURL=null, duration=0, uploading=false, published=false, restoring=true, storing=false, storageSafe=false, focusAfterClose=false;
-const message=text=>{status.textContent=text+(blob?.size>MAX_BYTES?' O vídeo supera 50 MB: non se pode publicar; descarga a copia completa.':'');};
-// Simulator exclusively owns camera/video; recorder exclusively owns microphone/canvas.
+let active=null, generation=0, frame, clips=[], selected=null, uploading=false, restoring=true, storing=false, storageSafe=false, focusAfterClose=false;
+const current=()=>clips.find(c=>c.id===selected);
+const blob=()=>current()?.blob||null;
+const message=text=>{const clip=current();status.textContent=text+(clip?.blob?.size>MAX_BYTES?' O vídeo supera 50 MB: non se pode publicar; descarga a copia completa.':'');};
 function controls(){
  const busy=Boolean(active);
+ const clip=current();
  start.disabled=!supported || restoring || busy || uploading || !window.liveSimulator.isLive;
  stop.disabled=!busy;
  inlineRecord.hidden=!window.liveSimulator.isLive || busy || !supported;
  inlineRecord.disabled=start.disabled;
  inlineStop.hidden=!busy;
- save.disabled=!blob || blob.size>MAX_BYTES || !consent.checked || uploading || published || storing;
- discard.disabled=uploading || restoring || storing;consent.disabled=uploading;
+ save.disabled=!clip || clip.blob.size>MAX_BYTES || !consent.checked || uploading || clip.published || storing;
+ discard.disabled=uploading || restoring || storing || !clip;consent.disabled=uploading || !clip;
  $('live-start-btn').disabled=window.liveSimulator.isLive;
  $('live-camera-toggle').disabled=window.liveSimulator.isLive;
 }
-// Storage must never own the recording lifecycle. Bound both opening and transactions.
 const STORAGE_TIMEOUT=2000;
 function database(){return new Promise((resolve,reject)=>{
  let settled=false;
@@ -50,19 +52,42 @@ async function draft(action,value){
   }catch(error){try{tx?.abort();}catch{}done(error);}
  });}finally{db.close();}
 }
-function showPreview(){
- if(objectURL)URL.revokeObjectURL(objectURL);
- objectURL=URL.createObjectURL(blob);playback.src=objectURL;preview.hidden=false;consent.checked=false;
- download.href=objectURL;download.download='directo-aaron.'+(blob.type==='video/mp4'?'mp4':'webm');controls();
+function extFor(clip){return clip.blob.type==='video/mp4'?'mp4':'webm';}
+function showSelected(){
+ const clip=current();
+ if(!clip){
+  playback.pause();playback.removeAttribute('src');playback.load();
+  if(download.href)URL.revokeObjectURL(download.href);
+  download.removeAttribute('href');preview.hidden=true;consent.checked=false;renderList();controls();return;
+ }
+ if(clip.url)URL.revokeObjectURL(clip.url);
+ clip.url=URL.createObjectURL(clip.blob);
+ playback.src=clip.url;preview.hidden=false;consent.checked=false;
+ download.href=clip.url;download.download='directo-aaron-'+clip.id.slice(0,8)+'.'+extFor(clip);
+ renderList();controls();
 }
 function focusPreview(){
  preview.hidden=false;
  preview.scrollIntoView({block:'center', behavior:'auto'});
  try{playback.focus({preventScroll:true});}catch{}
 }
+function renderList(){
+ if(!drafts)return;
+ drafts.replaceChildren();
+ if(clips.length<2){drafts.hidden=true;return;}
+ drafts.hidden=false;
+ clips.forEach((clip,i)=>{
+  const btn=document.createElement('button');
+  btn.type='button';
+  btn.className='live-draft-card'+(clip.id===selected?' is-current':'');
+  btn.textContent=(clip.published?'Publicado':'Borrador')+' '+(i+1)+' · '+Math.max(1,Math.round(clip.duration||1))+'s';
+  btn.addEventListener('click',()=>{selected=clip.id;showSelected();});
+  drafts.append(btn);
+ });
+}
 let persistTail=Promise.resolve();
 function persist(){
- const snapshot={blob,duration,published};
+ const snapshot=clips.map(c=>({id:c.id,blob:c.blob,duration:c.duration,published:c.published}));
  persistTail=persistTail.catch(()=>{}).then(()=>persistNow(snapshot));
  return persistTail;
 }
@@ -70,10 +95,11 @@ async function persistNow(snapshot){
  storing=true;controls();
  try{
   if(!storageSafe)throw Error('Unresolved durable draft');
-  await draft('put',snapshot);
-  if(blob!==snapshot.blob)return;
-  message('Borrador gardado neste navegador. Non é público. Descárgao para conservar unha copia segura.');
- }catch{if(blob===snapshot.blob)message('Só vista previa temporal: non se puido gardar no navegador. Descarga o vídeo antes de pechar.');}
+  if(snapshot.length)await draft('put',{clips:snapshot});
+  else await draft('delete');
+  if(snapshot.length!==clips.length)return;
+  message(clips.length>1?`${clips.length} vídeos gardados neste navegador. Non se perde ningún ao gravar outro.`:'Borrador gardado neste navegador. Non é público. Descárgao para conservar unha copia segura.');
+ }catch(error){if(snapshot.length===clips.length)message('Só vista previa temporal: non se puido gardar no navegador. Descarga o vídeo antes de pechar.');throw error;}
  finally{storing=false;controls();}
 }
 function release(run){
@@ -115,7 +141,7 @@ function render(ctx, canvas, run) {
 }
 start.addEventListener('click',async()=>{
  if(start.disabled)return;
- const run={id:++generation,chunks:[],bytes:0};active=run;preview.hidden=true;controls();message(blob && !published?'Gravando outro. O borrador local anterior substitúese se sae vídeo.':'Preparando cámara e pedindo permiso de micrófono…');
+ const run={id:++generation,chunks:[],bytes:0};active=run;controls();message(clips.length?'Gravando outro. Os anteriores quedan neste navegador.':'Preparando cámara e pedindo permiso de micrófono…');
  const valid=()=>active===run && run.id===generation && window.liveSimulator.isLive;
  try{
   const camera=await window.liveSimulator.camera();
@@ -131,10 +157,12 @@ start.addEventListener('click',async()=>{
   recorder.ondataavailable=e=>{if(e.data.size){run.bytes+=e.data.size;run.chunks.push(e.data);if(run.bytes>=MAX_BYTES)finish();}};
   recorder.onerror=()=>{message('Fallou a gravación. Tentaremos conservar os datos dispoñibles.');finish();};
   recorder.onstop=async()=>{
-   duration=Math.min(60,(performance.now()-run.at)/1000);
+   const duration=Math.min(60,(performance.now()-run.at)/1000);
    release(run);if(active===run)active=null;
-   if(run.bytes){blob=new Blob(run.chunks,{type:recorder.mimeType.split(';')[0]});published=false;showPreview();if(focusAfterClose){focusAfterClose=false;focusPreview();}void persist();}
-   else if(blob){showPreview();message(published?'Non se gravaron datos. A copia publicada segue na galería.':'Non se gravaron datos. Conservamos o borrador anterior.');}
+   if(run.bytes){
+    const clip={id:crypto.randomUUID(),blob:new Blob(run.chunks,{type:recorder.mimeType.split(';')[0]}),duration,published:false,url:null};
+    clips.push(clip);selected=clip.id;showSelected();if(focusAfterClose){focusAfterClose=false;focusPreview();}void persist().catch(()=>{});
+   }else if(clips.length){showSelected();message('Non se gravaron datos novos. Os vídeos anteriores seguen neste navegador.');}
    else message('Non se gravaron datos. Proba de novo.');
    run.chunks=[];controls();
   };
@@ -151,29 +179,39 @@ stop.addEventListener('click',finish);
 inlineRecord.addEventListener('click',()=>start.click());inlineStop.addEventListener('click',finish);
 consent.addEventListener('change',controls);
 discard.addEventListener('click',async()=>{
- if(uploading || restoring || storing || !blob || !window.confirm('Descartar o borrador deste navegador? Descárgao primeiro se queres conservalo.'))return;
+ const clip=current();
+ if(uploading || restoring || storing || !clip || !window.confirm('Descartar este vídeo deste navegador? Descárgao primeiro se queres conservalo. Os outros non se tocan.'))return;
  restoring=true;controls();
+ const wasPublished=clip.published;
+ clips=clips.filter(c=>c.id!==clip.id);
+ if(clip.url)URL.revokeObjectURL(clip.url);
+ selected=clips.at(-1)?.id||null;
  let deleteFailed=false;
- try{await draft('delete');storageSafe=true;}catch{deleteFailed=true;storageSafe=false;}
- const wasPublished=published;playback.pause();playback.removeAttribute('src');playback.load();URL.revokeObjectURL(objectURL);
- objectURL=null;blob=null;published=false;preview.hidden=true;consent.checked=false;download.removeAttribute('href');restoring=false;controls();
- message(deleteFailed?'Copia temporal descartada. O borrador gardado pode seguir neste navegador e reaparecer ao recargar; non se puido eliminar. As novas gravacións serán temporais.':wasPublished?'Copia local descartada. O vídeo segue na galería pública.':'Gravación descartada. Non se publicou nada.');
+ try{await persist();storageSafe=true;}catch{deleteFailed=true;storageSafe=false;}
+ showSelected();restoring=false;controls();
+ message(deleteFailed?'Copia temporal descartada. O borrador gardado pode seguir neste navegador e reaparecer ao recargar; non se puido actualizar o arquivo.':wasPublished?'Copia local deste vídeo descartada. Se o publicaches, segue na galería.':'Este vídeo descartouse. Os outros seguen neste navegador.');
 });
 window.addEventListener('live-simulator-reset',()=>{if(active)focusAfterClose=true;finish();});
 window.addEventListener('live-state-change',controls);
 window.liveRecorderState=()=>Boolean(active);
 window.addEventListener('pagehide',finish);
-window.addEventListener('beforeunload',e=>{if(active || (blob && !published)){e.preventDefault();e.returnValue='';}});
-(async()=>{try{const saved=await draft('get');storageSafe=true;if(saved?.blob){blob=saved.blob;duration=saved.duration;published=Boolean(saved.published);showPreview();message('Borrador recuperado deste navegador. Non se publica sen autorización.');}}catch{message('O almacenamento local non está dispoñible. Descarga as gravacións antes de pechar.');}finally{restoring=false;controls();}})();
+window.addEventListener('beforeunload',e=>{if(active || clips.some(c=>!c.published)){e.preventDefault();e.returnValue='';}});
+(async()=>{try{
+ const saved=await draft('get');storageSafe=true;
+ const recovered=Array.isArray(saved?.clips)?saved.clips.filter(c=>c?.blob):saved?.blob?[{id:'legacy',blob:saved.blob,duration:saved.duration,published:Boolean(saved.published),url:null}]:[];
+ if(recovered.length){clips=recovered.map(c=>({id:c.id||crypto.randomUUID(),blob:c.blob,duration:c.duration,published:Boolean(c.published),url:null}));selected=clips.at(-1).id;showSelected();message(clips.length>1?`${clips.length} vídeos recuperados neste navegador. Non se publica sen autorización.`:'Borrador recuperado deste navegador. Non se publica sen autorización.');}
+}catch{message('O almacenamento local non está dispoñible. Descarga as gravacións antes de pechar.');}finally{restoring=false;controls();}})();
 save.addEventListener('click',async()=>{
-  if(save.disabled)return;
+  const clip=current();
+  if(save.disabled||!clip)return;
   uploading=true;controls();message('Publicando vídeo… Non peches esta páxina.');
   try {
-    const pathname=`live-videos/${crypto.randomUUID()}.${blob.type==='video/mp4'?'mp4':'webm'}`;
-    await upload(pathname,blob,{access:'public',handleUploadUrl:'/api/videos',multipart:false,contentType:blob.type,clientPayload:JSON.stringify({consent:true,size:blob.size,duration,contentType:blob.type}),onUploadProgress:({percentage})=>message(`Publicando vídeo… ${Math.round(percentage)} %`)});
-    published=true;
-    await persist();
-    message('Vídeo publicado. Xa podes gravar outro; a copia pública segue na galería.');
+    const pathname=`live-videos/${crypto.randomUUID()}.${extFor(clip)}`;
+    await upload(pathname,clip.blob,{access:'public',handleUploadUrl:'/api/videos',multipart:false,contentType:clip.blob.type,clientPayload:JSON.stringify({consent:true,size:clip.blob.size,duration:clip.duration,contentType:clip.blob.type}),onUploadProgress:({percentage})=>message(`Publicando vídeo… ${Math.round(percentage)} %`)});
+    clip.published=true;
+    try{await persist();}catch{}
+    message('Vídeo publicado. Os outros borradores seguen neste navegador; podes gravar outro sen perder nada.');
+    renderList();
     await loadGallery(true);
   } catch {message('Non se puido publicar. Conservamos a gravación: podes descargar o vídeo ou volver tentar.');}
   finally{uploading=false;controls();}

@@ -978,7 +978,8 @@
             <button class="btn" id="live-record-btn" type="button">● Gravar vídeo</button>
             <button class="btn ghost" id="live-record-stop" type="button" disabled>■ Parar gravación</button>
           </div>
-          <p class="note" id="live-record-status" role="status" aria-live="polite">Inicia a simulación; despois podes gravar sen cambiar a cámara. O borrador gárdase neste navegador, non na galería pública.</p>
+          <p class="note" id="live-record-status" role="status" aria-live="polite">Inicia a simulación; despois podes gravar sen cambiar a cámara. Cada vídeo gárdase neste navegador. Non se perde ao gravar outro.</p>
+          <div id="live-record-drafts" hidden></div>
           <div id="live-record-preview" hidden>
             <video id="live-record-playback" controls playsinline preload="metadata" aria-label="Vista previa da gravación"></video>
             <label class="live-record-consent"><input type="checkbox" id="live-record-consent"> Autorizo publicar este vídeo e a súa voz na galería pública. Todas as persoas gravadas están de acordo; calquera coa ligazón poderá velo e descargalo.</label>
