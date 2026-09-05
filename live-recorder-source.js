@@ -9,7 +9,7 @@ const inlineRecord = $('live-inline-record-btn'), inlineStop = $('live-inline-re
 const MAX_BYTES = 50 * 1024 * 1024;
 const mime = typeof MediaRecorder !== 'undefined' && ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/mp4','video/webm'].find(t => MediaRecorder.isTypeSupported(t));
 const supported = Boolean(window.isSecureContext && navigator.mediaDevices?.getUserMedia && mime && HTMLCanvasElement.prototype.captureStream);
-let media, composite, recorder, timer, frame, generation = 0, blob, objectURL, duration = 0, recordingAt = 0, uploading = false, pending = false, published = false, leaving = false;
+let media, composite, recorder, timer, frame, generation = 0, blob, objectURL, duration = 0, recordingAt = 0, uploading = false, pending = false, published = false, leaving = false, stopping = false;
 const message = text => { status.textContent = text; };
 function controls() {
   start.disabled = !supported || pending || Boolean(recorder) || Boolean(blob) || uploading;
@@ -37,8 +37,10 @@ function clearPreview() {
 }
 function finish() {
   generation++; pending = false;
-  if (recorder?.state === 'recording') recorder.stop();
-  else if (!recorder) release();
+  if(recorder?.state === 'recording' && !stopping){
+    stopping = true;
+    try { recorder.stop(); } catch { stopping = false; recorder = null; release(); }
+  } else if(!recorder) release();
   controls();
 }
 function render(ctx, canvas) {
@@ -78,11 +80,13 @@ start.addEventListener('click',async()=>{
     const canvas=document.createElement('canvas');canvas.width=720;canvas.height=1280;
     render(canvas.getContext('2d'),canvas); composite=canvas.captureStream(24);
     stream.getAudioTracks().forEach(t=>composite.addTrack(t));
+    stopping=false;
     recorder=new MediaRecorder(composite,{mimeType:mime,videoBitsPerSecond:2500000,audioBitsPerSecond:128000});
     let chunks=[], bytes=0, failed=false;
     recorder.ondataavailable=e=>{if(e.data.size){bytes+=e.data.size;if(bytes>MAX_BYTES){failed=true;chunks=[];message('O vídeo supera 50 MB. Proba unha gravación máis curta.');finish();}else if(!failed)chunks.push(e.data);}};
     recorder.onerror=()=>{failed=true;message('Fallou a gravación. Proba de novo noutro navegador.');finish();};
     recorder.onstop=()=>{
+      stopping=false;
       duration=Math.min(60,(performance.now()-recordingAt)/1000); const type=recorder.mimeType.split(';')[0];
       recorder=null;pending=false;release();
       if(!failed && bytes>0 && !leaving){blob=new Blob(chunks,{type});objectURL=URL.createObjectURL(blob);playback.src=objectURL;preview.hidden=false;consent.checked=false;download.href=objectURL;download.download='directo-aaron.'+(type==='video/mp4'?'mp4':'webm');message('Vista previa lista. Podes descargar ou autorizar a publicación.');}
