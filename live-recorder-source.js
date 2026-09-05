@@ -13,9 +13,10 @@ const message=text=>{status.textContent=text+(blob?.size>MAX_BYTES?' O vídeo su
 // Simulator exclusively owns camera/video; recorder exclusively owns microphone/canvas.
 function controls(){
  const busy=Boolean(active);
- start.disabled=!supported || restoring || busy || Boolean(blob) || uploading || !window.liveSimulator.isLive;
+ const blockingDraft=Boolean(blob) && !published;
+ start.disabled=!supported || restoring || busy || blockingDraft || uploading || !window.liveSimulator.isLive;
  stop.disabled=!busy;
- inlineRecord.hidden=!window.liveSimulator.isLive || busy || Boolean(blob) || !supported;
+ inlineRecord.hidden=!window.liveSimulator.isLive || busy || blockingDraft || !supported;
  inlineRecord.disabled=start.disabled;
  inlineStop.hidden=!busy;
  save.disabled=!blob || blob.size>MAX_BYTES || !consent.checked || uploading || published || storing;
@@ -108,7 +109,7 @@ function render(ctx, canvas, run) {
 }
 start.addEventListener('click',async()=>{
  if(start.disabled)return;
- const run={id:++generation,chunks:[],bytes:0};active=run;controls();message('Preparando cámara e pedindo permiso de micrófono…');
+ const run={id:++generation,chunks:[],bytes:0};active=run;if(published)preview.hidden=true;controls();message('Preparando cámara e pedindo permiso de micrófono…');
  const valid=()=>active===run && run.id===generation && window.liveSimulator.isLive;
  try{
   const camera=await window.liveSimulator.camera();
@@ -155,7 +156,7 @@ window.addEventListener('live-simulator-reset',()=>{if(active)focusAfterClose=tr
 window.addEventListener('live-state-change',controls);
 window.liveRecorderState=()=>Boolean(active);
 window.addEventListener('pagehide',finish);
-window.addEventListener('beforeunload',e=>{if(active || blob){e.preventDefault();e.returnValue='';}});
+window.addEventListener('beforeunload',e=>{if(active || (blob && !published)){e.preventDefault();e.returnValue='';}});
 (async()=>{try{const saved=await draft('get');storageSafe=true;if(saved?.blob){blob=saved.blob;duration=saved.duration;published=Boolean(saved.published);showPreview();message('Borrador recuperado deste navegador. Non se publica sen autorización.');}}catch{message('O almacenamento local non está dispoñible. Descarga as gravacións antes de pechar.');}finally{restoring=false;controls();}})();
 save.addEventListener('click',async()=>{
   if(save.disabled)return;
@@ -165,7 +166,7 @@ save.addEventListener('click',async()=>{
     await upload(pathname,blob,{access:'public',handleUploadUrl:'/api/videos',multipart:false,contentType:blob.type,clientPayload:JSON.stringify({consent:true,size:blob.size,duration,contentType:blob.type}),onUploadProgress:({percentage})=>message(`Publicando vídeo… ${Math.round(percentage)} %`)});
     published=true;
     await persist();
-    message('Vídeo publicado. A copia local segue dispoñible para descargar.');
+    message('Vídeo publicado. Xa podes gravar outro; a copia pública segue na galería.');
     await loadGallery(true);
   } catch {message('Non se puido publicar. Conservamos a gravación: podes descargar o vídeo ou volver tentar.');}
   finally{uploading=false;controls();}

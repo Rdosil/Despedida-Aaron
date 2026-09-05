@@ -49,8 +49,6 @@ try {
  assert.equal(await page.locator('#live-record-save').isDisabled(),true,'published recording must not be submitted twice');
  await page.click('#live-video-more');await page.waitForFunction(()=>document.querySelectorAll('#live-video-gallery article').length===2);
  assert.equal(await page.locator('#live-video-more').isHidden(),true);
- await page.click('#live-record-discard');await page.waitForFunction(()=>document.querySelector('#live-record-preview').hidden);
- assert.match(await page.locator('#live-record-status').textContent(),/pública/);
  await page.click('#live-start-btn');await page.click('#live-inline-record-btn');await page.waitForFunction(()=>document.querySelector('#live-record-status').textContent.includes('Gravando'));
  await page.evaluate(()=>{if(document.fullscreenElement) return document.exitFullscreen();});
  await page.waitForTimeout(500);await page.click('#live-inline-record-stop');await page.waitForFunction(()=>!document.querySelector('#live-record-preview').hidden);
