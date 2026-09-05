@@ -1,4 +1,4 @@
-# Despedida Aarón
+# Aarón e Lucía · a voda
 
 Sitio estático con persistencia pública de fotos en Vercel Blob.
 
