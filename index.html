@@ -484,13 +484,13 @@
 
       <article class="card wedding-verdict">
         <div class="wedding-label">Xulgado popular</div>
-        <h3>Cinema ou delito?</h3>
+        <h3>Xenialidade ou delito?</h3>
         <p class="wedding-scenario" id="wedding-scenario" aria-live="polite">Entrar na barra libre con gafas de sol ás dez da noite.</p>
         <div class="wedding-votes">
-          <button class="wedding-vote" data-wedding-vote="cinema" type="button">🎬 Cinema</button>
+          <button class="wedding-vote" data-wedding-vote="cinema" type="button">🏆 Xenialidade</button>
           <button class="wedding-vote" data-wedding-vote="delito" type="button">🚨 Delito</button>
         </div>
-        <div class="wedding-vote-score" id="wedding-vote-score" aria-live="polite">0 cinema · 0 delitos</div>
+        <div class="wedding-vote-score" id="wedding-vote-score" aria-live="polite">0 xenialidades · 0 delitos</div>
       </article>
 
       <article class="wedding-bingo">
@@ -1259,7 +1259,7 @@
     'Entrega verbalmente +1000 de aura á mellor entrada da noite e xustifica o veredicto.',
     'Fai unha foto de portada de disco con outras tres persoas sen sorrir.',
     'Consegue que alguén maior che ensine un paso de baile e úsao máis tarde na pista.',
-    'Forma un comité de tres persoas para decidir cal foi o momento máis cinema da noite.'
+    'Forma un comité de tres persoas para decidir cal foi o momentazo da noite.'
   ];
   const weddingScenarios = [
     'Entrar na barra libre con gafas de sol ás dez da noite.',
@@ -1298,7 +1298,7 @@
     button.addEventListener('click', () => {
       const vote = button.dataset.weddingVote;
       weddingVotes[vote] += 1;
-      weddingVoteScore.textContent = `${weddingVotes.cinema} cinema · ${weddingVotes.delito} delitos`;
+      weddingVoteScore.textContent = `${weddingVotes.cinema} xenialidades · ${weddingVotes.delito} delitos`;
       weddingScenarioIndex = (weddingScenarioIndex + 1) % weddingScenarios.length;
       weddingScenario.textContent = weddingScenarios[weddingScenarioIndex];
     });
