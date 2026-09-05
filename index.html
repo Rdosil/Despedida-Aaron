@@ -303,7 +303,9 @@
   .live-hint{position:absolute;left:50%;top:28%;transform:translateX(-50%);padding:10px 14px;border-radius:999px;background:rgba(10,10,16,.52);color:#fff;font-size:12px;letter-spacing:.08em;text-transform:uppercase;border:1px solid rgba(255,255,255,.1);backdrop-filter:blur(12px);z-index:3;opacity:0;pointer-events:none;transition:opacity .25s ease}
   .live-hint.visible{opacity:1}
   .live-heart-col{position:absolute;right:18px;bottom:112px;display:grid;gap:12px;justify-items:center;z-index:3;transition:opacity .25s ease,transform .25s ease}
-  .live-heart-btn{width:58px;height:58px;border-radius:50%;border:1px solid rgba(255,255,255,.12);background:rgba(10,10,16,.42);backdrop-filter:blur(8px);display:flex;align-items:center;justify-content:center;color:#fff;font-size:25px;box-shadow:0 8px 18px rgba(0,0,0,.28);cursor:pointer}
+  .live-record-inline{border:1px solid rgba(255,255,255,.18);background:#e62962;color:#fff;border-radius:999px;padding:9px 12px;font:700 12px 'Barlow Condensed',sans-serif;text-transform:uppercase;letter-spacing:.05em;cursor:pointer;box-shadow:0 8px 18px rgba(0,0,0,.28)}
+  .live-record-inline.stop{background:#fff;color:#17150f}
+  .live-record-inline[hidden]{display:none}
   .live-floating-hearts,.live-pop-layer{pointer-events:none;z-index:2}
   .live-heart{position:absolute;right:24px;bottom:108px;font-size:24px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.28));animation:heartFloat var(--dur,3s) ease-in forwards;opacity:0;transform:translateY(0) scale(.55)}
   .live-pop{position:absolute;font-family:'Anton',sans-serif;font-size:32px;color:#fff;animation:popFloat 1.2s ease forwards;text-shadow:0 10px 25px rgba(0,0,0,.35)}
@@ -1021,6 +1023,8 @@
           <div class="live-hint" id="live-hint">Toca dúas veces para ❤️ · desliza ↓ para ocultar interface</div>
 
           <div class="live-heart-col" id="live-heart-col">
+            <button class="live-record-inline" id="live-inline-record-btn" type="button">● Gravar</button>
+            <button class="live-record-inline stop" id="live-inline-record-stop" type="button" hidden>■ Parar</button>
             <button class="live-heart-btn" id="live-like-btn" type="button">❤</button>
             <button class="live-icon-btn secondary" id="live-toggle-ui-btn" type="button">⇵</button>
             <button class="live-icon-btn secondary" id="live-pause-btn" type="button">❚❚</button>

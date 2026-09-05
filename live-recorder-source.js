@@ -5,6 +5,7 @@ const start = $('live-record-btn'), stop = $('live-record-stop'), status = $('li
 const preview = $('live-record-preview'), playback = $('live-record-playback');
 const save = $('live-record-save'), discard = $('live-record-discard'), consent = $('live-record-consent');
 const download = $('live-record-download'), video = $('live-video');
+const inlineRecord = $('live-inline-record-btn'), inlineStop = $('live-inline-record-stop');
 const MAX_BYTES = 50 * 1024 * 1024;
 const mime = typeof MediaRecorder !== 'undefined' && ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/mp4','video/webm'].find(t => MediaRecorder.isTypeSupported(t));
 const supported = Boolean(window.isSecureContext && navigator.mediaDevices?.getUserMedia && mime && HTMLCanvasElement.prototype.captureStream);
@@ -15,6 +16,9 @@ function controls() {
   stop.disabled = !pending && !recorder;
   save.disabled = !blob || !consent.checked || uploading || published;
   discard.disabled = uploading; consent.disabled = uploading;
+  inlineRecord.hidden = !supported || pending || Boolean(recorder) || Boolean(blob) || uploading;
+  inlineRecord.disabled = !supported || Boolean(blob) || uploading;
+  inlineStop.hidden = !pending && !recorder;
   for (const id of ['live-start-btn','live-camera-toggle']) if ($(id)) $(id).disabled = pending || Boolean(recorder);
 }
 function release(stream = media, canvasStream = composite, clearPreviewSource = true) {
@@ -95,6 +99,8 @@ start.addEventListener('click',async()=>{
   }
 });
 stop.addEventListener('click',finish);
+inlineRecord.addEventListener('click',()=>start.click());
+inlineStop.addEventListener('click',()=>stop.click());
 consent.addEventListener('change',controls);
 discard.addEventListener('click',()=>{if(!uploading){const wasPublished=published;clearPreview();message(wasPublished?'Copia local descartada. O vídeo segue na galería pública.':'Gravación descartada. Non se publicou nada.');}});
 window.addEventListener('live-simulator-reset',finish);

@@ -15,8 +15,7 @@ try {
  await page.addInitScript(()=>{window.mediaTracks=[];const original=navigator.mediaDevices.getUserMedia.bind(navigator.mediaDevices);navigator.mediaDevices.getUserMedia=async c=>{const s=await original(c);window.mediaTracks.push(...s.getTracks());return s;};});
  await page.addInitScript(()=>{window.drawn=[];const f=CanvasRenderingContext2D.prototype.fillText;CanvasRenderingContext2D.prototype.fillText=function(text,...args){window.drawn.push(String(text));return f.call(this,text,...args);};});
  await page.goto(`http://127.0.0.1:${server.address().port}`);
- assert.equal(await page.locator('#live-record-btn').count(),1,'record control must exist');
- await page.click('#live-record-btn');
+ await page.click('#live-inline-record-btn');
  await page.waitForFunction(()=>document.querySelector('#live-record-status').textContent.includes('Gravando'));
  const chatBox=await page.locator('#live-comments').boundingBox();
  assert.ok(chatBox && chatBox.height <= 150,'comments must stay compact');
