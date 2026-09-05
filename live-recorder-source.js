@@ -70,7 +70,7 @@ start.addEventListener('click',async()=>{
   pending=true; const request=++generation; controls(); message('Pedindo permiso de cámara e micrófono…');
   window.liveSimulator.stopCamera();
   try {
-    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:720},height:{ideal:1280}},audio:true});
+    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:720,max:1080},height:{ideal:1280,max:1920},aspectRatio:{ideal:9/16}},audio:true});
     if(request!==generation){stream.getTracks().forEach(t=>t.stop());return;}
     media=stream;
     if(!stream.getAudioTracks().length || !stream.getVideoTracks().length) throw Error('missing tracks');

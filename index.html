@@ -1609,7 +1609,7 @@
         return;
       }
       try{
-        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user', width: { ideal: 720 }, height: { ideal: 1280 }, aspectRatio: { ideal: 9 / 16 } }, audio: false });
         if(request !== cameraRequest || !state.isLive){ stream.getTracks().forEach(track => track.stop()); return; }
         state.stream = stream;
         liveVideo.srcObject = state.stream;
@@ -1736,7 +1736,6 @@
       liveCloseBtn.addEventListener('click', async (event)=>{
         event.preventDefault(); event.stopPropagation();
         if(window.liveRecorderState?.()){
-          window.dispatchEvent(new Event('live-close-request'));
           reset();
           void leaveFullscreen();
           return;
