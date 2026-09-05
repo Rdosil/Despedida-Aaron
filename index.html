@@ -308,11 +308,11 @@
   .live-heart{position:absolute;right:24px;bottom:108px;font-size:24px;filter:drop-shadow(0 6px 8px rgba(0,0,0,.28));animation:heartFloat var(--dur,3s) ease-in forwards;opacity:0;transform:translateY(0) scale(.55)}
   .live-pop{position:absolute;font-family:'Anton',sans-serif;font-size:32px;color:#fff;animation:popFloat 1.2s ease forwards;text-shadow:0 10px 25px rgba(0,0,0,.35)}
   .live-bottom{position:absolute;left:16px;right:16px;bottom:14px;z-index:3;color:#fff;transition:opacity .25s ease,transform .25s ease}
-  .live-comments{display:grid;gap:8px;max-width:82%}
-  .live-comment{display:flex;align-items:flex-start;gap:9px;background:rgba(10,10,16,.45);backdrop-filter:blur(10px);padding:8px 11px;border-radius:18px;border:1px solid rgba(255,255,255,.08);font-size:13px;line-height:1.35;box-shadow:0 8px 20px rgba(0,0,0,.2)}
+  .live-comments{display:grid;gap:8px;max-width:min(82%,430px);max-height:148px;overflow:hidden;align-content:end}
+  .live-comment{display:flex;align-items:flex-start;gap:9px;max-height:43px;overflow:hidden;background:rgba(10,10,16,.45);backdrop-filter:blur(10px);padding:7px 10px;border-radius:14px;border:1px solid rgba(255,255,255,.08);font-size:13px;line-height:1.25;box-shadow:0 8px 20px rgba(0,0,0,.2)}
   .live-comment.mine{background:rgba(31,95,196,.36)}
-  .live-comment .bubble{min-width:0}
-  .live-comment .avatar{width:28px;height:28px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.14);font-family:'Anton',sans-serif;font-size:14px;flex:none}
+  .live-comment .bubble{min-width:0;overflow:hidden;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+  .live-comment .avatar{width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;background:rgba(255,255,255,.14);font-family:'Anton',sans-serif;font-size:13px;flex:none}
   .live-pinned{display:inline-flex;align-items:center;gap:8px;margin-top:12px;padding:8px 12px;border-radius:999px;background:rgba(245,190,54,.18);border:1px solid rgba(255,217,128,.4);backdrop-filter:blur(10px);font-size:12px;color:#fff;max-width:88%}
   .live-pinned strong{font-family:'Barlow Condensed',sans-serif;letter-spacing:.08em;text-transform:uppercase}
   .live-composer{margin-top:12px;display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:999px;background:rgba(10,10,16,.54);border:1px solid rgba(255,255,255,.08);backdrop-filter:blur(10px);box-shadow:0 8px 20px rgba(0,0,0,.22)}
@@ -1517,7 +1517,7 @@
       card.append(avatar, bubble);
       liveComments.appendChild(card);
       state.comments.push(card);
-      while(state.comments.length > 7){ const first = state.comments.shift(); first.remove(); }
+      while(state.comments.length > 4){ const first = state.comments.shift(); first.remove(); }
     }
     function seedComments(){
       liveComments.innerHTML = '';

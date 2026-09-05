@@ -18,6 +18,11 @@ try {
  assert.equal(await page.locator('#live-record-btn').count(),1,'record control must exist');
  await page.click('#live-record-btn');
  await page.waitForFunction(()=>document.querySelector('#live-record-status').textContent.includes('Gravando'));
+ const chatBox=await page.locator('#live-comments').boundingBox();
+ assert.ok(chatBox && chatBox.height <= 150,'comments must stay compact');
+ assert.ok(await page.locator('#live-composer-input').isVisible(),'composer must remain usable');
+ assert.equal(await page.locator('#live-send-btn').isEnabled(),true);
+ assert.equal(await page.evaluate(()=>document.querySelector('#live-comments').scrollHeight <= 150),true);
  assert.equal(await page.evaluate(()=>mediaTracks.filter(t=>t.readyState==='live'&&t.kind==='audio').length),1);
  await page.fill('#live-composer-input','Comentario de proba');await page.click('#live-send-btn');await page.click('#live-like-btn');
  await page.waitForTimeout(1800);await page.click('#live-record-stop');
