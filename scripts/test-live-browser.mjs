@@ -27,6 +27,7 @@ try {
  await page.fill('#live-composer-input','Comentario de proba');await page.click('#live-send-btn');await page.click('#live-like-btn');
  await page.waitForTimeout(1800);await page.click('#live-close-btn');
  await page.waitForFunction(()=>!document.querySelector('#live-record-preview').hidden);
+ assert.equal(await page.locator('#live-mode-state').textContent(),'DEMO','closing must stop the live simulator');
  const result=await page.evaluate(async()=>{const v=document.querySelector('#live-record-playback');await v.play();return {size:(await(await fetch(v.src)).blob()).size,width:v.videoWidth,height:v.videoHeight,tracks:mediaTracks.map(t=>t.readyState)};});
  assert.ok(result.size>1000);assert.equal(result.width,720);assert.equal(result.height,1280);assert.ok(result.tracks.every(s=>s==='ended'));
  assert.equal(await page.locator('#live-record-save').isDisabled(),true);
