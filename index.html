@@ -963,6 +963,24 @@
           <button class="btn ghost" id="live-reset-btn" type="button">↺ Reiniciar</button>
         </div>
         <p class="note live-note" id="live-status">Ao iniciar, intentaremos pedir cámara e fullscreen se o navegador o permite.</p>
+        <div class="live-record-tools">
+          <h3>Grava o directo</h3>
+          <p>Cámara + micrófono, comentarios e corazóns nun vídeo vertical. Máximo 60 segundos / 50 MB. Non é unha emisión real: nada se publica ata que o autorices.</p>
+          <div class="live-config-actions">
+            <button class="btn" id="live-record-btn" type="button">● Gravar vídeo</button>
+            <button class="btn ghost" id="live-record-stop" type="button" disabled>■ Parar gravación</button>
+          </div>
+          <p class="note" id="live-record-status" role="status" aria-live="polite">A gravación pedirá permiso de cámara e micrófono.</p>
+          <div id="live-record-preview" hidden>
+            <video id="live-record-playback" controls playsinline preload="metadata" aria-label="Vista previa da gravación"></video>
+            <label class="live-record-consent"><input type="checkbox" id="live-record-consent"> Autorizo publicar este vídeo e a súa voz na galería pública. Todas as persoas gravadas están de acordo; calquera coa ligazón poderá velo e descargalo.</label>
+            <div class="live-config-actions">
+              <button class="btn" id="live-record-save" type="button" disabled>Publicar na galería</button>
+              <a class="btn ghost" id="live-record-download">Descargar vídeo</a>
+              <button class="btn ghost" id="live-record-discard" type="button">Descartar</button>
+            </div>
+          </div>
+        </div>
       </div>
 
       <div class="live-stage faithful" id="live-stage">
@@ -1064,6 +1082,17 @@
     </div>
   </div>
 </section>
+
+<section id="videos"><div class="wrap">
+  <div class="eyebrow">O arquivo do comité</div>
+  <h2 class="sec-title">Directos <span class="b">gravados</span></h2>
+  <p>Vídeos públicos compartidos co permiso das persoas gravadas.</p>
+  <div id="live-video-gallery" class="live-video-gallery"></div>
+  <p id="live-video-gallery-status" role="status"></p>
+  <button class="btn ghost" id="live-video-more" type="button">Cargar vídeos</button>
+</div></section>
+<link rel="stylesheet" href="live-recorder.css">
+<script type="module" src="live-recorder.js"></script>
 
 <!-- FOTOS -->
 <section id="fotos">
@@ -1483,7 +1512,8 @@
       if(mine){ avatar.style.color = '#fff'; avatar.style.background = 'rgba(255,255,255,.18)'; }
       const bubble = document.createElement('div');
       bubble.className = 'bubble';
-      bubble.innerHTML = `<b>${handle}</b> ${text}`;
+      const name = document.createElement('b'); name.textContent = handle;
+      bubble.append(name, document.createTextNode(` ${text}`));
       card.append(avatar, bubble);
       liveComments.appendChild(card);
       state.comments.push(card);
@@ -1556,7 +1586,10 @@
       schedule(loopViewer, rand(1400, 2600));
     }
     function loopEvent(){ spawnToast(); }
+    let cameraRequest = 0;
     async function requestCamera(){
+      stopCamera();
+      const request = ++cameraRequest;
       if(!state.settings.camera){
         liveVideo.classList.remove('active');
         livePlaceholder.style.display = 'block';
@@ -1571,7 +1604,9 @@
         return;
       }
       try{
-        state.stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+        const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode: 'user' }, audio: false });
+        if(request !== cameraRequest || !state.isLive){ stream.getTracks().forEach(track => track.stop()); return; }
+        state.stream = stream;
         liveVideo.srcObject = state.stream;
         liveVideo.classList.add('active');
         livePlaceholder.style.display = 'none';
@@ -1585,6 +1620,7 @@
       }
     }
     function stopCamera(){
+      cameraRequest++;
       if(state.stream){ state.stream.getTracks().forEach(track => track.stop()); state.stream = null; }
       liveVideo.srcObject = null;
       liveVideo.classList.remove('active');
@@ -1608,7 +1644,7 @@
       liveShell.classList.toggle('chrome-hidden', state.chromeHidden);
     }
     function startLoops(){ schedule(loopComment, 1500); schedule(loopHeart, 900); schedule(loopViewer, 1200); schedule(loopEvent, 2200); }
-    async function start(){
+    async function start(options = {}){
       updateMeta();
       clearTimers();
       state.isLive = true;
@@ -1626,11 +1662,11 @@
       toggleChrome(false);
       showHint();
       setStatus('Iniciando simulación… pedindo fullscreen e cámara se están activados.');
-      await goFullscreen();
-      await requestCamera();
-      startLoops();
+      if(!options.recording){ await goFullscreen(); if(state.isLive) await requestCamera(); }
+      if(state.isLive) startLoops();
     }
     function reset(){
+      window.dispatchEvent(new Event('live-simulator-reset'));
       clearTimers();
       state.isLive = false;
       state.paused = false;
@@ -1704,10 +1740,12 @@
       seedComments();
       setFullscreenLabel();
     }
-    return { bind, reset, start };
+    window.addEventListener('pagehide', reset);
+    return { bind, reset, start, stopCamera };
   })();
 
   liveSim.bind();
+  window.liveSimulator = liveSim;
 
   function quoteCard(item){
     const id = escapeHtml(item.id || '');

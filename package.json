@@ -7,10 +7,15 @@
     "@vercel/blob": "^1.1.1"
   },
   "devDependencies": {
+    "@playwright/test": "^1.63.0",
+    "esbuild": "^0.28.2",
     "jsdom": "^26.1.0"
   },
   "scripts": {
-    "test": "npm run test:persistence && npm run test:wedding",
+    "build": "esbuild live-recorder-source.js --bundle --format=esm --minify --outfile=live-recorder.js",
+    "test:videos": "node scripts/test-videos.mjs",
+    "test:live": "npm run build && node scripts/test-live-browser.mjs",
+    "test": "npm run test:persistence && npm run test:wedding && npm run test:videos && npm run test:live",
     "test:persistence": "node scripts/test-photo-persistence.mjs",
     "test:wedding": "node scripts/test-wedding-section.mjs"
   }

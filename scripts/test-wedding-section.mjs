@@ -38,7 +38,7 @@ assert.notEqual(missionOutput.textContent, missionBefore, 'o xerador debe asigna
 
 const cinemaButton = document.querySelector('[data-wedding-vote="cinema"]');
 cinemaButton.click();
-assert.match(document.querySelector('#wedding-vote-score').textContent, /1 cinema/i);
+assert.match(document.querySelector('#wedding-vote-score').textContent, /1 Xenialidade/i);
 
 const bingoCell = document.querySelector('.wedding-bingo-cell');
 bingoCell.click();
