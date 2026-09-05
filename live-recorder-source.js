@@ -98,6 +98,8 @@ stop.addEventListener('click',finish);
 consent.addEventListener('change',controls);
 discard.addEventListener('click',()=>{if(!uploading){const wasPublished=published;clearPreview();message(wasPublished?'Copia local descartada. O vídeo segue na galería pública.':'Gravación descartada. Non se publicou nada.');}});
 window.addEventListener('live-simulator-reset',finish);
+window.addEventListener('live-close-request',()=>{if(recorder || pending) finish();});
+window.liveRecorderState=()=>Boolean(recorder || pending);
 window.addEventListener('pageshow',()=>{leaving=false;});
 window.addEventListener('pagehide',()=>{leaving=true;finish();if(objectURL)URL.revokeObjectURL(objectURL);});
 document.addEventListener('visibilitychange',()=>{if(document.hidden && (pending||recorder))finish();});

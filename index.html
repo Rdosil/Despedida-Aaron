@@ -334,6 +334,7 @@
   .live-stat .sub{margin-top:6px;font-size:13px;color:var(--ink-soft)}
   .live-cta{display:flex;flex-wrap:wrap;gap:10px;margin-top:18px}
   .live-shell.is-live .live-config{border-color:var(--blue)}
+  .live-shell.simulator-closed .live-stage{display:none}
   @keyframes liveScan{0%{transform:translateY(-18%)}100%{transform:translateY(122%)}}
   @keyframes heartFloat{0%{opacity:0;transform:translateY(0) translateX(0) scale(.55)}15%{opacity:1}100%{opacity:0;transform:translateY(-230px) translateX(var(--dx,0px)) scale(1.12)}}
   @keyframes popFloat{0%{opacity:0;transform:translate(-50%,0) scale(.7)}20%{opacity:1}100%{opacity:0;transform:translate(-50%,-90px) scale(1.05)}}
@@ -1645,6 +1646,7 @@
     }
     function startLoops(){ schedule(loopComment, 1500); schedule(loopHeart, 900); schedule(loopViewer, 1200); schedule(loopEvent, 2200); }
     async function start(options = {}){
+      liveShell.classList.remove('simulator-closed');
       updateMeta();
       clearTimers();
       state.isLive = true;
@@ -1727,7 +1729,15 @@
       liveResetBtn.addEventListener('click', reset);
       liveFullscreenBtn.addEventListener('click', goFullscreen);
       liveFullscreenFab.addEventListener('click', goFullscreen);
-      liveCloseBtn.addEventListener('click', async (event)=>{ event.preventDefault(); event.stopPropagation(); reset(); await leaveFullscreen(); });
+      liveCloseBtn.addEventListener('click', async (event)=>{
+        event.preventDefault(); event.stopPropagation();
+        if(window.liveRecorderState?.()){
+          window.dispatchEvent(new Event('live-close-request'));
+          await leaveFullscreen();
+          return;
+        }
+        reset(); liveShell.classList.add('simulator-closed'); await leaveFullscreen();
+      });
       liveToggleUiBtn.addEventListener('click', ()=> toggleChrome());
       livePauseBtn.addEventListener('click', togglePause);
       liveLikeBtn.addEventListener('click', ()=> pulseLike(liveFrame.clientWidth - 60, liveFrame.clientHeight - 150));

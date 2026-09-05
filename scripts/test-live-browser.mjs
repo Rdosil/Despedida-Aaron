@@ -25,7 +25,7 @@ try {
  assert.equal(await page.evaluate(()=>document.querySelector('#live-comments').scrollHeight <= 150),true);
  assert.equal(await page.evaluate(()=>mediaTracks.filter(t=>t.readyState==='live'&&t.kind==='audio').length),1);
  await page.fill('#live-composer-input','Comentario de proba');await page.click('#live-send-btn');await page.click('#live-like-btn');
- await page.waitForTimeout(1800);await page.click('#live-record-stop');
+ await page.waitForTimeout(1800);await page.click('#live-close-btn');
  await page.waitForFunction(()=>!document.querySelector('#live-record-preview').hidden);
  const result=await page.evaluate(async()=>{const v=document.querySelector('#live-record-playback');await v.play();return {size:(await(await fetch(v.src)).blob()).size,width:v.videoWidth,height:v.videoHeight,tracks:mediaTracks.map(t=>t.readyState)};});
  assert.ok(result.size>1000);assert.equal(result.width,720);assert.equal(result.height,1280);assert.ok(result.tracks.every(s=>s==='ended'));
