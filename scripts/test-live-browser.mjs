@@ -50,6 +50,11 @@ try {
  assert.equal(await page.locator('#live-video-more').isHidden(),true);
  await page.click('#live-record-discard');assert.equal(await page.locator('#live-record-preview').isHidden(),true);
  assert.match(await page.locator('#live-record-status').textContent(),/pública/);
+ await page.click('#live-close-btn');
+ await page.click('#live-record-btn');await page.waitForFunction(()=>document.querySelector('#live-record-status').textContent.includes('Gravando'));
+ await page.waitForTimeout(500);await page.click('#live-record-stop');await page.waitForFunction(()=>!document.querySelector('#live-record-preview').hidden);
+ await page.click('#live-record-discard');
+ assert.equal(await page.locator('#live-record-btn').isEnabled(),true,'recording must restart after leaving live');
  console.log('direct SDK upload mock, duplicate prevention and gallery pagination ok');
  await page.click('#live-record-btn');await page.waitForFunction(()=>document.querySelector('#live-record-status').textContent.includes('Gravando'));await page.click('#live-reset-btn');
  await page.waitForFunction(()=>mediaTracks.every(t=>t.readyState==='ended'));

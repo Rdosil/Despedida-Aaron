@@ -45,7 +45,7 @@ function render(ctx, canvas) {
   const w = canvas.width, h = canvas.height;
   ctx.fillStyle = '#171322'; ctx.fillRect(0,0,w,h);
   if (video.videoWidth) {
-    const scale = Math.max(w/video.videoWidth,h/video.videoHeight);
+    const scale = Math.min(w/video.videoWidth,h/video.videoHeight);
     ctx.save(); ctx.translate(w,0); ctx.scale(-1,1);
     ctx.drawImage(video,(w-video.videoWidth*scale)/2,(h-video.videoHeight*scale)/2,video.videoWidth*scale,video.videoHeight*scale); ctx.restore();
   }
