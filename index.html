@@ -262,7 +262,9 @@
   .live-stage.faithful{padding:16px;background:linear-gradient(180deg,#1f1b2d 0%,#0e0d15 100%)}
   .live-frame{position:relative;aspect-ratio:9/16;max-height:780px;min-height:540px;border:3px solid rgba(255,255,255,.12);border-radius:28px;overflow:hidden;background:linear-gradient(135deg,#2c2b35 0%,#0d0d14 50%,#21243b 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
   .live-frame.faithful{background:#08080d;touch-action:pan-y pinch-zoom;user-select:none;outline:none}
-  .live-frame.faithful:fullscreen,.live-frame.faithful:-webkit-full-screen{width:100%;height:100%;min-height:0;max-height:none;aspect-ratio:auto;border:0;border-radius:0;box-sizing:border-box;touch-action:none}
+  .live-frame.faithful:fullscreen,.live-frame.faithful:-webkit-full-screen,.live-frame.faithful.immersive{width:100%;height:100%;min-height:0;max-height:none;aspect-ratio:auto;border:0;border-radius:0;box-sizing:border-box;touch-action:none}
+  .live-frame.faithful.immersive{position:fixed;inset:0;z-index:80}
+  body.live-immersive{overflow:hidden;overscroll-behavior:none}
   .live-heart-btn{width:48px;height:48px;border-radius:50%;border:1px solid #ffffff55;background:#e62962;color:#fff;font-size:25px;display:grid;place-items:center;cursor:pointer}
   .live-scan{pointer-events:none}
   .live-video,.live-placeholder,.live-bg,.live-noise,.live-overlay,.live-scan,.live-floating-hearts,.live-pop-layer{position:absolute;inset:0}
@@ -1501,7 +1503,7 @@
     function setMode(mode){ liveModeState.textContent = mode; }
     function setPauseUI(){ livePauseBtn.textContent = state.paused ? '▶' : '❚❚'; }
     function setFullscreenLabel(){
-      const on = !!document.fullscreenElement;
+      const on = liveFrame.classList.contains('immersive') || !!document.fullscreenElement || !!document.webkitFullscreenElement;
       liveFullscreenState.textContent = on ? 'FULL' : 'AUTO';
     }
     function showHint(){
@@ -1637,20 +1639,41 @@
       liveVideo.srcObject = null;
       liveVideo.classList.remove('active');
     }
+    function enterImmersive(){
+      liveShell.classList.remove('simulator-closed');
+      liveFrame.classList.add('immersive');
+      document.body.classList.add('live-immersive');
+      setFullscreenLabel();
+    }
+    function nativeFullscreenElement(){
+      return document.fullscreenElement || document.webkitFullscreenElement || null;
+    }
     async function goFullscreen(){
+      enterImmersive();
       const current = session;
       try{
         const el = liveFrame;
         const req = el.requestFullscreen || el.webkitRequestFullscreen || el.webkitRequestFullScreen;
-        if(req && !document.fullscreenElement){ await req.call(el); if(current !== session){ await leaveFullscreen(); return; } setStatus('Pantalla completa activada.'); }
+        if(req && !nativeFullscreenElement()){
+          await req.call(el);
+          if(current !== session){ await leaveFullscreen(); return; }
+        }
       }catch(err){
         if(current !== session) return;
-        setStatus('O navegador bloqueou o fullscreen automático. Usa o botón ⛶.');
       }
       setFullscreenLabel();
     }
     async function leaveFullscreen(){
-      try{ if(document.fullscreenElement) await document.exitFullscreen(); }catch(err){}
+      try{
+        const exit = document.exitFullscreen || document.webkitExitFullscreen;
+        if(nativeFullscreenElement() && exit) await exit.call(document);
+      }catch(err){}
+      setFullscreenLabel();
+    }
+    function leaveImmersive(){
+      liveFrame.classList.remove('immersive');
+      document.body.classList.remove('live-immersive');
+      void leaveFullscreen();
       setFullscreenLabel();
     }
     function toggleChrome(force){
@@ -1678,9 +1701,9 @@
       setPauseUI();
       toggleChrome(false);
       showHint();
-      setStatus('Iniciando simulación… pedindo fullscreen e cámara se están activados.');
+      setStatus('Iniciando simulación… pedindo cámara se está activada.');
       startLoops();
-      void goFullscreen();
+      enterImmersive();
       cameraReady = requestCamera();
       window.dispatchEvent(new Event('live-state-change'));
       await cameraReady;
@@ -1707,7 +1730,7 @@
       liveCameraState.textContent = liveCameraToggle.checked ? 'ON' : 'OFF';
       setPauseUI();
       setStatus('Simulador reiniciado. Ao iniciar, tentaremos pedir cámara e fullscreen se o navegador o permite.');
-      void leaveFullscreen();
+      leaveImmersive();
       window.dispatchEvent(new Event('live-state-change'));
     }
     function togglePause(){
@@ -1768,7 +1791,8 @@
       liveFrame.addEventListener('pointerdown', onPointerDown);
       liveFrame.addEventListener('pointerup', onPointerUp);
       liveFrame.addEventListener('pointercancel', ()=>{ state.gesture = null; });
-      document.addEventListener('fullscreenchange', setFullscreenLabel);
+      document.addEventListener('fullscreenchange', ()=>{ if(state.isLive && !nativeFullscreenElement()) enterImmersive(); setFullscreenLabel(); });
+      document.addEventListener('webkitfullscreenchange', ()=>{ if(state.isLive && !nativeFullscreenElement()) enterImmersive(); setFullscreenLabel(); });
       updateMeta();
       seedComments();
       setFullscreenLabel();

@@ -56,10 +56,32 @@ try {
  await page.waitForFunction(()=>!document.querySelector('#live-record-preview').hidden);
  assert.ok(await page.locator('#live-record-download').getAttribute('href'),'draft restored after reload');
  await page.click('#live-record-discard');await page.waitForFunction(()=>document.querySelector('#live-record-preview').hidden);
- // Repeated real fullscreen sessions; X while recording, not only after stopping.
+ // CSS immersive must fill the viewport even when the Fullscreen API rejects (Chrome after a camera+FS race).
+ {
+  const p=await browser.newPage({viewport:{width:390,height:844},isMobile:true,hasTouch:true});
+  p.on('dialog',d=>d.accept());
+  await p.addInitScript(()=>{
+   HTMLElement.prototype.requestFullscreen=async()=>{throw Object.assign(new Error('denied'),{name:'NotAllowedError'});};
+   HTMLElement.prototype.webkitRequestFullscreen=HTMLElement.prototype.requestFullscreen;
+  });
+  await p.goto(`http://127.0.0.1:${server.address().port}`);
+  await p.click('#live-start-btn');
+  await p.waitForFunction(()=>document.querySelector('#live-frame').classList.contains('immersive'));
+  assert.equal(await p.evaluate(()=>Math.round(document.querySelector('#live-frame').getBoundingClientRect().height)),844,'live must fill the screen without native fullscreen');
+  assert.equal(await p.evaluate(()=>document.fullscreenElement),null);
+  await p.click('#live-close-btn');
+  await p.waitForFunction(()=>!document.querySelector('#live-frame').classList.contains('immersive') && document.getElementById('live-shell').classList.contains('simulator-closed'));
+  assert.equal(await p.evaluate(()=>getComputedStyle(document.body).overflow!=='hidden' || document.body.classList.contains('live-immersive')===false),true);
+  await p.click('#live-fullscreen-btn');
+  await p.waitForFunction(()=>document.querySelector('#live-frame').classList.contains('immersive') && !document.getElementById('live-shell').classList.contains('simulator-closed'));
+  assert.equal(await p.evaluate(()=>getComputedStyle(document.querySelector('#live-stage')).display!=='none'),true,'fullscreen must unhide the stage after X');
+  await p.click('#live-close-btn');
+  await p.close();
+ }
+ // Repeated immersive sessions; X while recording, not only after stopping.
  for(let i=0;i<2;i++){
-  await page.click('#live-start-btn');await page.waitForFunction(()=>document.fullscreenElement?.id==='live-frame');
-  assert.equal(await page.evaluate(()=>document.querySelector('#live-frame').getBoundingClientRect().height),await page.evaluate(()=>innerHeight),'fullscreen fills mobile viewport');
+  await page.click('#live-start-btn');await page.waitForFunction(()=>document.querySelector('#live-frame').classList.contains('immersive'));
+  assert.equal(await page.evaluate(()=>Math.round(document.querySelector('#live-frame').getBoundingClientRect().height)),await page.evaluate(()=>innerHeight),'immersive fills mobile viewport');
   await page.click('#live-inline-record-btn');await page.waitForFunction(()=>document.querySelector('#live-record-status').textContent.includes('Gravando'));
   await page.waitForTimeout(600);await page.click('#live-close-btn');
   await page.waitForFunction(()=>!document.fullscreenElement && !document.querySelector('#live-record-preview').hidden && !window.liveRecorderState());

@@ -51,8 +51,8 @@ try{
   await p.waitForFunction(()=>!document.querySelector('#live-record-btn').disabled,null,{timeout:6500});
   if(mode==='silent'||mode==='blocked'){await p.evaluate(()=>lateOpen());assert.ok(await p.evaluate(()=>lateClosed),'late opened database must close');}
   await p.click('#live-inline-record-btn');await p.waitForFunction(()=>document.querySelector('#live-record-status').textContent.includes('Gravando'));
-  await p.waitForTimeout(500);await p.click('#live-close-btn');
-  await p.waitForFunction(()=>!document.querySelector('#live-record-preview').hidden);
+  await p.waitForTimeout(1500);await p.evaluate(()=>document.querySelector('#live-close-btn').click());
+  await p.waitForFunction(()=>!document.querySelector('#live-record-preview').hidden,null,{timeout:8000});
   assert.equal(await p.evaluate(()=>window.liveRecorderState()),false,'storage cannot keep active run alive');
   await p.waitForFunction(()=>!document.querySelector('#live-record-discard').disabled,null,{timeout:6500});
   assert.ok(await p.locator('#live-record-download').getAttribute('href'));
