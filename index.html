@@ -1727,7 +1727,7 @@
       liveResetBtn.addEventListener('click', reset);
       liveFullscreenBtn.addEventListener('click', goFullscreen);
       liveFullscreenFab.addEventListener('click', goFullscreen);
-      liveCloseBtn.addEventListener('click', async ()=>{ await leaveFullscreen(); reset(); });
+      liveCloseBtn.addEventListener('click', async (event)=>{ event.preventDefault(); event.stopPropagation(); reset(); await leaveFullscreen(); });
       liveToggleUiBtn.addEventListener('click', ()=> toggleChrome());
       livePauseBtn.addEventListener('click', togglePause);
       liveLikeBtn.addEventListener('click', ()=> pulseLike(liveFrame.clientWidth - 60, liveFrame.clientHeight - 150));
