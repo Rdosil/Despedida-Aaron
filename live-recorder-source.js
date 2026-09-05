@@ -87,8 +87,9 @@ function render(ctx, canvas, run) {
   const w = canvas.width, h = canvas.height;
   ctx.fillStyle = '#171322'; ctx.fillRect(0,0,w,h);
   if (video.videoWidth) {
-    const scale = Math.min(w/video.videoWidth,h/video.videoHeight);
+    const scale = Math.max(w/video.videoWidth,h/video.videoHeight);
     ctx.save();
+    ctx.translate(w,0); ctx.scale(-1,1);
     ctx.drawImage(video,(w-video.videoWidth*scale)/2,(h-video.videoHeight*scale)/2,video.videoWidth*scale,video.videoHeight*scale); ctx.restore();
   }
   const gradient = ctx.createLinearGradient(0,0,0,h); gradient.addColorStop(0,'#0009'); gradient.addColorStop(.35,'#0000'); gradient.addColorStop(1,'#000d'); ctx.fillStyle=gradient; ctx.fillRect(0,0,w,h);

@@ -24,6 +24,10 @@ try {
  assert.equal(await page.evaluate(()=>document.querySelector('#live-video').srcObject===originalCamera),true,'recording must reuse existing camera');
  assert.match(await page.locator('#live-comments').textContent(),/keep-this-comment/,'recording must preserve comments');
  assert.deepEqual(await page.locator('#live-video').boundingBox(),before,'recording must preserve framing');
+ assert.equal(await page.evaluate(()=>getComputedStyle(document.querySelector('#live-video')).objectFit),'cover','selfie preview must fill the 9:16 frame');
+ assert.match(await page.evaluate(()=>getComputedStyle(document.querySelector('#live-video')).transform),/matrix\(-1/);
+ assert.equal(await page.evaluate(()=>requests.filter(c=>c.video).length),1);
+ assert.ok(await page.evaluate(()=>requests.some(c=>c.video && (c.video.facingMode==='user' || c.video.facingMode?.ideal==='user') && !c.video.width && !c.video.height && !c.video.aspectRatio)),'native selfie camera, no forced 720x1280 crop');
  await page.waitForTimeout(800);await page.click('#live-inline-record-stop');
  await page.waitForFunction(()=>!document.querySelector('#live-record-preview').hidden);
  assert.equal(await page.locator('#live-mode-state').textContent(),'LIVE');
