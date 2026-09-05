@@ -261,7 +261,10 @@
   .live-stage::before{content:"";position:absolute;inset:0;background:radial-gradient(circle at top left,rgba(116,180,226,.18),transparent 34%),radial-gradient(circle at bottom right,rgba(212,160,18,.15),transparent 28%);pointer-events:none}
   .live-stage.faithful{padding:16px;background:linear-gradient(180deg,#1f1b2d 0%,#0e0d15 100%)}
   .live-frame{position:relative;aspect-ratio:9/16;max-height:780px;min-height:540px;border:3px solid rgba(255,255,255,.12);border-radius:28px;overflow:hidden;background:linear-gradient(135deg,#2c2b35 0%,#0d0d14 50%,#21243b 100%);box-shadow:inset 0 0 0 1px rgba(255,255,255,.06)}
-  .live-frame.faithful{background:#08080d;touch-action:none;user-select:none;outline:none}
+  .live-frame.faithful{background:#08080d;touch-action:pan-y pinch-zoom;user-select:none;outline:none}
+  .live-frame.faithful:fullscreen,.live-frame.faithful:-webkit-full-screen{width:100%;height:100%;min-height:0;max-height:none;aspect-ratio:auto;border:0;border-radius:0;box-sizing:border-box;touch-action:none}
+  .live-heart-btn{width:48px;height:48px;border-radius:50%;border:1px solid #ffffff55;background:#e62962;color:#fff;font-size:25px;display:grid;place-items:center;cursor:pointer}
+  .live-scan{pointer-events:none}
   .live-video,.live-placeholder,.live-bg,.live-noise,.live-overlay,.live-scan,.live-floating-hearts,.live-pop-layer{position:absolute;inset:0}
   .live-video{width:100%;height:100%;object-fit:contain;background:#050507;display:none}
   .live-video.active{display:block}
@@ -280,7 +283,7 @@
   .live-noise{background-image:radial-gradient(rgba(255,255,255,.12) 0.7px,transparent 0.7px);background-size:8px 8px;opacity:.08;pointer-events:none}
   .live-overlay{background:linear-gradient(to bottom,rgba(0,0,0,.56),rgba(0,0,0,0) 24%,rgba(0,0,0,0) 58%,rgba(0,0,0,.72));pointer-events:none}
   .live-topbar{position:absolute;top:16px;left:16px;right:16px;display:flex;align-items:flex-start;justify-content:space-between;gap:10px;z-index:3;transition:opacity .25s ease,transform .25s ease}
-  .live-shell.chrome-hidden .live-topbar,.live-shell.chrome-hidden .live-bottom,.live-shell.chrome-hidden .live-heart-col{opacity:0;pointer-events:none;transform:translateY(10px)}
+  .live-shell.chrome-hidden .live-bottom{opacity:0;pointer-events:none;transform:translateY(10px)}
   .live-user{display:flex;align-items:center;gap:10px;min-width:0;background:rgba(10,10,16,.34);backdrop-filter:blur(10px);padding:6px 11px 6px 6px;border-radius:999px;border:1px solid rgba(255,255,255,.08)}
   .live-avatar{width:40px;height:40px;border-radius:50%;padding:2px;background:linear-gradient(45deg,#feda75,#fa7e1e,#d62976,#962fbf,#4f5bd5)}
   .live-avatar-inner{width:100%;height:100%;border-radius:50%;display:flex;align-items:center;justify-content:center;background:#201f2a;color:#fff;font-family:'Anton',sans-serif;font-size:18px;letter-spacing:.5px}
@@ -973,7 +976,7 @@
             <button class="btn" id="live-record-btn" type="button">● Gravar vídeo</button>
             <button class="btn ghost" id="live-record-stop" type="button" disabled>■ Parar gravación</button>
           </div>
-          <p class="note" id="live-record-status" role="status" aria-live="polite">A gravación pedirá permiso de cámara e micrófono.</p>
+          <p class="note" id="live-record-status" role="status" aria-live="polite">Inicia a simulación; despois podes gravar sen cambiar a cámara. O borrador gárdase neste navegador, non na galería pública.</p>
           <div id="live-record-preview" hidden>
             <video id="live-record-playback" controls playsinline preload="metadata" aria-label="Vista previa da gravación"></video>
             <label class="live-record-consent"><input type="checkbox" id="live-record-consent"> Autorizo publicar este vídeo e a súa voz na galería pública. Todas as persoas gravadas están de acordo; calquera coa ligazón poderá velo e descargalo.</label>
@@ -1025,7 +1028,7 @@
           <div class="live-heart-col" id="live-heart-col">
             <button class="live-record-inline" id="live-inline-record-btn" type="button">● Gravar</button>
             <button class="live-record-inline stop" id="live-inline-record-stop" type="button" hidden>■ Parar</button>
-            <button class="live-heart-btn" id="live-like-btn" type="button">❤</button>
+            <button class="live-heart-btn" id="live-like-btn" type="button" aria-label="Enviar corazón">❤</button>
             <button class="live-icon-btn secondary" id="live-toggle-ui-btn" type="button">⇵</button>
             <button class="live-icon-btn secondary" id="live-pause-btn" type="button">❚❚</button>
             <button class="live-icon-btn secondary" id="live-fullscreen-fab" type="button">⛶</button>
@@ -1591,7 +1594,7 @@
       schedule(loopViewer, rand(1400, 2600));
     }
     function loopEvent(){ spawnToast(); }
-    let cameraRequest = 0;
+    let cameraRequest = 0, session = 0, cameraReady = Promise.resolve();
     async function requestCamera(){
       stopCamera();
       const request = ++cameraRequest;
@@ -1613,11 +1616,15 @@
         if(request !== cameraRequest || !state.isLive){ stream.getTracks().forEach(track => track.stop()); return; }
         state.stream = stream;
         liveVideo.srcObject = state.stream;
+        await liveVideo.play();
+        if(request !== cameraRequest || !state.isLive){ stream.getTracks().forEach(track => track.stop()); return; }
         liveVideo.classList.add('active');
         livePlaceholder.style.display = 'none';
         liveCameraState.textContent = 'LIVE';
         setStatus('Cámara activa. O directo xa vai con vídeo real.');
       }catch(err){
+        if(request !== cameraRequest || !state.isLive) return;
+        stopCamera();
         livePlaceholder.style.display = 'block';
         livePlaceholderLabel.textContent = 'Permiso denegado ou cámara non dispoñible';
         liveCameraState.textContent = 'DEMO';
@@ -1631,11 +1638,13 @@
       liveVideo.classList.remove('active');
     }
     async function goFullscreen(){
+      const current = session;
       try{
         const el = liveFrame;
         const req = el.requestFullscreen || el.webkitRequestFullscreen || el.webkitRequestFullScreen;
-        if(req && !document.fullscreenElement){ await req.call(el); setStatus('Pantalla completa activada.'); }
+        if(req && !document.fullscreenElement){ await req.call(el); if(current !== session){ await leaveFullscreen(); return; } setStatus('Pantalla completa activada.'); }
       }catch(err){
+        if(current !== session) return;
         setStatus('O navegador bloqueou o fullscreen automático. Usa o botón ⛶.');
       }
       setFullscreenLabel();
@@ -1650,6 +1659,8 @@
     }
     function startLoops(){ schedule(loopComment, 1500); schedule(loopHeart, 900); schedule(loopViewer, 1200); schedule(loopEvent, 2200); }
     async function start(options = {}){
+      if(state.isLive) return cameraReady;
+      session++;
       liveShell.classList.remove('simulator-closed');
       updateMeta();
       clearTimers();
@@ -1668,14 +1679,19 @@
       toggleChrome(false);
       showHint();
       setStatus('Iniciando simulación… pedindo fullscreen e cámara se están activados.');
-      if(!options.recording){ await goFullscreen(); if(state.isLive) await requestCamera(); }
-      if(state.isLive) startLoops();
+      startLoops();
+      void goFullscreen();
+      cameraReady = requestCamera();
+      window.dispatchEvent(new Event('live-state-change'));
+      await cameraReady;
     }
     function reset(){
+      session++;
       window.dispatchEvent(new Event('live-simulator-reset'));
       clearTimers();
       state.isLive = false;
       state.paused = false;
+      state.gesture = null; state.tapTs = 0;
       stopCamera();
       toggleChrome(false);
       liveToastStack.innerHTML = '';
@@ -1691,6 +1707,8 @@
       liveCameraState.textContent = liveCameraToggle.checked ? 'ON' : 'OFF';
       setPauseUI();
       setStatus('Simulador reiniciado. Ao iniciar, tentaremos pedir cámara e fullscreen se o navegador o permite.');
+      void leaveFullscreen();
+      window.dispatchEvent(new Event('live-state-change'));
     }
     function togglePause(){
       if(!state.isLive) return;
@@ -1706,8 +1724,9 @@
       liveComposerInput.value = '';
       pulseLike(liveFrame.clientWidth * 0.56, liveFrame.clientHeight * 0.74);
     }
-    function onPointerDown(e){ state.gesture = { x:e.clientX, y:e.clientY, t:Date.now() }; }
+    function onPointerDown(e){ if(!state.isLive || e.target.closest('button,input,a')) return; state.gesture = { x:e.clientX, y:e.clientY, t:Date.now() }; }
     function onPointerUp(e){
+      if(!state.isLive){ state.gesture = null; return; }
       const g = state.gesture; state.gesture = null; if(!g) return;
       const dx = e.clientX - g.x, dy = e.clientY - g.y, dt = Date.now() - g.t;
       const moved = Math.hypot(dx,dy);
@@ -1733,14 +1752,13 @@
       liveResetBtn.addEventListener('click', reset);
       liveFullscreenBtn.addEventListener('click', goFullscreen);
       liveFullscreenFab.addEventListener('click', goFullscreen);
-      liveCloseBtn.addEventListener('click', async (event)=>{
+      liveCloseBtn.addEventListener('click', (event)=>{
         event.preventDefault(); event.stopPropagation();
-        if(window.liveRecorderState?.()){
-          reset();
-          void leaveFullscreen();
-          return;
-        }
-        reset(); liveShell.classList.add('simulator-closed'); void leaveFullscreen();
+        reset();
+        liveShell.classList.add('simulator-closed');
+        const preview = document.getElementById('live-record-preview');
+        if(preview && !preview.hidden) preview.scrollIntoView({block:'center', behavior:'auto'});
+        else liveStartBtn.focus({preventScroll:true});
       });
       liveToggleUiBtn.addEventListener('click', ()=> toggleChrome());
       livePauseBtn.addEventListener('click', togglePause);
@@ -1749,13 +1767,14 @@
       liveComposerInput.addEventListener('keydown', (e)=>{ if(e.key === 'Enter'){ e.preventDefault(); sendOwn(); }});
       liveFrame.addEventListener('pointerdown', onPointerDown);
       liveFrame.addEventListener('pointerup', onPointerUp);
+      liveFrame.addEventListener('pointercancel', ()=>{ state.gesture = null; });
       document.addEventListener('fullscreenchange', setFullscreenLabel);
       updateMeta();
       seedComments();
       setFullscreenLabel();
     }
     window.addEventListener('pagehide', reset);
-    return { bind, reset, start, stopCamera };
+    return { bind, reset, start, stopCamera, get isLive(){return state.isLive;}, async camera(){ await cameraReady; return state.stream; } };
   })();
 
   liveSim.bind();

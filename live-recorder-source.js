@@ -1,54 +1,94 @@
 import { upload } from '@vercel/blob/client';
-
 const $ = id => document.getElementById(id);
-const start = $('live-record-btn'), stop = $('live-record-stop'), status = $('live-record-status');
-const preview = $('live-record-preview'), playback = $('live-record-playback');
-const save = $('live-record-save'), discard = $('live-record-discard'), consent = $('live-record-consent');
-const download = $('live-record-download'), video = $('live-video');
-const inlineRecord = $('live-inline-record-btn'), inlineStop = $('live-inline-record-stop');
-const MAX_BYTES = 50 * 1024 * 1024;
-const mime = typeof MediaRecorder !== 'undefined' && ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/mp4','video/webm'].find(t => MediaRecorder.isTypeSupported(t));
-const supported = Boolean(window.isSecureContext && navigator.mediaDevices?.getUserMedia && mime && HTMLCanvasElement.prototype.captureStream);
-let media, composite, recorder, timer, frame, generation = 0, blob, objectURL, duration = 0, recordingAt = 0, uploading = false, pending = false, published = false, leaving = false, stopping = false;
-const message = text => { status.textContent = text; };
-function controls() {
-  start.disabled = !supported || pending || Boolean(recorder) || Boolean(blob) || uploading;
-  stop.disabled = !pending && !recorder;
-  save.disabled = !blob || !consent.checked || uploading || published;
-  discard.disabled = uploading; consent.disabled = uploading;
-  inlineRecord.hidden = !supported || pending || Boolean(recorder) || Boolean(blob) || uploading;
-  inlineRecord.disabled = !supported || Boolean(blob) || uploading;
-  inlineStop.hidden = !pending && !recorder;
-  for (const id of ['live-start-btn','live-camera-toggle']) if ($(id)) $(id).disabled = pending || Boolean(recorder);
+const start=$('live-record-btn'), stop=$('live-record-stop'), status=$('live-record-status');
+const preview=$('live-record-preview'), playback=$('live-record-playback');
+const save=$('live-record-save'), discard=$('live-record-discard'), consent=$('live-record-consent');
+const download=$('live-record-download'), video=$('live-video');
+const inlineRecord=$('live-inline-record-btn'), inlineStop=$('live-inline-record-stop');
+const MAX_BYTES=50*1024*1024;
+const mime=typeof MediaRecorder!=='undefined' && ['video/webm;codecs=vp9,opus','video/webm;codecs=vp8,opus','video/mp4','video/webm'].find(t=>MediaRecorder.isTypeSupported(t));
+const supported=Boolean(window.isSecureContext && navigator.mediaDevices?.getUserMedia && mime && HTMLCanvasElement.prototype.captureStream);
+let active=null, generation=0, frame, blob=null, objectURL=null, duration=0, uploading=false, published=false, restoring=true, storing=false, storageSafe=false, focusAfterClose=false;
+const message=text=>{status.textContent=text+(blob?.size>MAX_BYTES?' O vídeo supera 50 MB: non se pode publicar; descarga a copia completa.':'');};
+// Simulator exclusively owns camera/video; recorder exclusively owns microphone/canvas.
+function controls(){
+ const busy=Boolean(active);
+ start.disabled=!supported || restoring || busy || Boolean(blob) || uploading || !window.liveSimulator.isLive;
+ stop.disabled=!busy;
+ inlineRecord.hidden=!window.liveSimulator.isLive || busy || Boolean(blob) || !supported;
+ inlineRecord.disabled=start.disabled;
+ inlineStop.hidden=!busy;
+ save.disabled=!blob || blob.size>MAX_BYTES || !consent.checked || uploading || published || storing;
+ discard.disabled=uploading || restoring || storing;consent.disabled=uploading;
+ $('live-start-btn').disabled=window.liveSimulator.isLive;
+ $('live-camera-toggle').disabled=window.liveSimulator.isLive;
 }
-function release(stream = media, canvasStream = composite, clearPreviewSource = true) {
-  clearInterval(timer); cancelAnimationFrame(frame);
-  stream?.getTracks().forEach(t => t.stop()); canvasStream?.getTracks().forEach(t => t.stop());
-  if (media === stream) media = null;
-  if (composite === canvasStream) composite = null;
-  if (clearPreviewSource && (!stream || video.srcObject === stream)) {
-    video.srcObject = null; video.classList.remove('active'); $('live-placeholder').style.display = 'block';
-  }
+// Storage must never own the recording lifecycle. Bound both opening and transactions.
+const STORAGE_TIMEOUT=2000;
+function database(){return new Promise((resolve,reject)=>{
+ let settled=false;
+ const fail=error=>{if(settled)return;settled=true;clearTimeout(timer);reject(error || Error('Draft storage unavailable'));};
+ const timer=setTimeout(()=>fail(Error('Draft storage timeout')),STORAGE_TIMEOUT);
+ try{
+  const r=indexedDB.open('aaron-live-drafts',1);
+  r.onupgradeneeded=()=>{if(settled){r.transaction.abort();return;}if(!r.result.objectStoreNames.contains('drafts'))r.result.createObjectStore('drafts');};
+  r.onblocked=()=>fail(Error('Draft storage blocked'));
+  r.onerror=()=>fail(r.error);
+  r.onsuccess=()=>{if(settled){r.result.close();return;}settled=true;clearTimeout(timer);r.result.onversionchange=()=>r.result.close();resolve(r.result);};
+ }catch(error){fail(error);}
+});}
+async function draft(action,value){
+ const db=await database();
+ try{return await new Promise((resolve,reject)=>{
+  let tx, settled=false;
+  const done=(error,value)=>{if(settled)return;settled=true;clearTimeout(timer);error?reject(error):resolve(value);};
+  const timer=setTimeout(()=>{done(Error('Draft transaction timeout'));try{tx?.abort();}catch{}},STORAGE_TIMEOUT);
+  try{
+   tx=db.transaction('drafts',action==='get'?'readonly':'readwrite');
+   const store=tx.objectStore('drafts');const r=action==='put'?store.put(value,'current'):action==='delete'?store.delete('current'):store.get('current');
+   tx.oncomplete=()=>done(null,r.result);tx.onerror=()=>done(tx.error || Error('Draft transaction failed'));tx.onabort=()=>done(tx.error || Error('Draft transaction aborted'));
+  }catch(error){try{tx?.abort();}catch{}done(error);}
+ });}finally{db.close();}
 }
-function clearPreview() {
-  playback.pause(); playback.removeAttribute('src'); playback.load();
-  if (objectURL) URL.revokeObjectURL(objectURL);
-  objectURL = null; blob = null; published = false; preview.hidden = true; consent.checked = false; download.removeAttribute('href'); controls();
+function showPreview(){
+ if(objectURL)URL.revokeObjectURL(objectURL);
+ objectURL=URL.createObjectURL(blob);playback.src=objectURL;preview.hidden=false;consent.checked=false;
+ download.href=objectURL;download.download='directo-aaron.'+(blob.type==='video/mp4'?'mp4':'webm');controls();
 }
-function finish() {
-  generation++; pending = false;
-  if(recorder?.state === 'recording' && !stopping){
-    stopping = true;
-    try { recorder.stop(); } catch { stopping = false; recorder = null; release(); }
-  } else if(!recorder) release();
-  controls();
+function focusPreview(){
+ preview.hidden=false;
+ preview.scrollIntoView({block:'center', behavior:'auto'});
+ try{playback.focus({preventScroll:true});}catch{}
 }
-function render(ctx, canvas) {
+async function persist(){
+ storing=true;controls();
+ try{
+  // Do not overwrite a durable draft we could not read or delete.
+  if(!storageSafe)throw Error('Unresolved durable draft');
+  await draft('put',{blob,duration,published});message('Borrador gardado neste navegador. Non é público. Descárgao para conservar unha copia segura.');
+ }catch{message('Só vista previa temporal: non se puido gardar no navegador. Descarga o vídeo antes de pechar.');}
+ finally{storing=false;controls();}
+}
+function release(run){
+ clearInterval(run.timer);if(active===run)cancelAnimationFrame(frame);
+ run.mic?.getTracks().forEach(t=>t.stop());run.composite?.getTracks().forEach(t=>t.stop());
+ run.cameraTrack?.removeEventListener('ended',finish);
+}
+function finish(){
+ generation++;
+ const run=active;if(!run)return;
+ if(run.recorder && run.recorder.state!=='inactive'){
+  if(!run.stopping){run.stopping=true;clearInterval(run.timer);run.recorder.stop();}
+ }else if(!run.recorder){release(run);active=null;message('Gravación cancelada. O simulador segue dispoñible.');}
+ controls();
+}
+function render(ctx, canvas, run) {
+  if(active!==run) return;
   const w = canvas.width, h = canvas.height;
   ctx.fillStyle = '#171322'; ctx.fillRect(0,0,w,h);
   if (video.videoWidth) {
     const scale = Math.min(w/video.videoWidth,h/video.videoHeight);
-    ctx.save(); ctx.translate(w,0); ctx.scale(-1,1);
+    ctx.save();
     ctx.drawImage(video,(w-video.videoWidth*scale)/2,(h-video.videoHeight*scale)/2,video.videoWidth*scale,video.videoHeight*scale); ctx.restore();
   }
   const gradient = ctx.createLinearGradient(0,0,0,h); gradient.addColorStop(0,'#0009'); gradient.addColorStop(.35,'#0000'); gradient.addColorStop(1,'#000d'); ctx.fillStyle=gradient; ctx.fillRect(0,0,w,h);
@@ -63,56 +103,59 @@ function render(ctx, canvas) {
   ctx.fillStyle='#ff3c83';ctx.font='52px sans-serif';ctx.fillText('♥',630,1190);
   const hearts=[...$('live-floating-hearts').children];
   hearts.forEach((node,i)=>{ctx.globalAlpha=.8;ctx.fillText('♥',620+Math.sin(i)*30,1100-((performance.now()/4+i*100)%600));});ctx.globalAlpha=1;
-  frame=requestAnimationFrame(()=>render(ctx,canvas));
+  frame=requestAnimationFrame(()=>render(ctx,canvas,run));
 }
 start.addEventListener('click',async()=>{
-  if (start.disabled) return;
-  pending=true; const request=++generation; controls(); message('Pedindo permiso de cámara e micrófono…');
-  window.liveSimulator.stopCamera();
-  try {
-    const stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:'user',width:{ideal:720,max:1080},height:{ideal:1280,max:1920},aspectRatio:{ideal:9/16}},audio:true});
-    if(request!==generation){stream.getTracks().forEach(t=>t.stop());return;}
-    media=stream;
-    if(!stream.getAudioTracks().length || !stream.getVideoTracks().length) throw Error('missing tracks');
-    await window.liveSimulator.start({recording:true});
-    video.srcObject=stream; video.classList.add('active'); $('live-placeholder').style.display='none'; await video.play();
-    if(request!==generation){release(stream, null, video.srcObject === stream);return;}
-    const canvas=document.createElement('canvas');canvas.width=720;canvas.height=1280;
-    render(canvas.getContext('2d'),canvas); composite=canvas.captureStream(24);
-    stream.getAudioTracks().forEach(t=>composite.addTrack(t));
-    stopping=false;
-    recorder=new MediaRecorder(composite,{mimeType:mime,videoBitsPerSecond:2500000,audioBitsPerSecond:128000});
-    let chunks=[], bytes=0, failed=false;
-    recorder.ondataavailable=e=>{if(e.data.size){bytes+=e.data.size;if(bytes>MAX_BYTES){failed=true;chunks=[];message('O vídeo supera 50 MB. Proba unha gravación máis curta.');finish();}else if(!failed)chunks.push(e.data);}};
-    recorder.onerror=()=>{failed=true;message('Fallou a gravación. Proba de novo noutro navegador.');finish();};
-    recorder.onstop=()=>{
-      stopping=false;
-      duration=Math.min(60,(performance.now()-recordingAt)/1000); const type=recorder.mimeType.split(';')[0];
-      recorder=null;pending=false;release();
-      if(!failed && bytes>0 && !leaving){blob=new Blob(chunks,{type});objectURL=URL.createObjectURL(blob);playback.src=objectURL;preview.hidden=false;consent.checked=false;download.href=objectURL;download.download='directo-aaron.'+(type==='video/mp4'?'mp4':'webm');message('Vista previa lista. Podes descargar ou autorizar a publicación.');}
-      else if(!failed)message('Non se gravaron datos. Proba de novo.');
-      chunks=[];controls();
-    };
-    stream.getTracks().forEach(t=>t.addEventListener('ended',finish,{once:true}));
-    recordingAt=performance.now();recorder.start(250);pending=false;controls();message('Gravando · 0 / 60 s');
-    timer=setInterval(()=>{const seconds=(performance.now()-recordingAt)/1000;if(seconds>=60)finish();else message(`Gravando · ${Math.floor(seconds)} / 60 s`);},200);
-  } catch(error) {
-    if(request!==generation)return;
-    recorder=null;pending=false;release();controls();
-    message(error.name==='NotAllowedError'?'Permiso denegado. Activa cámara e micrófono no navegador e proba de novo.':'Non se puido iniciar a gravación. Comproba a cámara e o micrófono ou proba outro navegador.');
-  }
+ if(start.disabled)return;
+ const run={id:++generation,chunks:[],bytes:0};active=run;controls();message('Preparando cámara e pedindo permiso de micrófono…');
+ const valid=()=>active===run && run.id===generation && window.liveSimulator.isLive;
+ try{
+  const camera=await window.liveSimulator.camera();
+  if(!valid()){if(active===run){release(run);active=null;controls();}return;}
+  if(!camera?.getVideoTracks().some(t=>t.readyState==='live'))throw Error('camera');
+  run.mic=await navigator.mediaDevices.getUserMedia({audio:true,video:false});
+  if(!valid()){release(run);if(active===run)active=null;controls();return;}
+  if(!run.mic.getAudioTracks().length)throw Error('microphone');
+  const canvas=document.createElement('canvas');canvas.width=720;canvas.height=1280;
+  render(canvas.getContext('2d'),canvas,run);run.composite=canvas.captureStream(24);
+  run.mic.getAudioTracks().forEach(t=>run.composite.addTrack(t));
+  const recorder=run.recorder=new MediaRecorder(run.composite,{mimeType:mime,videoBitsPerSecond:2500000,audioBitsPerSecond:128000});
+  recorder.ondataavailable=e=>{if(e.data.size){run.bytes+=e.data.size;run.chunks.push(e.data);if(run.bytes>=MAX_BYTES)finish();}};
+  recorder.onerror=()=>{message('Fallou a gravación. Tentaremos conservar os datos dispoñibles.');finish();};
+  recorder.onstop=async()=>{
+   duration=Math.min(60,(performance.now()-run.at)/1000);
+   release(run);if(active===run)active=null;
+   if(run.bytes){blob=new Blob(run.chunks,{type:recorder.mimeType.split(';')[0]});published=false;showPreview();if(focusAfterClose){focusAfterClose=false;focusPreview();}void persist();}
+   else message('Non se gravaron datos. Proba de novo.');
+   run.chunks=[];controls();
+  };
+  run.cameraTrack=camera.getVideoTracks()[0];run.cameraTrack.addEventListener('ended',finish,{once:true});
+  run.mic.getTracks().forEach(t=>t.addEventListener('ended',finish,{once:true}));
+  run.at=performance.now();recorder.start(250);controls();message('Gravando · 0 / 60 s');
+  run.timer=setInterval(()=>{const seconds=(performance.now()-run.at)/1000;if(seconds>=60)finish();else message(`Gravando · ${Math.floor(seconds)} / 60 s`);},200);
+ }catch(error){
+  release(run);if(active!==run)return;active=null;controls();
+  message(error.name==='NotAllowedError'?'Permiso denegado. Activa o micrófono e proba de novo.':'Non se puido gravar. Activa a cámara ao iniciar o simulador e comproba os permisos.');
+ }
 });
 stop.addEventListener('click',finish);
-inlineRecord.addEventListener('click',()=>start.click());
-inlineStop.addEventListener('click',()=>stop.click());
+inlineRecord.addEventListener('click',()=>start.click());inlineStop.addEventListener('click',finish);
 consent.addEventListener('change',controls);
-discard.addEventListener('click',()=>{if(!uploading){const wasPublished=published;clearPreview();message(wasPublished?'Copia local descartada. O vídeo segue na galería pública.':'Gravación descartada. Non se publicou nada.');}});
-window.addEventListener('live-simulator-reset',finish);
-window.addEventListener('live-close-request',()=>{if(recorder || pending) finish();});
-window.liveRecorderState=()=>Boolean(recorder || pending);
-window.addEventListener('pageshow',()=>{leaving=false;});
-window.addEventListener('pagehide',()=>{leaving=true;finish();if(objectURL)URL.revokeObjectURL(objectURL);});
-document.addEventListener('visibilitychange',()=>{if(document.hidden && (pending||recorder))finish();});
+discard.addEventListener('click',async()=>{
+ if(uploading || restoring || storing || !blob || !window.confirm('Descartar o borrador deste navegador? Descárgao primeiro se queres conservalo.'))return;
+ restoring=true;controls();
+ let deleteFailed=false;
+ try{await draft('delete');storageSafe=true;}catch{deleteFailed=true;storageSafe=false;}
+ const wasPublished=published;playback.pause();playback.removeAttribute('src');playback.load();URL.revokeObjectURL(objectURL);
+ objectURL=null;blob=null;published=false;preview.hidden=true;consent.checked=false;download.removeAttribute('href');restoring=false;controls();
+ message(deleteFailed?'Copia temporal descartada. O borrador gardado pode seguir neste navegador e reaparecer ao recargar; non se puido eliminar. As novas gravacións serán temporais.':wasPublished?'Copia local descartada. O vídeo segue na galería pública.':'Gravación descartada. Non se publicou nada.');
+});
+window.addEventListener('live-simulator-reset',()=>{if(active)focusAfterClose=true;finish();});
+window.addEventListener('live-state-change',controls);
+window.liveRecorderState=()=>Boolean(active);
+window.addEventListener('pagehide',finish);
+window.addEventListener('beforeunload',e=>{if(active || blob){e.preventDefault();e.returnValue='';}});
+(async()=>{try{const saved=await draft('get');storageSafe=true;if(saved?.blob){blob=saved.blob;duration=saved.duration;published=Boolean(saved.published);showPreview();message('Borrador recuperado deste navegador. Non se publica sen autorización.');}}catch{message('O almacenamento local non está dispoñible. Descarga as gravacións antes de pechar.');}finally{restoring=false;controls();}})();
 save.addEventListener('click',async()=>{
   if(save.disabled)return;
   uploading=true;controls();message('Publicando vídeo… Non peches esta páxina.');
@@ -120,6 +163,7 @@ save.addEventListener('click',async()=>{
     const pathname=`live-videos/${crypto.randomUUID()}.${blob.type==='video/mp4'?'mp4':'webm'}`;
     await upload(pathname,blob,{access:'public',handleUploadUrl:'/api/videos',multipart:false,contentType:blob.type,clientPayload:JSON.stringify({consent:true,size:blob.size,duration,contentType:blob.type}),onUploadProgress:({percentage})=>message(`Publicando vídeo… ${Math.round(percentage)} %`)});
     published=true;
+    await persist();
     message('Vídeo publicado. A copia local segue dispoñible para descargar.');
     await loadGallery(true);
   } catch {message('Non se puido publicar. Conservamos a gravación: podes descargar o vídeo ou volver tentar.');}
