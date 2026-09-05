@@ -13,10 +13,9 @@ const message=text=>{status.textContent=text+(blob?.size>MAX_BYTES?' O vídeo su
 // Simulator exclusively owns camera/video; recorder exclusively owns microphone/canvas.
 function controls(){
  const busy=Boolean(active);
- const blockingDraft=Boolean(blob) && !published;
- start.disabled=!supported || restoring || busy || blockingDraft || uploading || !window.liveSimulator.isLive;
+ start.disabled=!supported || restoring || busy || uploading || !window.liveSimulator.isLive;
  stop.disabled=!busy;
- inlineRecord.hidden=!window.liveSimulator.isLive || busy || blockingDraft || !supported;
+ inlineRecord.hidden=!window.liveSimulator.isLive || busy || !supported;
  inlineRecord.disabled=start.disabled;
  inlineStop.hidden=!busy;
  save.disabled=!blob || blob.size>MAX_BYTES || !consent.checked || uploading || published || storing;
@@ -61,13 +60,20 @@ function focusPreview(){
  preview.scrollIntoView({block:'center', behavior:'auto'});
  try{playback.focus({preventScroll:true});}catch{}
 }
-async function persist(){
+let persistTail=Promise.resolve();
+function persist(){
+ const snapshot={blob,duration,published};
+ persistTail=persistTail.catch(()=>{}).then(()=>persistNow(snapshot));
+ return persistTail;
+}
+async function persistNow(snapshot){
  storing=true;controls();
  try{
-  // Do not overwrite a durable draft we could not read or delete.
   if(!storageSafe)throw Error('Unresolved durable draft');
-  await draft('put',{blob,duration,published});message('Borrador gardado neste navegador. Non é público. Descárgao para conservar unha copia segura.');
- }catch{message('Só vista previa temporal: non se puido gardar no navegador. Descarga o vídeo antes de pechar.');}
+  await draft('put',snapshot);
+  if(blob!==snapshot.blob)return;
+  message('Borrador gardado neste navegador. Non é público. Descárgao para conservar unha copia segura.');
+ }catch{if(blob===snapshot.blob)message('Só vista previa temporal: non se puido gardar no navegador. Descarga o vídeo antes de pechar.');}
  finally{storing=false;controls();}
 }
 function release(run){
@@ -109,7 +115,7 @@ function render(ctx, canvas, run) {
 }
 start.addEventListener('click',async()=>{
  if(start.disabled)return;
- const run={id:++generation,chunks:[],bytes:0};active=run;if(published)preview.hidden=true;controls();message('Preparando cámara e pedindo permiso de micrófono…');
+ const run={id:++generation,chunks:[],bytes:0};active=run;preview.hidden=true;controls();message(blob && !published?'Gravando outro. O borrador local anterior substitúese se sae vídeo.':'Preparando cámara e pedindo permiso de micrófono…');
  const valid=()=>active===run && run.id===generation && window.liveSimulator.isLive;
  try{
   const camera=await window.liveSimulator.camera();
@@ -128,6 +134,7 @@ start.addEventListener('click',async()=>{
    duration=Math.min(60,(performance.now()-run.at)/1000);
    release(run);if(active===run)active=null;
    if(run.bytes){blob=new Blob(run.chunks,{type:recorder.mimeType.split(';')[0]});published=false;showPreview();if(focusAfterClose){focusAfterClose=false;focusPreview();}void persist();}
+   else if(blob){showPreview();message(published?'Non se gravaron datos. A copia publicada segue na galería.':'Non se gravaron datos. Conservamos o borrador anterior.');}
    else message('Non se gravaron datos. Proba de novo.');
    run.chunks=[];controls();
   };

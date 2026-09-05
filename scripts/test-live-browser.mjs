@@ -30,6 +30,11 @@ try {
  assert.equal(await page.locator('#live-mode-state').textContent(),'DEMO','closing must stop the live simulator');
  const result=await page.evaluate(async()=>{const v=document.querySelector('#live-record-playback');await v.play();return {size:(await(await fetch(v.src)).blob()).size,width:v.videoWidth,height:v.videoHeight,tracks:mediaTracks.map(t=>t.readyState)};});
  assert.ok(result.size>1000);assert.equal(result.width,720);assert.equal(result.height,1280);assert.ok(result.tracks.every(s=>s==='ended'));
+ await page.click('#live-start-btn');
+ assert.equal(await page.locator('#live-record-btn').isEnabled(),true,'unpublished draft must not block another recording');
+ await page.click('#live-inline-record-btn');await page.waitForFunction(()=>document.querySelector('#live-record-status').textContent.includes('Gravando'));
+ await page.waitForTimeout(800);await page.click('#live-close-btn');
+ await page.waitForFunction(()=>!document.querySelector('#live-record-preview').hidden);
  assert.equal(await page.locator('#live-record-save').isDisabled(),true);
  await page.check('#live-record-consent');assert.equal(await page.locator('#live-record-save').isEnabled(),true);
 
